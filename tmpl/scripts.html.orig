@@ -1,0 +1,17 @@
+   <script src="{{STATIC_SERVER}}img/js/jquery.init.js"></script>
+   <script src="{{STATIC_SERVER}}img/js/jquery-1.11.1.min.js"></script>   
+   <script src="{{STATIC_SERVER}}img/js/bootstrap.min.js"></script>
+   <script src="{{STATIC_SERVER}}img/js/highstock.js?do=new75"></script>
+   <script src="{{STATIC_SERVER}}img/js/pins.js?do=new58"></script>
+   <script src="{{STATIC_SERVER}}img/js/profile.js?do=new58"></script>
+   <script src="{{STATIC_SERVER}}img/js/login.js?do=new58"></script>
+   <script src="{{STATIC_SERVER}}img/js/main.js?do=new54ou0"></script>
+   <script src="{{STATIC_SERVER}}img/js/chat.js?do=new58u"></script>
+
+   <script type="text/javascript" src="{{STATIC_SERVER}}img/js/jquery.dialog2.js"></script>
+   <script type="text/javascript" src="{{STATIC_SERVER}}img/js/jquery.dialog2.helpers.js"></script>
+   <script type="text/javascript" src="{{STATIC_SERVER}}img/js/jquery.cookie.js"></script>
+         
+<!--   <script type="text/javascript" src="https://www.google.com/jsapi"></script>  -->
+   
+    

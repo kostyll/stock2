@@ -1,0 +1,44 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+
+{% block content %}
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-9 main centering">
+          
+                <h1 class="page-header" style="text-align: center">Персональный PIN-код</h1>
+                <div class="col-md-8 col-md-offset-1 border_radius centering"  >
+                             <p>
+                             </p>
+                             <p></p>
+                             <p><strong>Внимание!!!</strong> Что бы видеть PIN код вы должны быть авторизированы</p>
+                             <p>Мы сгенерировали вам персональный PIN код, для того, что бы максимально 
+                             обезопасить ваши средства.</p>
+                             <p>
+                                Для большей безопасности вы можете заказывать смену PIN кода на 
+                                странице своего профайла.
+                             </p>
+                             <p>
+                                PIN-код вам необходим для вывода средств с вашего счета, как 
+                                крипты, так  и гривны.
+                             </p>
+                             <p>
+                                 Сохраните PIN-код в надежном месте, желательно запишите на бумажный носитель.
+                             </p>
+                             
+                             <p>
+                                <strong>Эта ссылка будет активна в течение 2 часов</strong>, после мы ее удалим.
+                             </p>                            
+                             <p>
+                             <img src="/pin_image/{{pin}}"/>
+                             </p>
+                           
+                                
+                </div>          
+       
+       </div>
+       
+    </div>
+  </div> 
+{%endblock%}

@@ -1,0 +1,24 @@
+
+<div class="modal modal-fade" id="f2a_dlg_login" aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title" id="modal_title">Введите пароль из приложения авторизатора</h4>
+      </div>
+      
+      <div class="modal-body">
+              <input type="hidden" id="f2a_session"/>  
+              <input 
+              class="form-control"
+              onkeyup="Login.f2a_keyup(event)" 
+              id="f2a_password" 
+              placeholder="OTP Пароль" style="width:256px">
+              <p> </p>
+              <span class="btn btn-success" onclick="Login.f2a_try_login()" >Подтвердить</span>
+      </div>
+      
+    </div>
+  </div>
+</div>

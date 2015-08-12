@@ -1,0 +1,149 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+
+{% block content %}
+  <div class="container-fluid">
+      <div class="row">
+       
+        <div class="col-md-9 main">
+		<div class="col-md-9"> 
+                	<h1 class="page-header">Персональные сообщения</h1>
+		</div>
+                <div class="col-md-9 border_radius" id="transactions_block" >
+                                <div class="trade_pairs">
+                                        {% if is_msg_in %}
+                                                <a class="btn btn-primary" href="#"  >Входящие <strong>{{msg_in_count}}</strong></a>
+                                                <a class="btn btn-default" href="/msgs/out"  >Исходящие <strong>{{msg_out_count}}</strong></a>
+                                        {% else %}
+                                                <a class="btn btn-default" href="/msgs/in"  >Входящие <strong>{{msg_in_count}}</strong></a>
+                                                <a class="btn btn-primary" href="#"  >Исходящие <strong>{{msg_out_count}}</strong></a>
+                                        {% endif %}
+                                                <span class="btn btn-default" onclick="Main.create_msg('')"  > Написать сообщение</span>
+               
+                                </div>
+                               
+                               
+                               <table class="table table-hover"  id='msgs'>
+                               
+                               
+                               
+                                <thead>
+                                                <tr>
+                                                        <th> # </th>
+                                                        {% if is_msg_in %}
+                                                        <th> От кого </th>
+                                                        {%else%}
+                                                        <th> Кому </th>                                                        
+                                                        {%endif%}
+                                                        <th> Дата </th>
+                                                        <th> Сообщение </th>
+                                                        <th> Действие </th>
+                                                        
+                                                </tr>
+                                </thead>
+                                 {% for item in msgs %}
+                                        <tr id="notify_{{item.id}}">
+                                                <td>{{item.id}}</td>
+                                                <td>
+                                                 {% if is_msg_in %}
+                                                     {{item.user_from.username}}   
+                                                  {%else%}   
+                                                     {{item.user_to.username}} 
+                                                  
+                                                  {%endif%}
+                                                  
+                                                </td>
+                                                <td>
+                                                        <small>{{item.pub_date}}</small>
+                                                </td>
+                                                <td>
+                                                     {{item.text}}
+                                                     
+                                                </td>
+                                                <td>
+                                                   <span onclick="Main.notify_remove({{item.id}})" class="btn btn-primary btn-xs">Hide</span>&nbsp;
+                                                   {% if is_msg_in %}
+                                                   <span onclick="Main.create_msg('{{item.user_from.username}}')" class="btn btn-primary btn-xs">Reply</span>                                                       
+                                                   {% endif %}
+                                                </td>
+                                        </tr>
+                                {% endfor %} 
+                                </table>
+                                {% include "pagination.html"%}
+                                
+                                {% include "msg_form.html" %}
+                                
+                                
+                                
+                                
+                </div>          
+       </div>
+       {% include "scripts.html"%}
+
+
+    </div>
+  </div> 
+{%endblock%}
+
+
+{% block side_menu %}
+   <div class="sidebar_cabinet_block">
+                        <div class="content_block_header">
+                            <h1>Личный кабинет</h1>
+                        </div>
+                            <div class="sidebar_cabinet_options">
+                                <table class="table table-striped"> <!--НУЖНО сделать подсветку активного пункта яваскриптом --> 
+                                  <tbody>
+                                    <tr>
+                                        <td>
+                                            <a href="/finance">Финансы</a>                 
+  
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                        <a href="/profile/{{username}}">Профиль</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                        <a href="/finance/trans">Транзакции</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                        <a href="/finance/deals/btc_uah">Сделки</a>
+                                        </td>
+                                    </tr>                                                                                                                          
+                                    <tr>
+                                        <td>
+                                        <a href="/finance/open_orders/btc_uah">Ваши заявки</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                        <a id="menu_msgs" href="/msgs">Сообщения <strong id="msg_count">({{new_msg_count}})</strong> </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                       <a href="/finance/depmotion">Ввод/Вывод средств</a>
+                                        </td>
+                                    </tr>
+                                 <!--   <tr>
+                                        <td>
+                                        История ордеров
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                        API ключи
+                                        </td>
+                                    </tr>   -->                                                                                                                       
+                                                                                                                                                                   
+                                  </tbody>
+                                </table>
+                            </div> 
+                    </div>
+{% endblock %}

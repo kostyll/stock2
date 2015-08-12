@@ -1,0 +1,28 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+
+{% block content %}
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-9 main centering">
+          <h1 class="page-header" style="text-align:center">{{title}}</h1>
+<!--           deals -->
+                <div class="col-md-8 deals border_radius padding20 registration centering" >
+                
+                        <div class="col-md-7 centering">
+                             {{simple_msg}}
+                             
+                        </div>  
+                        
+                        
+                </div>                        
+<!--                 deals -->
+        </div>
+        
+    </div>
+  </div> 
+   
+
+
+{%endblock%}

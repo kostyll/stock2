@@ -1,0 +1,62 @@
+<h5 class="sub-header text-info" style="box-sizing: border-box; font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 300; line-height: 1.1; color: #31708f; margin-top: 10.5px; margin-bottom: 10.5px; font-size: 16px; padding-bottom: 14px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #eeeeee;">
+<p style="color: #000000; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; line-height: normal;">Добрый день</p>
+<p style="color: #000000; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; line-height: normal;">Вы, получили это сообщение, так как подписаны на рассылку от btc-trade.com.ua.</p>
+<p style="color: #000000; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; line-height: normal;">Вы можете отключить уведомление о курсах в своем профиле, сняв флажок в своем профиле&nbsp;</p>
+<p style="color: #000000; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; line-height: normal;">"<span style="color: #222222; font-size: 12px; line-height: 17.142858505249023px; font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f5f5f5;">Уведомлять на email о текущем курсе:</span>"</p>
+<div>Заявки на продажу &nbsp;BTC:</div>
+</h5>
+
+<h5 class="sub-header text-info" style="box-sizing: border-box; font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 300; line-height: 1.1; color: #31708f; margin-top: 10.5px; margin-bottom: 10.5px; font-size: 16px; padding-bottom: 14px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #eeeeee;"><span style="font-size: 0.83em; line-height: 1.1;">Заявки на продажу BTC</span></h5>
+<h6 class="sub-header text-success" style="box-sizing: border-box; font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 300; line-height: 1.1; color: #43ac6a; margin-top: 10.5px; margin-bottom: 10.5px; font-size: 13px; padding-bottom: 10px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #eeeeee;">Всего:&nbsp;<span id="sell_orders_sum" style="box-sizing: border-box;">{{whole_sum}}</span>&nbsp;BTC</h6>
+<div class="table-responsive stock_orders" style="box-sizing: border-box; height: 500px; margin-left: 0.1em; color: #222222; font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 15.989999771118164px;">
+<table class="table table-striped" style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; max-width: 100%; font-size: 12px; width: 361px; margin-bottom: 21px; background-color: transparent;">
+<thead style="box-sizing: border-box;"> 
+<tr style="box-sizing: border-box;">
+<th style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: bottom; border-top-width: 0px; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: #dddddd;">Цена за ед</th>
+<th style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: bottom; border-top-width: 0px; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: #dddddd;">Кол-во BTC</th>
+<th style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: bottom; border-top-width: 0px; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: #dddddd;">сумма UAH</th>
+</tr>
+</thead> 
+<tbody id="sell_orders_list" style="box-sizing: border-box;">
+{% for item in orders %}
+<tr class="cursor" style="box-sizing: border-box; cursor: pointer;">
+<td style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: top; border-top-width: 1px; border-top-style: solid; border-top-color: #dddddd;">{{item.price}}&nbsp;<strong style="box-sizing: border-box;">UAH</strong>
+</td>
+<td style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: top; border-top-width: 1px; border-top-style: solid; border-top-color: #dddddd;">{{item.currency_trade}}</td>
+<td style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: top; border-top-width: 1px; border-top-style: solid; border-top-color: #dddddd;">{{item.currency_base}}</td>
+</tr>
+{%  endfor %}
+</tbody>
+</table>
+
+<h5>
+<div>Заявки на покупку &nbsp;BTC:</div>
+</h5>
+<h5 class="sub-header text-info" style="box-sizing: border-box; font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 300; line-height: 1.1; color: #31708f; margin-top: 10.5px; margin-bottom: 10.5px; font-size: 16px; padding-bottom: 14px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #eeeeee;"><span style="font-size: 0.83em; line-height: 1.1;">Заявки на покупку BTC</span></h5>
+<h6 class="sub-header text-success" style="box-sizing: border-box; font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 300; line-height: 1.1; color: #43ac6a; margin-top: 10.5px; margin-bottom: 10.5px; font-size: 13px; padding-bottom: 10px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #eeeeee;">Всего:&nbsp;<span id="sell_orders_sum" style="box-sizing: border-box;">{{whole_sum_buy}}</span>&nbsp;BTC</h6>
+<div class="table-responsive stock_orders" style="box-sizing: border-box; height: 500px; margin-left: 0.1em; color: #222222; font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 15.989999771118164px;">
+<table class="table table-striped" style="box-sizing: border-box; border-collapse: collapse; border-spacing: 0px; max-width: 100%; font-size: 12px; width: 361px; margin-bottom: 21px; background-color: transparent;">
+<thead style="box-sizing: border-box;"> 
+<tr style="box-sizing: border-box;">
+<th style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: bottom; border-top-width: 0px; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: #dddddd;">Цена за ед</th>
+<th style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: bottom; border-top-width: 0px; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: #dddddd;">Кол-во BTC</th>
+<th style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: bottom; border-top-width: 0px; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: #dddddd;">сумма UAH</th>
+</tr>
+</thead> 
+<tbody id="sell_orders_list" style="box-sizing: border-box;">
+{% for item in buy_orders %}
+<tr class="cursor" style="box-sizing: border-box; cursor: pointer;">
+<td style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: top; border-top-width: 1px; border-top-style: solid; border-top-color: #dddddd;">{{item.price}}&nbsp;<strong style="box-sizing: border-box;">UAH</strong>
+</td>
+<td style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: top; border-top-width: 1px; border-top-style: solid; border-top-color: #dddddd;">{{item.currency_trade}}</td>
+<td style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: top; border-top-width: 1px; border-top-style: solid; border-top-color: #dddddd;">{{item.currency_base}}</td>
+</tr>
+{%  endfor %}
+</tbody>
+</table>
+</div>
+<br/>
+<br/>
+<br/>
+<br/>
+<div class="table-responsive stock_orders" style="box-sizing: border-box; height: 500px; margin-left: 0.1em; color: #222222; font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 15.989999771118164px;">C Уважением команда <strong>BITCOIN TRADE COMPANY</strong></div>

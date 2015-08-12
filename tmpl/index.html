@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+
+
+{% block content %}  
+  
+  <div class="container">
+            <div class="row">
+                <div class="col-xs-9 col-sm-9">
+
+                    <div class="currency_pairs">
+                        
+                        {% for Currency in CurrencyTrade %}
+                            {% if Currency.url_title == current_stock %}
+                                  <button type="button"  class="btn btn-currency-selected">{{Currency.title}}</button>
+
+                            
+                            {% else %}
+                                    {% if forloop.counter0 > 5 %}
+                                    
+                                            <button type="button" onclick='location.href="/stock/{{Currency.url_title}}"' class="btn btn-currency hidden">{{Currency.title}}</button>
+
+                                    {% else %}
+                                        
+                                                <button type="button" onclick='location.href="/stock/{{Currency.url_title}}"' class="btn btn-currency">{{Currency.title}}</button>
+                                    {% endif %}
+                                    
+                            {% endif %}            
+                        {% endfor %}
+                        
+            
+                        
+                        <button type="button" class="btn btn-currency-other" onclick="Main.show_all_trade()">Еще пары<span class="glyphicon glyphicon-chevron-down"></span></button>
+                    </div>
+
+             <!--       <div class="currency_pairs_other_buttons"> 
+                        <button type="button" class="btn btn-currency">BTC/USD</button>
+                        <button type="button" class="btn btn-currency">BTC/USD</button>
+                    </div>-->
+
+                    <div class="content_chart">
+                        <div class="content_block_header">
+                            <h1>Торги</h1>
+                        </div>
+			<div id='chart_trade'>
+			</div>
+                    </div>
+
+                    
+                    <div class="col-xs-6 col-sm-6 content_buy">
+                        <div class="content_block_header">
+                            <h1>Купить {{ Currency }}</h1>
+                        </div>
+                        <div class="content_buy_input">
+
+                            <div class="content_buy_forms">
+                                <div class="string">
+                                    <div class="col-xs-5 col-sm-5">
+                                        <p>Количество:</p>
+                                    </div>
+                                    <div class="col-xs-5 col-sm-5">
+                                        <input type="text" class="form-control" id="buy_count" placeholder="0">
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
+                                        <p><strong>{{ Currency }}</strong></p>
+                                    </div>
+                                </div>
+                                <div class="string">
+                                    <div class="col-xs-5 col-sm-5">
+                                        <p>Цена за ед.:</p>
+                                    </div>
+                                    <div class="col-xs-5 col-sm-5">
+                                        <input type="text" class="form-control" id="buy_price" placeholder="0">
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
+                                        <p><strong>{{ Currency1 }}</strong></p>
+                                    </div>
+                                </div>
+                                <div class="string">                                    
+                                        <div class="col-xs-5 col-sm-5 content_buy_total">
+                                            <p>Всего:</p>
+                                        </div>
+                                        <div class="col-xs-5 col-sm-5 content_buy_comision">
+                                            <p><span class="text-info" id="buy_result">0</span> <strong>{{Currency1}}</strong><p>
+                                            <p id='buy_comission_form' style='display:none' ><span class="text-info" id="buy_comission"></span> <strong>{{Currency}}</strong>&nbsp;комиссия<p>                                            
+                                        </div>                                    
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 content_buy_remark">
+                                <p>Нажмите посчитать, чтобы рассчитать сумму в соответствии с ордерами.</p>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12">
+                                <div class="col-xs-6 col-sm-6 button_count">
+                                    <button type="button" class="btn btn-count" onclick="Main.calc_order('buy')">ПОСЧИТАТЬ</button>
+                                </div>
+                                <div class="col-xs-6 col-sm-6 buttons_action">
+                                    <button type="button" class="btn btn-action" onclick="Main.make_order('{{Currency}}','{{Currency1}}')"  >КУПИТЬ</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-6 content_sell pull-right">
+                        <div class="content_block_header">
+                            <h1>Продать {{ Currency }}</h1>
+                        </div>
+                        <div class="content_buy_input">
+
+                            <div class="content_buy_forms">
+                                <div class="string">
+                                    <div class="col-xs-5 col-sm-5">
+                                        <p>Количество:</p>
+                                    </div>
+                                    <div class="col-xs-5 col-sm-5">
+                                        <input type="text" class="form-control" id="sell_count" placeholder="0">
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
+                                        <p><strong>{{Currency}}</strong></p>
+                                    </div>
+                                </div>
+                                <div class="string">
+                                    <div class="col-xs-5 col-sm-5">
+                                        <p>Цена за ед.:</p>
+                                    </div>
+                                    <div class="col-xs-5 col-sm-5">
+                                        <input type="text" class="form-control" id="sell_price" placeholder="0">
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
+                                        <p><strong>{{Currency1}}</strong></p>
+                                    </div>
+                                </div>
+                                <div class="string">                                    
+                                        <div class="col-xs-5 col-sm-5 content_buy_total">
+                                            <p>Всего:</p>
+                                        </div>
+                                        <div class="col-xs-5 col-sm-5 content_buy_comision">
+                                            <p> <span class="text-info" id="sell_result">0</span>  <strong>{{Currency1}}</strong><p>
+                                            <p id='sell_comission_form' style='display:none'> <span class="text-info" id="sell_comission"></span> <strong>{{Currency1}}</strong>&nbsp;комиссия<p>                      
+                                        </div>                                    
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 content_buy_remark">
+                                <p>Нажмите посчитать, чтобы рассчитать сумму в соответствии с ордерами.</p>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12">
+                                <div class="col-xs-6 col-sm-6 button_count">
+                                    <button type="button" class="btn btn-count" onclick="Main.calc_order('sell')">ПОСЧИТАТЬ</button>
+                                </div>
+                                <div class="col-xs-6 col-sm-6 buttons_action">
+                                    <button type="button" class="btn btn-action" onclick="Main.make_order_sell('{{Currency}}','{{Currency1}}')">ПРОДАТЬ</button>
+                                </div>
+                            </div>
+                        </div>                   
+
+                    </div>
+
+                    <div class="col-xs-6 col-sm-6 content_order">
+                        <div class="content_block_header">
+                            <h1>Заявки на продажу {{Currency}}</h1>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 content_total_sell_orders">
+                            <p>Всего:   <strong id="sell_orders_sum"></strong>&nbsp;{{Currency}}</p>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 content_oders_table">                                
+                                <table class="table table-striped">
+                                  <thead>
+                                    <tr>
+                                      <th>Цена за ед</th>
+                                      <th>Кол-во {{Currency}}</th>
+                                      <th>Cумма {{Currency1}}</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody id='sell_orders_list'>
+                                    <tr>
+                                      <td>Jacob</td>
+                                      <td>Thornton</td>
+                                      <td>@fat</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr> 
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr> 
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr>                                                                                                         
+                                  </tbody>
+                                </table>                                
+                        </div>                        
+                    </div>
+
+                    <div class="col-xs-6 col-sm-6 content_order pull-right">
+                        <div class="content_block_header">
+                            <h1>Заявки на покупку {{Currency}}</h1>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 content_total_sell_orders">
+                            <p>Всего:   <strong id='buy_orders_sum'></strong>&nbsp;{{Currency1}}</p>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 content_oders_table">                                
+                                <table class="table table-striped">
+                                  <thead>
+                                    <tr>
+                                      <th>Цена за ед</th>
+                                      <th>Кол-во {{ Currency }}</th>
+                                      <th>Cумма {{ Currency1 }}</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody id='buy_orders_list'>
+                                    <tr>
+                                      <td>Jacob</td>
+                                      <td>Thornton</td>
+                                      <td>@fat</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr> 
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr> 
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr>                                                                                                         
+                                  </tbody>
+                                </table>                                
+                        </div>                        
+                    </div>
+                </div>                    
+
+
+                <div class="col-xs-3 col-sm-3 sidebar">
+
+                    <div class="sidebar_you_sell">
+                        <div class="content_block_header">
+                            <h1 style="float:left; margin-right:85px;">Отдаете</h1><h1>Получаете</h2>
+                        </div>
+                            <div class="sidebar_you_sell_pairs">
+                                <table class="table table-striped">
+                                  <tbody>
+                                    <tr>
+                                      <td><a href="#">Яндекс Деньги</a></td>
+                                      <td>Яндекс Деньги</td>
+                                    </tr>
+                                    <tr>
+                                      <td>QIWI RUB</td>
+                                      <td>QIWI RUB</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Perfect Money USD</td>
+                                      <td>Perfect Money USD</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Perfect Money EUR</td>
+                                      <td>Perfect Money EUR</td>
+                                    </tr>                                                                                                                          
+                                    <tr>
+                                      <td>Pay Pal USD</td>
+                                      <td>Pay Pal USD</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Payeer</td>
+                                      <td>Payeer</td>
+                                    </tr>
+                                    <tr>
+                                      <td>OkPay USD</td>
+                                      <td>OkPay USD</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Skrill</td>
+                                      <td>Skrill</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Webtransfer USD</td>
+                                      <td>Webtransfer USD</td>
+                                    </tr>                                                                                                                          
+                                    <tr>
+                                      <td>Сбербанк</td>
+                                      <td>Сбербанк</td>
+                                    </tr>    
+                                    <tr>
+                                      <td>Тинькофф</td>
+                                      <td>Тинькофф</td>
+                                    </tr> 
+                                    <tr>
+                                      <td>Связной Банк</td>
+                                      <td>Связной Банк</td>
+                                    </tr> 
+                                    <tr>
+                                      <td>Visa/Master Card USD</td>
+                                      <td>Visa/Master Card USD</td>
+                                    </tr>                                                                                                                                     
+                                  </tbody>
+                                </table>
+                            </div> 
+                    </div>
+
+
+
+                    <div class="sidebar_chat">
+                        <div class="content_block_header">
+                            <h1>Чат</h2>
+                        </div>
+                        <div class="sidebar_chat_messages">
+                            <table class="table table-striped">
+                              <tbody id='chat_msg'>
+                              </tbody>
+                            </table>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 input_message">
+                            <textarea id="msg" style="width:100%" rows="4" cols="20"></textarea>
+                            <button type="button" class="btn btn-count" onclick="send_message()" >ОТПРАВИТЬ</button>
+                        </div> 
+                    </div>  
+
+
+                    <div class="sidebar_twitter">
+                    </div>  
+
+                </div><!--END SIDEBAR-->
+
+
+            </div>
+        </div>
+
+
+
+
+{% endblock %}
+
+
+{% block scripts %}
+
+     <script type="text/javascript">
+    
+      
+      $(function() {
+	 Main.trade_pair = "{{trade_pair}}";
+        Main.min_deal = {{min_deal}};
+        Main.currency_base = "{{Currency1}}";
+        Main.currency_on = "{{Currency}}";
+        Main.start_stock();
+        Chat.attach2chat("chat_msg");
+      });
+      
+    </script>
+
+{% endblock %}

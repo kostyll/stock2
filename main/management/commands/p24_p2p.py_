@@ -1,0 +1,78 @@
+from django.core.management.base import BaseCommand, CommandError
+from datetime import datetime
+from django.db import connection
+from main.models import CardP2PTransfers, TransError, p2p_inner_process, get_comisP2P
+import time
+from datetime import timedelta
+from main.msgs import notify_email, notify_admin_withdraw_fail
+from django.contrib.auth.models import User
+import os
+import sys
+from main.my_cache_key import my_lock, my_release, LockBusyException
+from main.global_check import check_fiat_currency 
+
+def get_p24():
+        from sdk.p24 import p24
+        return p24()
+
+
+class Command(BaseCommand):
+    args = ''
+    help = 'fix user currency'
+    def handle(self, *args, **options):
+	
+	LOCK = "p2p_lock"
+	lock = my_lock(LOCK)
+	CurrencyInstance = Currency.objects.get(title = "UAH")
+	
+	if not  check_fiat_currency( CurrencyInstance ) :
+            raise LockBusyException("global check fiat currency has raised")
+	
+    process_command()
+	
+
+	my_release(lock)                        
+
+		
+
+
+def process_command():
+	Now = datetime.now()
+        admin_system = User.objects.get(id = 1)
+        for item in  CardP2PTransfers.objects.filter(status = "auto"):
+                print "process withdraw %s to card %s date %s amnt is %s" %   (item.user.username,
+                                                                               item.CardNumber,
+                                                                               item.pub_date,
+                                                                               item.amnt )
+                if (Now - item.pub_date) > timedelta(seconds = 1800):
+                        P24 = get_p24()
+                        item.status = "processed"
+                        item.save()
+                        print "start process" 
+
+                        CardNumber = item.CardNumber
+                        CardNumber.replace(" ","")
+                        try :
+                                NewAmnt = get_comisP2P(CardNumber, item.amnt )
+                                Result = P24.pay2p(item.id, CardNumber, NewAmnt)
+                        except TransError as e:
+                                item.status = "core_error"
+                                item.save()
+                                notify_admin_withdraw_fail(item, e.value)
+                        except Exception as e:
+                                        i.status = "core_error"
+                                        i.save()
+                                        notify_admin_withdraw_fail(i, str(e) )
+                                        continue         
+                        if Result :
+                                p2p_inner_process(admin_system, item)
+                        else:
+                                item.status = "core_error"
+                                item.save()
+                                notify_admin_withdraw_fail(item, "bad_status")
+                                
+                                
+                        time.sleep(1)
+                else :
+                        print "it's not a time " 
+  

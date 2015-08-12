@@ -1,0 +1,50 @@
+<div class="col-md-6 border_radius"  >      
+                
+                <h5 class="sub-header text-info">Заявки на продажу {{ Currency }}</h5> 
+                <h6 class="sub-header text-success">Всего: <span id="sell_orders_sum">{{sell_orders_sum}}</span> {{ Currency }}</h6> 
+
+                <div class="table-responsive stock_orders">
+                
+                <table class="table table-striped">
+                <thead>
+                        <tr>
+                        <th> Цена за ед </th>
+                        <th> Кол-во {{Currency}} </th>
+                        <th>сумма {{Currency1}} </th>
+                        </tr>
+                </thead>
+                
+                <tbody id="sell_orders_list">
+               
+                                       
+                </tbody>
+              
+                </table>
+                </div>
+</div>     
+<div class="col-md-6 border_radius">      
+                <h5 class="sub-header text-info">Заявки на покупку {{Currency}}</h5>
+                <h6 class="sub-header text-success">Всего: <span id="buy_orders_sum">{{buy_orders_sum}}</span>  {{Currency1}}</h6> 
+
+                <div class="table-responsive stock_orders">
+                
+                <table class="table table-striped">
+                <thead>
+                        <tr>
+                        <th>Цена за ед.</th>
+                        <th>Кол-во {{ Currency }}</th>
+                        <th>сумма {{ Currency1 }}</th>
+                        </tr>
+                </thead>
+                <tbody id="buy_orders_list">
+                  <!--      {% for buyOrder in buy_orders %}
+                        <tr>
+                                <td>{{buyOrder.price}}&nbsp;{{Currency1}}</td>
+                                <td>{{buyOrder.currency}}</td>
+                                <td>{{buyOrder.currency1}}</td>
+                        </tr>
+                        {% endfor %}-->
+                </tbody>
+                </table>
+                </div>
+</div> 

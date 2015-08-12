@@ -1,0 +1,29 @@
+<div class="form-horizontal" id="msg_form" role="form" style="display:none">
+                                        <div class="form-group">        
+                                                <label class="col-sm-4 control-label" for="whom">Кому :</label>
+                                                <div class="col-sm-6">
+                                                <input type="text"  class="form-control" value=""  id="whom">
+                                                </div>       
+                                        </div>
+                
+                                        <div class="form-group">        
+                                                <label class="col-sm-4 control-label"  for="msg">Сообщение :</label>
+                                                <div class="col-sm-6">
+                                                <p>Максимальная длина сообщений 255 символов</p>
+                                                <textarea id="msg" rows="5" cols="40" maxlength="255"
+                                                style="margin: 0px; height: 123px; width: 387px;"
+                                                >
+                                                
+                                                </textarea>
+                                                </div>       
+                                        </div>
+                                        <div class="form-group">        
+                                                <div class="col-sm-6">
+                                                <button type="button"  class="btn pull-left"  
+                                                onclick="Main.cancel_msg()" >Отменить</button>   
+                                                 <button type="button"  class="btn btn-success pull-right" 
+                                                 onclick="Main.send_msg()" >Отправить</button>   
+                                                </div>       
+                                        </div>
+                              
+</div>

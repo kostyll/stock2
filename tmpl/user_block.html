@@ -1,0 +1,53 @@
+   {% if is_user %}
+  
+  <div class="col-xs-4 col-sm-4 top_login">
+                    <div class="top_login_items">
+                        <div class="top_login_name">
+                            <a href="/finance">                            
+                                <img src="/static/images/name_icon.png">
+                                <span>{{username}}</span>  <!--НУЖНО ПОСТАВИТЬ ОГРАНИЧЕНИЕ В СКРИПТЕ НА КОЛИЧЕСТВО ОТОБРАЖАЕМЫХ БУКВ В НИКЕ ИНАЧЕ длинное имя переносится и выглядит плохо --> 
+                            </a>
+                        </div>
+                        <div class="top_login_adjust">
+                            <a href="/profile/{{username}}">                            
+                                <img src="/static/images/adjust_icon.png">
+                                <span>Настройки</span>
+                            </a>
+                        </div>
+                        <div class="top_login_exit">
+                            <a href="/logout">
+                                <img src="/static/images/exit_icon.png">
+                                <span >Выход</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+ {% else %}
+ 
+   <div class="col-xs-4 col-sm-4 top_login">
+                    <div class="top_login_items">
+                        <div class="top_login_name">
+                            <a href="/login_page">                            
+                                <img src="/static/images/name_icon.png">
+                                <span>Войти</span>  <!--НУЖНО ПОСТАВИТЬ ОГРАНИЧЕНИЕ В СКРИПТЕ НА КОЛИЧЕСТВО ОТОБРАЖАЕМЫХ БУКВ В НИКЕ ИНАЧЕ длинное имя переносится и выглядит плохо --> 
+                            </a>
+                        </div>
+                        <div class="top_login_adjust">
+                            <a href="/registration">                            
+<!--                                <img src="/static/images/adjust_icon.png">-->
+                                <span>Регистрация</span>
+                            </a>
+                        </div>
+                        <div class="top_login_exit">
+                            <a href="/forgot">
+                                <img src="/static/images/exit_icon.png">
+                                <span>Забыли пароль</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+ 
+ 
+ 
+ 
+ {% endif %}

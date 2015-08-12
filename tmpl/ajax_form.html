@@ -1,0 +1,23 @@
+                        <div class="col-md-9">
+                               <p class="help-block">
+                               {% autoescape off %} 
+                                                {{common_help_text}}
+                                 {% endautoescape %}                
+                               </p>
+                        
+                                <form class="form-horizontal" action="{{action}}" id="ajax_form" role="form" method="POST" >                   
+                                        {{ form }}
+                                        <div class="form-group">
+                                       
+                                        <div class="col-sm-offset-2 col-sm-10">
+                                                <button type="submit" id="ajax_form_submit" class="btn btn-default" > {{ action_title }} </button>
+                                        </div>
+                                        </div>
+                                </form>                       
+                                
+                        </div>  
+                        
+           
+
+
+

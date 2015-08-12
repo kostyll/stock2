@@ -1,0 +1,65 @@
+from django.core.management.base import BaseCommand, CommandError
+from datetime import datetime
+from main.models import CardP2PTransfers, ObjectionsP2P
+import time
+from datetime import timedelta
+from django.contrib.auth.models import User
+import os
+import sys
+from main.my_cache_key import my_lock, my_release, LockBusyException
+
+from main.models import FullBinInfo
+
+class Command(BaseCommand):
+    args = ''
+    help = 'fix user currency'
+    def handle(self, *args, **options):
+    
+    	LOCK = "p2p_lock"
+    	lock = my_lock(LOCK)            
+        try :
+        	process_command()
+    	except :
+        	print "Unexpected error:", sys.exc_info()[0]    
+
+    	my_release(lock)                        
+
+        
+
+
+def process_command():
+        Now = datetime.now()
+        for item in  CardP2PTransfers.objects.filter(status = "processing"):
+                	print "process  %s to card %s date %s amnt is %s" %   (item.user.username,
+                                                                               item.CardNumber,
+                                                                               item.pub_date,
+                                                                               item.amnt )
+                if (Now - item.pub_date) < timedelta(seconds = 120):
+                    
+                        Card = item.CardNumber
+                        Card.replace(" ","")
+                        Bin = Card[:6]
+                        try :
+                            Objection = ObjectionsP2P.objects.get(CardNumber = Card)
+                            item.status ='auto'
+                            item.save()			
+                            print "its not new card %s" % (Card) 
+                            continue
+                            
+                        except ObjectionsP2P.DoesNotExist:
+                              print "its new card %s" % (Card) 
+                               
+                        try:
+                             IsPb =  FullBinInfo.objects.get(bin6 = Bin, pbbin = "1")
+                             Objection = ObjectionsP2P(CardNumber = Card, Objection = "2")
+                             Objection.save()
+                             item.status = 'auto'
+                             item.save()
+                             
+                        except FullBinInfo.DoesNotExist:
+			    print "i didn't find %s" % (Card)
+                            continue 
+                        
+                else :
+                        print "ok we didnt find " 
+  

@@ -1,0 +1,43 @@
+
+
+<div class="modal modal-fade" id="f2a_dlg" aria-labelledby="F2A">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title" id="modal_title">Настройка двухфакторной авторизации</h4>
+      </div>
+      
+      <div class="modal-body">
+                
+                <p>Установите приложение Google Authenticator:</p>
+                <ul class="list" style="margin-bottom: 5px">
+                <li>Android: <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2">тут</a></li>
+                <li>iOS: <a href="https://itunes.apple.com/ru/app/google-authenticator/id388497605">тут</a></li>
+                <li>Windows Phone: <a href="http://www.windowsphone.com/en-us/store/app/authenticator/e7994dbc-2336-4950-91ba-ca22d653759b">тут</a></li>
+                <li>J2ME: <a href="https://code.google.com/p/gauthj2me/downloads/list">тут</a></li>
+                </ul>
+                <br>
+                <p>При помощи приложения отсканируйте  QR код ниже.</p>
+                <p>Если у вас не получается сосканировать QR код попробуйте использовать другое приложение для сканирования QR кодов.</p>
+                <p>Если же вы не можете сосканировать QR код,вы можете ввести  ключ в приложение вручную.</p>
+                <br>
+                <p><img src="" id="g2a_qr" /> </p>
+                <p>Ваш приватный ключ:</p>
+                <p><input  id="g2a_private_key"    size="126" readonly="readonly" style="width:300px" /></p>
+                <p>Ваш приватный ключ base32:</p>
+                <p> <input id="g2a_private_key32"   size="126" readonly="readonly" style="width:300px"/></p>
+                <p>После того как ключ был сосканирован, приложение Google Authenticator будет генерировать одноразовые пароли каждые 30 секунд.</p>               
+                <p>Для подтверждения создания ключа необходимо ввести одноразовый пароль и нажать подтвердить нижe.</p>
+                <p><input  id="g2a_pwd"  placeholder="одноразовый пароль"  style="width:126px" /></p>
+                <p><span class="btn btn-success" onclick="profile.check_g2a()">Подтвердить</span></p>
+                
+                <p><b class="warning">Внимание:</b> Перед подтверждением создания ключа сделайте бэкап QR-кода или ключа, чтобы не иметь проблем при утере/сбросе вашего телефона.
+                Бэкап необходимо делать на внешние устройства, такие как USB-флешка.</p>
+                <p><b class="warning">Внимание:</b> Так как одноразовые пароли основаны на времени, необходимо чтобы время на устройстве где стоит Google Authenticator было синхронизировано, а так же был выбран верный часовой пояс. В противном случае вы будете получать ошибку что ваш одноразовый пароль неверен.</p>
+     </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,37 @@
+ <div class="col-md-9 border_radius" id="withdraw_form" style="display:none">     
+      <h4>Информация для вывода: </h4>
+ 
+      <div class="form-horizontal" role="form">
+                                 <div class="form-group">        
+                                        <label class="col-sm-4 control-label" for="currency_withdraw">Валюта :</label>
+                                        <div class="col-sm-6">
+                                        <input type="text" disabled class="form-control" value=""
+                                               id="currency_withdraw" 
+                                                >
+                                        </div>       
+                                </div>
+                                <div class="form-group">
+                                        <label class="col-sm-4 control-label" id="label_provider_withdraw" for="provider_withdraw">
+                                        Способ вывода :</label>
+                                        <div class="col-sm-6">
+                                                <select class="form-control" id="provider_withdraw" 
+                                                        onchange="finance.change_withdraw(this)">
+                                                        <option value="">
+                                                                Выбрать
+                                                        </option>
+                                                        <option value="liqpay_transfer">
+                                                                LiqPay
+                                                        </option>
+                                                        <option value="bank_transfer">
+                                                                Банковский перевод
+                                                        </option>
+                                                </select>              
+                                        </div>
+                                </div>
+                                <div class="form-group" id="res_provider_withdraw" style="padding-left:4em">
+                                        
+                                                        
+                                </div>       
+                              
+      </div>
+</div>     

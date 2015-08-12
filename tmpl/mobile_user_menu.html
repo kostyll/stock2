@@ -1,0 +1,22 @@
+   {% if is_user %}
+     <ul class="nav navbar-nav">
+         <li>
+              <a href="/profile/{{username}}">Профиль</a></li>
+         <li><a href="/finance">Финансы</a></li>
+         <li><a id="menu_notification" href="/notification">Уведомления <strong id="notify_count">({{new_notfication_count}})</strong></a></li>
+        <li style="margin-top: 15px;">   <strong>Баланс:</strong>      </li>               
+        <li>   <a href="#">    <span class="text-info" id="balance_{{Currency1}}">0.00</span> <strong>{{Currency1}}</strong> </a>  </li>               
+        <li>   <a href="#">    <span class="text-info" id="balance_{{Currency}}">0.00</span> <strong>{{Currency}}</strong> </a>  </li>               
+             
+     </ul>   
+   {% else %}
+                <ul class="nav navbar-nav">
+                        <li style="padding-top: 0.5em; width: 13em; padding-left: 1em;"><input type="email" class="form-control"  id="login_username" placeholder="Пользователь"></li>
+                        <li style="padding-top: 0.5em; width: 13em; padding-left: 1em;" ><input type="password" class="form-control"  onkeyup="Login.keyup(event)" id="login_password" placeholder="Пароль"></li>
+                        <li style="padding-top: 0.2em;padding-left: 1em;"><a  style="width:5em" class="cursor btn-success"  onclick="javascript:Login.try_login()">Войти</a></li>                        
+                        <li><a href="/forgot">Забыли пароль</a></li>
+               
+                </ul>
+   {% endif %} 
+  
+ 

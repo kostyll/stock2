@@ -1,0 +1,39 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+
+{% block content %}
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-9 main centering">
+          <h1 class="page-header" style="text-align:center">Регистрация на {{project_name}} </h1>
+<!--           deals -->
+                <div class="col-md-8 deals border_radius padding20 registration centering" >
+                
+                        <div class="col-md-8 centering">
+                                <form class="form-horizontal" action="/try_regis" role="form" method="POST" >                   
+                                        
+                                        {{ regis_form }}
+                                        
+                                        <div class="form-group">
+                                        <div class="col-sm-offset-2 col-sm-10">
+                                                <button type="submit" class="btn btn-default">Зарегистрироваться</button>
+                                        </div>
+                                        </div>
+                                </form>                       
+                                
+                        </div>  
+                        
+                        
+                </div> 
+                       
+<!--                 deals -->
+        </div>
+        
+    </div>
+  </div> 
+  
+
+
+
+{%endblock%}

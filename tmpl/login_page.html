@@ -1,0 +1,37 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+
+{% block content %}
+
+   <!-- Jumbotron -->
+      
+                <h2>Авторизация {{project_name}}  </h2>
+                <div class="col-md-8 form-horizontal padding20 border_radius" >
+                <input type="hidden" value="{{post_url}}"    id="post_url" >
+                
+                <p></p>            
+                        <p >
+                                <input type="email" class="form-control"    id="login_username" placeholder="Пользователь">
+                        </p>
+                        <p >
+                                <input type="password" class="form-control" onkeyup="Login.keyup(event)" id="login_password" placeholder="Пароль">
+                        </p>
+                        <p>                
+                                <button type="submit" class="btn btn-success"  onclick="Login.try_login_page()">Войти</button> 
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <a  class="btn btn-success"  href="/forgot">Забыли пароль?</a> 
+                        </p>
+                 <p><a href="/registration">Регистрация</a></p>
+                </div>
+
+        
+
+   
+    
+
+{% include "g2a_modal_dlg.html"%}
+
+
+{%endblock%}
+

@@ -1,0 +1,26 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+
+{% block content %}
+  <div class="container-fluid">
+        <div class="row">
+                {% include "side_menu_finance.html" %}
+
+                <div class="col-md-9 main">
+                
+                         <h4 class="page-header">Финансы, страница подтверждения  пополнение счета</h4>
+                         <div class="col-md-9 border_radius" id="work_msg">
+                               Ожидаем подтверждения оплаты                              
+                        </div>    
+
+                </div>
+                {% include "scripts.html"%}
+                <script>
+                        finance.order_id = {{order}};
+                        finance.timer =  setTimeout(finance.ui_check_status,2000);
+                </script>
+ 
+       </div>
+ </div> 
+{% endblock %}
