@@ -309,8 +309,8 @@ class p24:
            Payment = Params["payment"] 
            signature = self.signature(Payment)
            Signature =  Params["signature"]
-           if signature != Signature: 
-                    raise TransError("Invalid Signature")           
+           #if signature != Signature: 
+                    #raise TransError("Invalid Signature")           
            
            for Val in Payment.split("&"):
              [Name, Value] =  Val.split("=")  

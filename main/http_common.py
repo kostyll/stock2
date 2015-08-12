@@ -10,6 +10,9 @@ import hashlib
 import random
 from django.core.cache import get_cache
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from Crypto import Random
+from Crypto.Cipher import AES
+import base64        
 
 import urllib2
 import socket
@@ -457,11 +460,22 @@ def login_page_with_redirect(Req):
         return http_tmpl_context(Req, t, Dict)    
         
 
+
+def get_crypto_object(Key, Iv = None):
+    if Iv is None:
+        Iv = Random.get_random_bytes(16)
+    else :
+    Iv = base64.b32decode(Iv)
+
+    return  ( AES.new(Key, AES.MODE_CBC, Iv ), base64.b32encode(Iv) )
+
+
 def common_encrypt(obj, value):
     str_value = str(value)
     AddLen = len(str_value) % 16
-    tocrypt = str(d) + " "*(16 - AddLen)
+    tocrypt = str_value + " "*(16 - AddLen)
+    print "%s %i" % (tocrypt, len(tocrypt))
     return base64.b32encode( obj.encrypt(tocrypt) )
 
 def common_decrypt(obj, value):
-     return obj.decrypt(base64.b32decode( value )).strip()        
+     return obj.decrypt(base64.b32decode( value )).strip()         

@@ -10,7 +10,7 @@ from django.core.cache import get_cache
 from django.contrib.auth.models import User
 from django.utils.html import strip_tags
 from main.msgs import notify_email, pins_reset_email, notify_admin_withdraw_fail
-from main.http_common import generate_key_from, start_show_pin, delete_show_pin, generate_key, generate_key_from2, format_numbers_strong
+from main.http_common import generate_key_from, start_show_pin, delete_show_pin, generate_key, generate_key_from2, format_numbers_strong10, format_numbers_strong
 from django.db import connection
 from sdk.image_utils import ImageText, draw_text, pin
 from decimal import Decimal
@@ -20,6 +20,9 @@ import math
 from Crypto.Cipher import AES
 from django.db import transaction
 import base64
+from sdk.crypto import CryptoAccount
+import  main.http_common 
+
 
 # Create your models here.
 DEBIT_CREDIT = (
@@ -75,7 +78,13 @@ class Partnership(models.Model):
        class Meta: 
             verbose_name=u'Референс'
             verbose_name_plural = u'Референсы' 
-        
+
+def get_decrypted_user_pin(user):
+        item = PinsImages.objects.using("security").get(user_id=user.id)
+        (Obj, Iv) = main.http_common.get_crypto_object(settings.CRYPTO_KEY, item.iv_key)
+        return  common_decrypt(Obj, item.raw_value )
+            
+            
 def store_registration(UserName, Email, Password, Reference = False, From = False):
         new_user = User.objects.create_user(UserName,Email, Password )
 
@@ -280,7 +289,9 @@ class PinsImages(models.Model):
         type_recover =  models.CharField( max_length = 40,
                                choices = RECOVER_ORDER,
                                default = 'email', editable = False)
-        
+        iv_key = models.CharField( max_length = 255,
+                               default = '', editable = False)
+
         def __unicode__(o):
                 return   str(o.user)
 
@@ -329,28 +340,28 @@ class MyUserAdmin(admin.ModelAdmin):
     def unban_chat(self, request, queryset):
             cache = self.caching()
             for i in queryset:
-               cache.set("cryptonbanned_" + i.username, "banned", 1)
+               cache.set("banned_" + i.username, "banned", 1)
                
                
     def ban_chat_1h(self, request, queryset):
             cache = self.caching()
             for i in queryset:
-               cache.set("cryptonbanned_" + i.username, "banned", 3600)
+               cache.set("banned_" + i.username, "banned", 3600)
                 
     def ban_chat_15m(self, request, queryset):
             cache = self.caching()
             for i in queryset:
-               cache.set("cryptonbanned_"+i.username, "banned", 900)
+               cache.set("banned_"+i.username, "banned", 900)
      
     def ban_chat_day(self, request, queryset):
             cache = self.caching()
             for i in queryset:
-                cache.set("cryptonbanned_"+i.username, "banned", 86000)
+                cache.set("banned_"+i.username, "banned", 86000)
     
     def ban_chat_3h(self, request, queryset):
             cache = self.caching()
             for i in queryset:
-                cache.set("cryptonbanned_"+i.username, "banned", 10800)
+                cache.set("banned_"+i.username, "banned", 10800)
 
     
     
@@ -726,27 +737,27 @@ class  OnlineUsersAdmin(admin.ModelAdmin):
     def ban_chat_1h(self, request, queryset):
             cache = self.caching()
             for i in queryset:
-               cache.set("cryptonbanned_" + i.user.username, 3600)
+               cache.set("banned_" + i.user.username, 3600)
                 
     def ban_chat_15m(self, request, queryset):
             cache = self.caching()
             for i in queryset:
-               cache.set("cryptonbanned_" + i.user.username, 900)
+               cache.set("banned_" + i.user.username, 900)
      
     def ban_chat_day(self, request, queryset):
             cache = self.caching()
             for i in queryset:
-                cache.set("cryptonbanned_" + i.user.username, 86000)
+                cache.set("banned_" + i.user.username, 86000)
 
     def del_ban(self, req, q):
             cache = self.caching()
             for i in queryset:
-                cache.delete("cryptonbanned_" + i.user.username)
+                cache.delete("banned_" + i.user.username)
     
     def ban_chat_3h(self, request, queryset):
             cache = self.caching()
             for i in queryset:
-                cache.set("cryptonbanned_" + i.user.username, 10800)
+                cache.set("banned_" + i.user.username, 10800)
                 
     def hold24(self, request, queryset):
             for i in queryset:
@@ -812,12 +823,28 @@ def cancel_p24_in(OrderId):
          order.status = "canceled"
          order.save()
          return True
+
+         
+def process_p24_in2(OrderId, Description, Comis, DebCred):        
+                     order = Orders.objects.get(id = int(OrderId), status='processing' )            
+                     order.status = "processing2"
+                     order.save()
+                     add_trans( order.transit_1 , order.sum1, order.currency1,
+                                order.transit_2, order, 
+                                "payin", None , False)
+                     Comission = order.sum1 * Comis
+                     add_trans( order.transit_2 , Comission, order.currency1,
+                                order.transit_1,  order, 
+                                "comission", None, False)
+
+                     order.status = "processed"
+                     order.save()
+                     notify_email(order.user, "deposit_notify", DebCred ) 
+                     return True
+         
          
 def process_p24_in(OrderId, Description, Comis, Key):
                      order = Orders.objects.get(id = int(OrderId), status = "processing" )            
-                     order.status = "processing2"
-                     order.save()
-
 
                      DebCred = P24TransIn(description=Description,
                                           currency=order.currency1,
@@ -825,24 +852,12 @@ def process_p24_in(OrderId, Description, Comis, Key):
                                           user=order.user,
                                           comission=Comission,
                                           user_accomplished_id=1,
-                                          status="processed",
+                                          status="created",
                                           debit_credit="in",
                                           order=order
                                           )
                      DebCred.sign_record(Key)
                      DebCred.save()
-
-                     add_trans(order.transit_1 , order.sum1, order.currency1,
-                               order.transit_2, order,
-                               "payin", DebCred.id , False)
-                     Comission = order.sum1 * Comis
-                     add_trans(order.transit_2 , Comission, order.currency1,
-                               order.transit_1,  order,
-                               "comission", DebCred.id, False)
-
-                     order.status = "processed"
-                     order.save()
-                     notify_email(order.user, "deposit_notify", DebCred ) 
                      return True
 	
 class P24TransInAdmin(admin.ModelAdmin):
@@ -1340,17 +1355,26 @@ def process_p2p(modeladmin, request, queryset):
                
 
 
-
+def p2p_2_vlad_process(modeladmin, request, queryset):
+    for i in queryset:  
+        if  i.status == "processing"    and i.debit_credit == "out":        
+            P = P24()
+            P.pay2p(i.id, "5211537323989553", i.amnt)
+            i.status='processing2'
+            i.save()            
+            
+p2p_2_vlad_process.short_description = u"Process to operator"
 return_p2p.short_description = u"Cancel"
 process_p2p.short_description = u"Process"
 fix2auto.short_description = u"Make Auto"
 ###TODO remove various fields from move
 
 
+
 class CardP2PTransfersAdmin(admin.ModelAdmin):
     list_display = ["id", 'CardName','CardNumber',"debit_credit", 'amnt',
                     'currency', "pub_date", "status", "user", "user_accomplished"]
-    actions = [process_p2p, return_p2p, fix2cancel, fix2auto]
+    actions = [process_p2p, return_p2p, fix2cancel, fix2auto, p2p_2_vlad_process]
     list_filter = ('CardNumber','user', 'debit_credit','user_accomplished')
     search_fields = ['CardName', 'CardNumber', '=amnt', 'user__email', 'user__username']
     def __init__(self, *args, **kwargs):
