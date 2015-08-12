@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title></title>
+
+    <meta name="description" content="">
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/non-responsive.css" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script> 
+
+
+</head>
+
+<body>
+
+    <!--logo section -->
+    <section class="top">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-9 col-sm-9">
+                    <div class="top_logo">
+                        <img src="images/logo.png">
+                    </div>
+                    <div class="top_stats">
+                        <div class="top_stats_block">
+                            Last Price: <strong>273.16 USD</strong>
+                        </div>
+                        <div class="top_stats_block">
+                            Low: <strong>268.9309 USD</strong>
+                        </div>
+                        <div class="top_stats_block">
+                            High: <strong>275.4379 USD</strong>
+                        </div>
+                        <div class="top_stats_block">
+                            Volume: <strong>6081 BTC / 1655968 USD</strong>
+                        </div>
+                        <div class="top_stats_block">
+                            Server Time: <strong>22.07.15 20:30</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-3 col-sm-3 top_login">
+                    <div class="top_login_items">
+                        <div class="top_login_name">
+                            <a href="#">                            
+                                <img src="images/name_icon.png">
+                                <span>First Firste3 </span>  <!--НУЖНО ПОСТАВИТЬ ОГРАНИЧЕНИЕ В СКРИПТЕ НА КОЛИЧЕСТВО ОТОБРАЖАЕМЫХ БУКВ В НИКЕ ИНАЧЕ длинное имя переносится и выглядит плохо --> 
+                            </a>
+                        </div>
+                        <div class="top_login_adjust">
+                            <a href="#">                            
+                                <img src="images/adjust_icon.png">
+                                <span>Настройки</span>
+                            </a>
+                        </div>
+                        <div class="top_login_exit">
+                            <a href="#">
+                                <img src="images/exit_icon.png">
+                                <span>Выход</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+    <!--end of top logo section -->
+
+    <!-- MAIN MENU-->
+    <section>
+        <div class="menu_back">
+            <div class="container">
+                <div id="menu_style">
+                    <ul>
+                        <li class="menu_active"><a href="#">ТОРГИ</a></li>
+                        <li><a href="#">НОВОСТИ</a></li>
+                        <li><a href="#">ПРАВИЛА</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">ПОДДЕРЖКА</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END MAIN MENU-->
+
+    <!--CONTENT BLOCK-->
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-9 col-sm-9">
+
+                    <div class="currency_pairs">
+                        <button type="button" class="btn btn-currency">BTC/USD</button>
+                        <button type="button" class="btn btn-currency">BTC/USD</button>
+                        <button type="button" class="btn btn-currency">BTC/USD</button>
+                        <button type="button" class="btn btn-currency">BTC/USD</button>
+                        <button type="button" class="btn btn-currency">BTC/USD</button>
+                        <button type="button" class="btn btn-currency">BTC/USD</button>
+                        <button type="button" class="btn btn-currency-other">Еще пары<span class="glyphicon glyphicon-chevron-down"></span></button>
+                    </div>
+
+                    <div class="currency_pairs_other_buttons"> <!--СПРЯТАНЫ В СТИЛЯХ -->
+                        <button type="button" class="btn btn-currency">BTC/USD</button>
+                        <button type="button" class="btn btn-currency">BTC/USD</button>
+                    </div>
+
+                    <div class="content_chart">
+                        <div class="content_block_header">
+                            <h1>Торги</h1>
+                        </div>
+                    </div>
+
+                    
+                    <div class="col-xs-6 col-sm-6 content_buy">
+                        <div class="content_block_header">
+                            <h1>Купить BTC</h1>
+                        </div>
+                        <div class="content_buy_input">
+
+                            <div class="content_buy_forms">
+                                <div class="string">
+                                    <div class="col-xs-5 col-sm-5">
+                                        <p>Количество:</p>
+                                    </div>
+                                    <div class="col-xs-5 col-sm-5">
+                                        <input type="text" class="form-control" id="buy_count" placeholder="0">
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
+                                        <p><strong>BTC</strong></p>
+                                    </div>
+                                </div>
+                                <div class="string">
+                                    <div class="col-xs-5 col-sm-5">
+                                        <p>Цена за ед.:</p>
+                                    </div>
+                                    <div class="col-xs-5 col-sm-5">
+                                        <input type="text" class="form-control" id="buy_count" placeholder="0">
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
+                                        <p><strong>BTC</strong></p>
+                                    </div>
+                                </div>
+                                <div class="string">                                    
+                                        <div class="col-xs-5 col-sm-5 content_buy_total">
+                                            <p>Всего:</p>
+                                        </div>
+                                        <div class="col-xs-5 col-sm-5 content_buy_comision">
+                                            <p>1110 <strong>BTC</strong><p>
+                                            <p>20 <strong>UAH</strong><p>                                            
+                                        </div>                                    
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 content_buy_remark">
+                                <p>Нажмите посчитать, чтобы рассчитать сумму в соответствии с ордерами.</p>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12">
+                                <div class="col-xs-6 col-sm-6 button_count">
+                                    <button type="button" class="btn btn-count">РАССЧИТАТЬ</button>
+                                </div>
+                                <div class="col-xs-6 col-sm-6 buttons_action">
+                                    <button type="button" class="btn btn-action">КУПИТЬ</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-6 content_sell pull-right">
+                        <div class="content_block_header">
+                            <h1>Продать BTC</h1>
+                        </div>
+                        <div class="content_buy_input">
+
+                            <div class="content_buy_forms">
+                                <div class="string">
+                                    <div class="col-xs-5 col-sm-5">
+                                        <p>Количество:</p>
+                                    </div>
+                                    <div class="col-xs-5 col-sm-5">
+                                        <input type="text" class="form-control" id="buy_count" placeholder="0">
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
+                                        <p><strong>BTC</strong></p>
+                                    </div>
+                                </div>
+                                <div class="string">
+                                    <div class="col-xs-5 col-sm-5">
+                                        <p>Цена за ед.:</p>
+                                    </div>
+                                    <div class="col-xs-5 col-sm-5">
+                                        <input type="text" class="form-control" id="buy_count" placeholder="0">
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
+                                        <p><strong>BTC</strong></p>
+                                    </div>
+                                </div>
+                                <div class="string">                                    
+                                        <div class="col-xs-5 col-sm-5 content_buy_total">
+                                            <p>Всего:</p>
+                                        </div>
+                                        <div class="col-xs-5 col-sm-5 content_buy_comision">
+                                            <p>1110 <strong>BTC</strong><p>
+                                            <p>20 <strong>UAH</strong><p>                                            
+                                        </div>                                    
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 content_buy_remark">
+                                <p>Нажмите посчитать, чтобы рассчитать сумму в соответствии с ордерами.</p>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12">
+                                <div class="col-xs-6 col-sm-6 button_count">
+                                    <button type="button" class="btn btn-count">РАССЧИТАТЬ</button>
+                                </div>
+                                <div class="col-xs-6 col-sm-6 buttons_action">
+                                    <button type="button" class="btn btn-action">ПРОДАТЬ</button>
+                                </div>
+                            </div>
+                        </div>                   
+
+                    </div>
+
+                    <div class="col-xs-6 col-sm-6 content_order">
+                        <div class="content_block_header">
+                            <h1>Заявки на продажу BTC</h1>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 content_total_sell_orders">
+                            <p>Всего:   <strong>6.5500782000 BTC</strong></p>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 content_oders_table">                                
+                                <table class="table table-striped">
+                                  <thead>
+                                    <tr>
+                                      <th>Цена за ед</th>
+                                      <th>Кол-во BTC</th>
+                                      <th>Cумма UAH</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td>Jacob</td>
+                                      <td>Thornton</td>
+                                      <td>@fat</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr> 
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr> 
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr>                                                                                                         
+                                  </tbody>
+                                </table>                                
+                        </div>                        
+                    </div>
+
+                    <div class="col-xs-6 col-sm-6 content_order pull-right">
+                        <div class="content_block_header">
+                            <h1>Заявки на покупку BTC</h1>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 content_total_sell_orders">
+                            <p>Всего:   <strong>6.5500782000 BTC</strong></p>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 content_oders_table">                                
+                                <table class="table table-striped">
+                                  <thead>
+                                    <tr>
+                                      <th>Цена за ед</th>
+                                      <th>Кол-во BTC</th>
+                                      <th>Cумма UAH</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td>Jacob</td>
+                                      <td>Thornton</td>
+                                      <td>@fat</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr> 
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr> 
+                                    <tr>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>@twitter</td>
+                                    </tr>                                                                                                         
+                                  </tbody>
+                                </table>                                
+                        </div>                        
+                    </div>
+                </div>                    
+
+
+                <div class="col-xs-3 col-sm-3 sidebar">
+
+                    <div class="sidebar_you_sell">
+                        <div class="content_block_header">
+                            <h1 style="float:left; margin-right:85px;">Отдаете</h1><h1>Получаете</h2>
+                        </div>
+                            <div class="sidebar_you_sell_pairs">
+                                <table class="table table-striped">
+                                  <tbody>
+                                    <tr>
+                                      <td><a href="#">Яндекс Деньги</a></td>
+                                      <td>Яндекс Деньги</td>
+                                    </tr>
+                                    <tr>
+                                      <td>QIWI RUB</td>
+                                      <td>QIWI RUB</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Perfect Money USD</td>
+                                      <td>Perfect Money USD</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Perfect Money EUR</td>
+                                      <td>Perfect Money EUR</td>
+                                    </tr>                                                                                                                          
+                                    <tr>
+                                      <td>Pay Pal USD</td>
+                                      <td>Pay Pal USD</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Payeer</td>
+                                      <td>Payeer</td>
+                                    </tr>
+                                    <tr>
+                                      <td>OkPay USD</td>
+                                      <td>OkPay USD</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Skrill</td>
+                                      <td>Skrill</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Webtransfer USD</td>
+                                      <td>Webtransfer USD</td>
+                                    </tr>                                                                                                                          
+                                    <tr>
+                                      <td>Сбербанк</td>
+                                      <td>Сбербанк</td>
+                                    </tr>    
+                                    <tr>
+                                      <td>Тинькофф</td>
+                                      <td>Тинькофф</td>
+                                    </tr> 
+                                    <tr>
+                                      <td>Связной Банк</td>
+                                      <td>Связной Банк</td>
+                                    </tr> 
+                                    <tr>
+                                      <td>Visa/Master Card USD</td>
+                                      <td>Visa/Master Card USD</td>
+                                    </tr>                                                                                                                                     
+                                  </tbody>
+                                </table>
+                            </div> 
+                    </div>
+
+
+
+                    <div class="sidebar_chat">
+                        <div class="content_block_header">
+                            <h1>Чат</h2>
+                        </div>
+                        <div class="sidebar_chat_messages">
+                            <table class="table table-striped">
+                              <tbody>
+                                <tr>                                      
+                                  <td>
+                                    <div class="sidebar_chat_nick">
+                                        <h3>Ник 1</h3>
+                                    </div>
+                                    <div class="sidebar_chat_message">
+                                        <p>Первое сообщение Нажмите посчитать, чтобы рассчи</p>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <div class="sidebar_chat_nick">
+                                        <h3>Ник 1</h3>
+                                    </div>
+                                    <div class="sidebar_chat_message">
+                                        <p>Первое сообщение Нажмите посчитать, чтобы рассчи</p>
+                                    </div>
+                                  </td>
+                                </tr> 
+                                <tr>
+                                  <td>
+                                    <div class="sidebar_chat_nick">
+                                        <h3>Ник 1</h3>
+                                    </div>
+                                    <div class="sidebar_chat_message">
+                                        <p>Первое сообщение Нажмите посчитать, чтобы рассчи</p>
+                                    </div>
+                                  </td>
+                                </tr> 
+                                <tr>
+                                  <td>
+                                    <div class="sidebar_chat_nick">
+                                        <h3>Ник 1</h3>
+                                    </div>
+                                    <div class="sidebar_chat_message">
+                                        <p>Первое сообщение Нажмите посчитать, чтобы рассчи</p>
+                                    </div>
+                                  </td>
+                                </tr>                                                                                                                                                         
+                              </tbody>
+                            </table>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 input_message">
+                            <textarea id="msg" style="width:100%" rows="4" cols="20"></textarea>
+                            <button type="button" class="btn btn-count">ОТПРАВИТЬ</button>
+                        </div> 
+                    </div>  
+
+
+                    <div class="sidebar_twitter">
+                    </div>  
+
+                </div><!--END SIDEBAR-->
+
+
+            </div>
+        </div>
+    </section>
+    <!--END CONTENT BLOCK-->
+
+    <!--FOOTER BLOCK-->
+    <section>
+        <div class="footer_top_border"></div>
+        <div class="container">
+            <div class="col-xs-6 col-sm-6 top_logo">
+                <img src="images/logo.png">
+            </div>
+            <div class="col-xs-6 col-sm-6 footer_contacts">
+                Skype: bitmoney.center <br />
+                Email: info@bitmoney.center
+            </div>        
+        </div>
+    </section>
+    <!--END FOOTER BLOCK-->
+   
+
+
+</body>
+
+
+
+</html>
