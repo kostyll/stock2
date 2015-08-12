@@ -34,16 +34,16 @@ class Command(BaseCommand):
         except :
               Time = 0  
         print "from %i " % (Time)
-        LOCK = "in_cryptoblck_info"
-    #	lock = None
-        try:
-            lock = my_lock(LOCK)
-            process_block_info(Time)
-
-        except LockBusyException as e:
-                   print "operation is locked", e.value
-        except :
-               print "Unexpected error:",str( sys.exc_info())
+	LOCK = "in_cryptoblck_info"
+#	lock = None
+	try:
+                lock = my_lock(LOCK)        
+		process_block_info(Time)
+	
+	except LockBusyException as e:
+               print "operation is locked", e.value
+	except :
+	       print "Unexpected error:",str( sys.exc_info())
 
         my_release(lock)
 	

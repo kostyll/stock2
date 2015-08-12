@@ -21,19 +21,14 @@ class Command(BaseCommand):
     help = 'every minute get stock prices and save it to StockStat'
 
     def handle(self, *args, **options):
-        CurrencyTitle = args[0]    
         
-        try :
-              Time = int(Time)
-        except :
-              Time = 0  
-
 	LOCK = "out_crypto"
-	LOCK +=  CurrencyTitle
 	lock = None
 	try:
         	lock = my_lock(LOCK)
-        	process_out(CurrencyTitle)
+		for CurrencyTitle in CryptoSettings.keys():
+			if CurrencyTitle != "BTC":
+       			     process_out(CurrencyTitle)
 		my_release(lock)
 	except LockBusyException as e:
                print "operation is locked", e.value

@@ -8,73 +8,76 @@ from main.msgs import notify_email, notify_admin_withdraw_fail
 from django.contrib.auth.models import User
 import os
 import sys
-import crypton.settings
 from main.my_cache_key import my_lock, my_release, LockBusyException
-
+from crypton import settings
+from main.global_check import *
 def get_p24():
         from sdk.p24 import p24
-        return p24()
+        return p24("UAH", "https://api.privatbank.ua/", settings.P24_MERCHID, settings.P24_PASSWD, settings.P24MERCH_CARD)
 
 
 class Command(BaseCommand):
     args = ''
     help = 'fix user currency'
     def handle(self, *args, **options):
+	
 	LOCK = "p2p_lock"
-	lock = my_lock(LOCK)			
-        try :
+	lock = my_lock(LOCK)
+			
+        #try :
+	if not check_global_lock():
+		print "start process"
 		process_command()
-	except :
-		print "Unexpected error:", sys.exc_info()[0]	
-	my_release(lock)
+		my_release(lock)                       
+	else:
+		print "global check" 
+	#except :
+	#	print "Unexpected error:", sys.exc_info()[0]	
+
 
 		
 
 
 def process_command():
 	Now = datetime.now()
-    admin_system = User.objects.get(id = 1)
-    for item in CardP2PTransfers.objects.filter(status = "auto"):
+        admin_system = User.objects.get(id = 1)
+        for item in  CardP2PTransfers.objects.filter(status = "auto"):
 		time.sleep(1)
-        print "process withdraw %s to card %s date %s amnt is %s" %   (item.user.username,
-                                                                       item.CardNumber,
-                                                                       item.pub_date,
-                                                                       item.amnt )
-        if (Now - item.pub_date) > timedelta(seconds = 1800):
-            P24 = get_p24()
+                print "process withdraw %s to card %s date %s amnt is %s" %   (item.user.username,
+                                                                               item.CardNumber,
+                                                                               item.pub_date,
+                                                                               item.amnt )
+		if 0 and not item.verify(settings.COMMON_SALT):
 
-            if not item.verify(UserPrivateKey):
-                print "SIGN Fault"
-                notify_admin_withdraw_fail(item, "sign_status")
-                continue
-
-            item.status = "processed"
-            print "start process"
+                      print "SALT FAILED"
+                      continue
+                if (Now - item.pub_date) > timedelta(seconds = 900) or True:
+                        P24 = get_p24()
+                        item.status = "processed"
+                        item.save()
+                        print "start process" 
 			Result = None
-            CardNumber = item.CardNumber
-            CardNumber.replace(" ","")
-            try :
-                NewAmnt = get_comisP2P(CardNumber, item.amnt )
-                Result = P24.pay2p(item.id, CardNumber, NewAmnt)
-                item.sign_record(crypton.settings.CRYPTO_SALT)
-                item.save()
-
-            except TransError as e:
-                item.status = "processing"
-                item.save()
-                notify_admin_withdraw_fail(item, e.value)
-            except Exception as e:
-                i.status = "processing"
-                i.save()
-                notify_admin_withdraw_fail(i, str(e) )
-                continue
-            if Result :
-                p2p_inner_process(admin_system, item)
-            else:
-                item.status = "core_error"
-                item.save()
-                notify_admin_withdraw_fail(item, "bad_status")
-                time.sleep(1)
-        else:
-                print "it's not a time "
+                        CardNumber = item.CardNumber
+                        CardNumber.replace(" ","")
+                        try :
+                                NewAmnt = get_comisP2P(CardNumber, item.amnt )
+                                Result = P24.pay2p(item.id, CardNumber, NewAmnt)
+                        except TransError as e:
+                                item.status = "processing"
+                                item.save()
+                        except Exception as e:
+                                        i.status = "processing"
+                                        i.save()
+                                        notify_admin_withdraw_fail(i, str(e) )
+                                        continue         
+                        if Result :
+                                p2p_inner_process(admin_system, item)
+                        else:
+                                item.status = "core_error"
+                                item.save()
+                                
+                	                
+                        time.sleep(1)
+                else :
+                        print "it's not a time " 
   

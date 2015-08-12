@@ -23,7 +23,8 @@ class Command(BaseCommand):
   help = 'every minute get stock prices and save it to StockStat'
 
   def handle(self, *args, **options):
-        
+      print "stock_stat"
+      print "=============================="  
       getcontext().prec = 6
       cursor = connection.cursor()
         
@@ -36,7 +37,7 @@ class Command(BaseCommand):
                 StockStatistic = StockStat.objects.get(Status = "current", Stock = Market)
         except :
 		
-                StockStatisticaPast = StockStat.objects.filter( Status = "past",  Stock = Market).latest('id')
+		StockStatisticaPast = StockStat.objects.filter( Status = "past",  Stock = Market).latest('id')
                 
                 StockStatistic = StockStat(
                                          start_date = Range1, 

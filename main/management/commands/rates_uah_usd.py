@@ -12,7 +12,9 @@ class Command(BaseCommand):
     help = 'fix user currency'
     def handle(self, *args, **options):
              CheckAuto = VolatileConsts.objects.get(Name = "rate_auto")
-             Url = "https://api.privatbank.ua/p24api/pubinfo?exchange&coursid=5"
+	     print "rates_usd_uah"
+	     print "================================="
+             Url = "https://api.privatbank.ua/p24api/pubinfo?exchange&coursid=11"
 	     if CheckAuto.Value == "1":
 		print "get  rate from privat"
 		D = urllib2.urlopen(Url)	

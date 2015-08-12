@@ -21,19 +21,23 @@ class Command(BaseCommand):
     help = 'every minute get stock prices and save it to StockStat'
 
     def handle(self, *args, **options):
- 	CurrencyTitle = args[0]    
         try :
-              Time = args[1]    
+              Time = args[0]    
               Time = int(Time)
         except :
               Time = 0 
-	print "process %s time %i" % (CurrencyTitle, Time) 
+	print "process  time %i" % ( Time) 
 	LOCK = "in_cryptoblck_info"
-	LOCK = LOCK + CurrencyTitle
+	LOCK = LOCK 
 	lock = None
 	try:
       		lock = my_lock(LOCK)
-		process_in_crypto(Time, CurrencyTitle)
+		
+		for CurrencyTitle in  CryptoSettings.keys():
+			
+			print "start proces %s" % CurrencyTitle
+			if CurrencyTitle !="BTC":
+				process_in_crypto(Time, CurrencyTitle)
 	except :
 		print "Unexpected error:", sys.exc_info()[0]	
         finally:
@@ -50,8 +54,8 @@ def process_in_crypto(Time, CurrencyTitle):
                 Txid = trans["txid"]
 	#	print "receive transactions %s" % (str(trans))
                 if  trans.has_key("blocktime")  and trans["blocktime"]<Time:
-			print "old transactions ";
-			print "blocktime is %i " % trans["blocktime"]
+#			print "old transactions ";
+#			print "blocktime is %i " % trans["blocktime"]
                         continue
 
 		#if trans["amount"]<0.0001:
@@ -82,8 +86,8 @@ def process_in_crypto(Time, CurrencyTitle):
 				Trans.save()	
 				print "in one trans to our accounts"
                         	print "#%i receive %s to %s amount of %s" % (Trans.id ,Txid, trans["address"], trans['amount'] )
-                        print "confirmations %i" % (trans["confirmations"] )                        
-                        print "this trans is %s" % (Trans.status)
+        #                print "confirmations %i" % (trans["confirmations"] )                        
+        #                print "this trans is %s" % (Trans.status)
                         if (Trans.status == "processing" or Trans.status == "created" ) and trans["confirmations"] > CryptoSettings[CurrencyTitle]["min_confirmation"]:
                                 print "processing it %s" % (str(trans))
                                 Trans.confirms = int(trans["confirmations"])

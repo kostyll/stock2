@@ -9,6 +9,8 @@ class Command(BaseCommand):
     args = ''
     help = 'update top prices'
     def handle(self, *args, **options):
+		print "top prices"
+		print "============================================="
                 cursor = connection.cursor()
                 for item in  TradePairs.objects.filter(status = "processing"):
                         Query =  cursor.execute("SELECT  min(main_orders.price) as top_price \n\

@@ -14,19 +14,16 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
             Now = datetime.now()
-            L = get_bins()
-	    print len(L)
-            i=0
-	    for item in L:
-		Bin = item['bin']
-		i+=1
-		print i
+            for item in get_bins():
+		Bin = item["bin"]
+		print "process bin %s" % Bin  
                 try:
                     Bin =  FullBinInfo.objects.get(bin6 = Bin)
                     continue            
                                 
                 except FullBinInfo.DoesNotExist:
                     pass
+		print "add bin %s" % item["bin"]
                 Bin = FullBinInfo(bin6 = item["bin"],
                                       country = item["country"],
                                       product = item["product"],
