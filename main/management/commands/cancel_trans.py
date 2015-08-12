@@ -16,10 +16,10 @@ class Command(BaseCommand):
     help = 'every minute get stock prices and save it to StockStat'
 
     def handle(self, *args, **options):
-	i = args[0]        
+        i = args[0]        
         obj = Trans.objects.get(id=i)		
-	cancel_trans(obj)
-	
+        cancel_trans(obj)
+        
 def cancel_trans(obj):
         add_trans(obj.user2,
                   obj.amnt,

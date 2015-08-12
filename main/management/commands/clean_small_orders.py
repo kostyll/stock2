@@ -20,7 +20,7 @@ class Command(BaseCommand):
         LOCK +=  URL_TITLE
         lock = my_lock(LOCK)
         print "small orders "
-	print "============================="
+        print "============================="
         try:
                lock = my_lock(LOCK)
                process_small_orders(URL_TITLE)
