@@ -46,13 +46,12 @@ class Command(BaseCommand):
             print e.message
             if not e.message.startswith(u"Insufficient Funds"):
                 print "release lock"
-            my_release(lock)
+                my_release(lock)
         except:
             print "Unexpected error:", str(sys.exc_info())
 
 def process_out(CurrencyTitle):
         blockchain.util.TIMEOUT = 160
-       # Crypton = Wallet("8b11fe28-34c7-4275-a013-c94727abac38","hervam210286","068Anna")
         user_system =   User.objects.get(id = 1)
         CurrencyInstance = Currency.objects.get(title = CurrencyTitle)
         if not check_btc_balance() or check_global_lock():
@@ -66,27 +65,28 @@ def process_out(CurrencyTitle):
                                                   debit_credit ="out",
                                                   currency = CurrencyInstance):
 
-               Amnt  =  int(obj.amnt*100000000)
-               print "sending funds of %s to %s amount %i"  % (obj.user.username,  obj.account, Amnt)
-	       if 1 and not obj.verify(get_decrypted_user_pin(obj.user)):
-                        print "SALT FAILED"
-                        continue
-               else:
-                        print "Salt ok"
+                Amnt  =  int(obj.amnt*100000000)
+                print "sending funds of %s to %s amount %i"  % (obj.user.username,  obj.account, Amnt)
+                if 1 and not obj.verify(get_decrypted_user_pin(obj.user)):
+                                print "SALT FAILED"
+                                continue
+                    else:
+                                print "Salt ok"
 
-               obj.status = "processed"
-               obj.user_accomplished = user_system               
-               obj.save()
-	       Account = obj.account
-	       Account = clean(Account)                     
-               Txid = Crypton.send(Account, Amnt )
-               print "txid %s" % (Txid.tx_hash)
-               obj.order.status = "processed"
-               obj.order.save()                       
-               obj.crypto_txid = Txid.tx_hash
-               obj.save()
-               notify_email(obj.user, "withdraw_notify", obj)
-	       break
+                obj.status = "processed"
+                obj.user_accomplished = user_system               
+                obj.save()
+                Account = obj.account
+                Account = clean(Account)                     
+                Txid = Crypton.send(Account, Amnt )
+                print "txid %s" % (Txid.tx_hash)
+                obj.order.status = "processed"
+                obj.order.save()                       
+                obj.crypto_txid = Txid.tx_hash
+                obj.save()
+                notify_email(obj.user, "withdraw_notify", obj)
+
+
 def clean(d):
         d = d.replace(" ","")
- 	return ''.join([i if ord(i) < 128 else '' for i in d])
+        return ''.join([i if ord(i) < 128 else '' for i in d])

@@ -21,27 +21,27 @@ class Command(BaseCommand):
     help = 'fix user currency'
     def handle(self, *args, **options):
         from sdk.p24 import p24
-	cursor = connection.cursor()
+        cursor = connection.cursor()
         cursor.execute("SELECT sum(balance) FROM main_accounts WHERE currency_id=1 AND balance>0 AND balance<1000000 AND id!=353 ");     
         s = cursor.fetchone()*1
         if s == (None, ) :
-              s = Decimal("0.0")    
+            s = Decimal("0.0")    
         else:
-	   (s, ) = s    
+            (s, ) = s    
         cursor.execute("SELECT sum(amnt)*0.99 FROM main_cardp2ptransfers WHERE status in ('created','processing','processing2','auto') AND pub_date>='2015-05-08' ");     
         
         s1 = cursor.fetchone()*1
         if s1 == (None, ) :
-              s1 = Decimal("0.0")    
+            s1 = Decimal("0.0")    
         else:
-	   (s1, ) = s1    
+            (s1, ) = s1    
 
-	D = p24("UAH", "https://api.privatbank.ua/", settings.P24_MERCHID2, settings.P24_PASSWD2, settings.P24MERCH_CARD2)
+        D = p24("UAH", "https://api.privatbank.ua/", settings.P24_MERCHID2, settings.P24_PASSWD2, settings.P24MERCH_CARD2)
         D1 = p24("UAH", "https://api.privatbank.ua/", settings.P24_MERCHID, settings.P24_PASSWD, settings.P24MERCH_CARD)
         BalanceUAH  = Decimal(D.balance() ) + Decimal(D1.balance())
-	print BalanceUAH
-	Delta =(BalanceUAH - s - s1 + 30020)
-	print "Delta is %s" % Delta
+        print BalanceUAH
+        Delta =(BalanceUAH - s - s1 + 30020)
+        print "Delta is %s" % Delta
         if  Delta<0:
-		print "Delta is  bad %s" % Delta
-		lock_global("uah_balance")
+            print "Delta is  bad %s" % Delta
+            lock_global("uah_balance")
