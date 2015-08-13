@@ -542,6 +542,22 @@ var Main = {
         timer_sell_list: null,
         timer_buy_list: null,
         comission:0.0005, //0.1 percent
+        start_last_price: function(){
+                Main.last_price(function(){
+                                setTimeout(Main.start_last_price, 5000)}
+                                );
+        
+        },
+        start_stock_stat:function(){
+               Main.stock_stat(function(){
+                               setTimeout(Main.start_stock_stat, 25000)}
+               );
+                
+        },
+        
+        
+        
+        
         start_stock: function(){
                Main.start_deals_timer();
                Main.start_my_orders();
@@ -611,6 +627,12 @@ var Main = {
                               });     
                 
         },
+        stock_stat: function(){
+                
+                
+        },
+        
+        
         own_deals:function(callback){
                 
                 $.ajax({
