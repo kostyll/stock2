@@ -26,7 +26,7 @@ application_urls = [
     (r'/api/bid/([\w]+)',  CommonRequestHandlerOneParam, dict(callable_object=bid, name='bid')),
     (r'/api/sell/([\w]+)',  CommonRequestHandlerOneParam, dict(callable_object=sell, name='sell')),
     
-    (r'/api/last_price/([\w]+)',  CommonRequestHandlerOneParam, dict(callable_object=last_price, name='last_price')),
+    (r'/api/day_stat/([\w]+)',  CommonRequestHandlerOneParam, dict(callable_object=day_stat, name='day_stat')),
 
     (r'/api/remove/order/([\w]+)', CommonRequestHandlerOneParam, dict(callable_object=remove_order,
                                                                       name='remove_order')),
