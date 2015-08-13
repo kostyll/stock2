@@ -533,7 +533,7 @@ var finance  = {
 
 
 var Main = {
-        trade_pair:"",
+        trade_pair:null,
         currency_base:"",
         currency_on:"",
         usd_uah_rate: null,
@@ -628,11 +628,61 @@ var Main = {
                 
         },
         stock_stat: function(){
+                  if (!Main.trade_pair){
+                     
+                      Main.trade_pair='btc_usd';
+                      Main.currency_base = "USD";
+                      Main.currency_on = "BTC";
+                                            
+                  }
+                     
+                   $.ajax({
+                              dataType: 'json',
+                              url : "/api/day_stat/" + Main.trade_pair,
+                              type : 'GET', 
+                              cache: false,
+                              error: function (data) {
+                                                console.log(data);
+                                                callback();
+                              }, 
+                              success : function(Data){
+                                          $("#stock_min_price").html(Data["min"]+"&nbsp;"+Main.currency_base);
+                                          $("#stock_max_price").html(Data["max"] +"&nbsp;"+Main.currency_base);
+                                          var Volume = Data["volume_trade"]+"&nbsp;" + Main.currency_on + "&nbsp;/&nbsp;" + Data["volume_base"] + "&nbsp;" + Main.currency_base;
+                                          $("#stock_volume").html(Volume);
+                                          callback();
+                               }
+                              
+                           });              
+                
                 
                 
         },
-        
-        
+        last_price: function(){
+                  if (!Main.trade_pair){
+                     
+                      Main.trade_pair='btc_usd';
+                      Main.currency_base = "USD";
+                      Main.currency_on = "BTC";
+                                            
+                  }
+                     
+                   $.ajax({
+                              dataType: 'json',
+                              url : "/api/last_price/" + Main.trade_pair,
+                              type : 'GET', 
+                              cache: false,
+                              error: function (data) {
+                                                console.log(data);
+                                                callback();
+                              }, 
+                              success : function(Data){
+                                          $("#stock_last_price").html(Data["price"]+"&nbsp;"+Main.currency_base);
+                                          callback();
+                              }
+                   });              
+
+        },
         own_deals:function(callback){
                 
                 $.ajax({
