@@ -1067,10 +1067,51 @@ def sell_list(Req, Pair):
         RespJ = json.JSONEncoder().encode(Dict)
         
         return RespJ
-
+        
+@my_cache
+def last_price(Req, Pair):
+    
+    Current = None
+    try:
+        Current = TradePairs.objects.get(url_title = Pair)
+    except :
+        return json_false500(Req)
+    Dict = None
+    try:    
+        deal = DealsMemory.objects.filter(trade_pair = Current.id).latest("id")
+        Dict = {"price":format_numbers10(deal.price) }
+    except:
+        Dict = {"price":"0" }
+        
+    RespJ = json.JSONEncoder().encode(Dict)
+    return RespJ
         
 
 ### TODO stat
+@my_cache
+def day_stat(Req, Pair):
+    
+    Current = TradePairs.objects.get(url_title = Pair)    
+    ##last value 17520
+    List = StockStat.objects.raw("SELECT sum(VolumeTrade) as VolumeTrade, \
+                                  sum(VolumeBase) as VolumeBase,\
+                                  max(Max) as Max,\
+                                  min(Min) as Min \
+                                  FROM main_stockstat WHERE  main_stockstat.Stock_id=%i \
+                                  ORDER BY id DESC LIMIT  17520 " % (Current.id) )
+    OnlineUsersCount =  OnlineUsers.objects.count()
+    ListJson.reverse()      
+    
+    Dict = {"volume_base": str(List[0].VolumeBase),
+            "volume_trade": str(List[0].VolumeTrade),
+            "min": str(List[0].Min),
+            "max": str(List[0].Max),
+            }
+    
+    RespJ = json.JSONEncoder().encode(Dict)
+    return RespJ
+
+
 
 @my_cache
 def high_japan_stat(Req, Pair):
