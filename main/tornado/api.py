@@ -91,7 +91,7 @@ class TornadoServer(object):
 
 class StopHandler(tornado.web.RequestHandler):
     def get(self):
-        print "stoping tornado"
+        logging.debug("stoping tornado")
         tornado.ioloop.IOLoop.instance().stop()        
 
         
@@ -193,19 +193,19 @@ def process_order(AccountBuyer, ComisBuy, AccumSum, AccumSumToSell,  item, Order
         ##TODO move to settings for every user 
         ComisPercentSeller = item.comission
         ComisPercentBuyer = Order.comission
-        print "========================================================================================="
-        print item
-        print AccumSum, AccumSumToSell
-        print Order
-        print "========================================================================================="
+        logging.debug("=========================================================================================")
+
+        logging.debug(item)
+        logging.debug("%s%s" % (AccumSum, AccumSumToSell))
+        logging.debug(Order)
+        logging.debug("=========================================================================================")
 
         
         if not item.verify( str(item.user) ) :
-            print("Sign FAILED %s" % str(item))
+            logging.debug("Sign FAILED %s" % str(item))
             return (AccumSum, AccumSumToSell)
         
         if item.sum1 > AccumSum :
-            print "case 1"
             ## a danger of low overflow  
             ## TODO remove deviding
             Diff = AccumSum / item.sum1
@@ -272,7 +272,6 @@ def process_order(AccountBuyer, ComisBuy, AccumSum, AccumSumToSell,  item, Order
             return (0, Order.sum1)
     
         if item.sum1 <= AccumSum :  
-            print "case 2"
             TransSum   = item.sum2  
             NotifySum = item.sum1    
             AccountSeller = get_account(item.user, item.currency2)
@@ -391,7 +390,6 @@ def make_auto_trade(Order, TradePair, Price, Currency1, Sum1, Currency2, Sum2):
     UserDeals = [int(Order.user)]
     
     for item in List:
-            print item
             (AccumSum2Buy, AccumSumToSell) = process_order(AccountBuyer, ComnissionBuy,  AccumSum2Buy,
                                                             AccumSumToSell,  item, Order,
                                                             TradePair, CommissionSell )
@@ -466,7 +464,8 @@ def reload_cache(Res, Type):
     DeleteKeys.append("deal_list_"+Type)
     DeleteKeys.append("sell_list_"+Type)
     DeleteKeys.append("buy_list_"+Type)
-    print "delete this keys %s " % str(DeleteKeys)
+    logging.debug("delete this keys %s " % str(DeleteKeys))
+
     cache.delete_many(DeleteKeys)
 
 
@@ -1079,9 +1078,9 @@ def last_price(Req, Pair):
     Dict = None
     try:    
         deal = DealsMemory.objects.filter(trade_pair = Current.id).latest("id")
-        Dict = {"price":format_numbers10(deal.price) }
+        Dict = {"price":format_numbers4(deal.price), "price_10": format_numbers10(deal.price) }
     except:
-        Dict = {"price":"0" }
+        Dict = {"price":"0","price_10":"0.000000000" }
         
     RespJ = json.JSONEncoder().encode(Dict)
     return RespJ
@@ -1093,19 +1092,26 @@ def day_stat(Req, Pair):
     
     Current = TradePairs.objects.get(url_title = Pair)    
     ##last value 17520
-    List = StockStat.objects.raw("SELECT sum(VolumeTrade) as VolumeTrade, \
+    cursor = connection.cursor()
+    Q = cursor.execute("SELECT 	  sum(VolumeTrade) as VolumeTrade, \
                                   sum(VolumeBase) as VolumeBase,\
                                   max(Max) as Max,\
                                   min(Min) as Min \
                                   FROM main_stockstat WHERE  main_stockstat.Stock_id=%i \
                                   ORDER BY id DESC LIMIT  17520 " % (Current.id) )
-    OnlineUsersCount =  OnlineUsers.objects.count()
-    ListJson.reverse()      
-    
-    Dict = {"volume_base": str(List[0].VolumeBase),
-            "volume_trade": str(List[0].VolumeTrade),
-            "min": str(List[0].Min),
-            "max": str(List[0].Max),
+       
+    List = dictfetchall(cursor, Q)
+    row = List[0] 
+    for i in row : 	     
+      if not row[i]:
+      	row[i] = format_numbers4(Decimal("0"))
+      else:
+	row[i] = format_numbers4(Decimal(row[i]))
+
+    Dict = {"volume_base": row['VolumeBase'],
+            "volume_trade": row['VolumeTrade'],
+            "min": row['Min'],
+            "max": row['Max'],
             }
     
     RespJ = json.JSONEncoder().encode(Dict)

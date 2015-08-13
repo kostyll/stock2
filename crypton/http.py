@@ -149,11 +149,11 @@ class HttpRequest:
                         self.user = self.session['user']
                             
                 except Exception,e: 
-                    print("_worker problem")
-                    print str(e)
-                    print '-'*60
+                    logging.debug("_worker problem")
+                    logging.debug(str(e))
+                    logging.debug('-'*60)
                     traceback.print_exc(file=sys.stdout)
-                    print '-'*60
+                    logging.debug('-'*60)
                     self.user = False
             else:
                 self.user = False
@@ -247,15 +247,15 @@ class ThreadableMixin:
         try:
             self._worker()
         except tornado.web.HTTPError, e:
-            print str(e)
+            logging.debug(str(e))
             self.set_status(e.status_code)
 
         except Exception,e: 
-            print("_worker problem")
-            print str(e)
-            print '-'*60
+            logging.debug("_worker problem")
+            logging.debug(str(e))
+            logging.debug('-'*60)
             traceback.print_exc(file=sys.stdout)
-            print '-'*60
+            logging.debug('-'*60)
             self.set_status(500)
             
         callable_object = lambda : ThreadableMixin.render_http_response(self)
@@ -291,7 +291,7 @@ class CommonRequestHandler(tornado.web.RequestHandler, ThreadableMixin):
         
 
     def _worker(self):
-        print "worker is started"
+        logging.debug("worker is started")
         self.my_response = self.callable(self.my_request)
 
     @tornado.web.asynchronous
@@ -316,7 +316,7 @@ class CommonRequestHandlerOneParamNonThread(tornado.web.RequestHandler):
             self.my_response = None
             
         def _worker(self):
-            print "worker non thread is started"
+            logging.debug("worker non thread is started")
             self.my_response = self.callable(self.my_request)
             
        #@tornado.web.asynchronous

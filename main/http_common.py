@@ -465,7 +465,7 @@ def get_crypto_object(Key, Iv = None):
     if Iv is None:
         Iv = Random.get_random_bytes(16)
     else :
-    Iv = base64.b32decode(Iv)
+        Iv = base64.b32decode(Iv)
 
     return  ( AES.new(Key, AES.MODE_CBC, Iv ), base64.b32encode(Iv) )
 

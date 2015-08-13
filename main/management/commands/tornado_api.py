@@ -9,6 +9,7 @@ import sys
 import logging
 from crypton.tornado_urls import application_urls
 from main.tornado.api import TornadoServer
+import crypton.settings
 
 
 class Command(BaseCommand):
@@ -19,13 +20,15 @@ class Command(BaseCommand):
           try:
             debug = args[0]
           except:
-            setup_logging()  
+            setup_logging() 
+	
             
           worker = TornadoServer.create_instance(8081, application_urls)
           worker.start()
           
 def setup_logging():
-        logger = logging.getLogger()
+	print "setup logging"
+	logger = logging.getLogger('main.tornado.api')
         # remove all handlers
         logger.handlers = []
         logger.setLevel(logging.DEBUG)

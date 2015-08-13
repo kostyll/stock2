@@ -10,7 +10,7 @@ from django.core.cache import get_cache
 from django.contrib.auth.models import User
 from django.utils.html import strip_tags
 from main.msgs import notify_email, pins_reset_email, notify_admin_withdraw_fail
-from main.http_common import generate_key_from, start_show_pin, delete_show_pin, generate_key, generate_key_from2, format_numbers_strong10, format_numbers_strong
+from main.http_common import generate_key_from, start_show_pin, delete_show_pin, generate_key, generate_key_from2, format_numbers10, format_numbers_strong
 from django.db import connection
 from sdk.image_utils import ImageText, draw_text, pin
 from decimal import Decimal
