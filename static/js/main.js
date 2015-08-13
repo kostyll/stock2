@@ -564,7 +564,7 @@ var Main = {
                Main.start_sell_list();
                Main.start_buy_list();
                Main.start_user_menu();
-               Main.start_market_prices();
+               //Main.start_market_prices();
                
                if(Main.currency_base == "UAH"){
                         $("#buy_result_usd_eq").show();
