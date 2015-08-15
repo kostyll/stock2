@@ -14,7 +14,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from main.http_common import generate_key, my_cached_paging
-from main.models import TransIn,TransOut
+from main.models import TransIn,TransOut,Currency
 
 
 import hashlib
