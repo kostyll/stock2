@@ -59,7 +59,7 @@ class perfect_money_sdk:
                acc="E%s"%self.__public_id
            Data =  "<form id='pay_p_form' action=\"https://perfectmoney.is/api/step1.asp\" method=\"POST\">\
 <p>\
-    <input type=\"hidden\" id=\"p_public_key\" name=\"PAYEE_ACCOUNT\" value=\"\">\
+    <input type=\"hidden\" id=\"p_public_key\" name=\"PAYEE_ACCOUNT\" value=\"%s\">\
     <input type=\"hidden\"  name=\"PAYEE_NAME\" value=\"BITCOIN TRADE COMPANY\">\
     <input type=\"hidden\" id=\"p_amt\" name=\"PAYMENT_AMOUNT\" value=\"%s\">\
     <input type=\"hidden\" id=\"p_ccy\" name=\"PAYMENT_UNITS\" value=\"%s\">\
