@@ -96,7 +96,6 @@ admin.site.register(Msg, MsgAdmin)
 admin.site.register(LiqPayTrans, LiqPayTransAdmin )
 
 admin.site.register(Accounts, AccountsAdmin)
-admin.site.register(AccountsConv, AccountsAdmin)
 
 admin.site.register(Trans, TransAdmin)
 
