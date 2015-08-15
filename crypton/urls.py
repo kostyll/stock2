@@ -152,7 +152,7 @@ urlpatterns = patterns('',
     url(r'^finance/perfect_transfer_withdraw/([\w]+)/([\w\.]+)','main.finance_perfect.perfect_transfer_withdraw', 
                 name='perfect_transfer_withdraw'),  
                 
-    url(r'^finance/okpay_transfer_withdraw/([\w]+)/([\w\.]+)','main.okpay_transfer_withdraw', 
+    url(r'^finance/okpay_transfer_withdraw/([\w]+)/([\w\.]+)','main.finance.okpay_transfer_withdraw', 
                 name='okpay_transfer_withdraw'),
     
                 
