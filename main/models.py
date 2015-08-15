@@ -907,13 +907,13 @@ class TransOut(models.Model):
                                null = True)
    
    user = models.ForeignKey( User, verbose_name = u"Клиент",  
-                             related_name = "user_requested_all",
+                             related_name = "user_requested_all_out",
                              editable = False,
                              blank = True,
                              null = True)
 
    user_accomplished = models.ForeignKey( User, verbose_name = u"Оператор проводки", 
-                                           related_name = "operator_processed_all", 
+                                           related_name = "operator_processed_all_out", 
                                            blank = True, null = True, editable = False)
    pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата",editable = False )
    
