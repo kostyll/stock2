@@ -5,7 +5,7 @@ from crypton import settings
 from base64 import b64encode
 import hashlib 
 from decimal import Decimal
-from main.models import Accounts, TradePairs, Orders, Currency, TransError, process_perfect_in
+from main.models import Accounts, TradePairs, Orders, Currency, TransError
 from django.contrib.auth.models import User
 import urllib2
 import urllib
