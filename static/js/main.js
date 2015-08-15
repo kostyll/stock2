@@ -1,6 +1,6 @@
 "use strict";
 
-
+var server_name = "bitcoin trade company";
 
 var finance  = {
         crypto_currency:
@@ -113,7 +113,7 @@ var finance  = {
                                         cache: false,
                                         error: function (data) {
                                                 $("#res_provider").html( "permission denied" );  
-                                                my_alert("Проблемы в работе с кошельком обратитесь в support@btc-trade.com.ua");       
+                                                my_alert("Проблемы в работе с кошельком обратитесь в support@"+server_name);       
                                                 $("#provider_depo").val("");
                                                 return  false;
                                         },      
@@ -1394,7 +1394,7 @@ var Main = {
                 // Add the background image to the container
                 Highcharts.wrap(Highcharts.Chart.prototype, 'getContainer', function (proceed) {
                 proceed.call(this);
-           //     this.container.style.background = 'url(https://btc-trade.com.ua/img/sand.png)';
+           //     this.container.style.background = 'url(https:///img/sand.png)';
                 });
 
 

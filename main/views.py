@@ -126,7 +126,7 @@ Sitemap: https://{host}/sitemap.xml\n".format(host=settings.BASE_HOST)
 
 def sitemap(Req):
     tmpl = loader.get_template("sitemap.html")   
-    c = Context({})
+    c = Context({"host":settings.BASE_URL})
     Resp =  HttpResponse(tmpl.render(c))
     Resp["Content-Type"] = 'text/xml'
     return Resp
