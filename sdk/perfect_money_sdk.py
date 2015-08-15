@@ -52,7 +52,7 @@ class perfect_money_sdk:
           pass
     
     def generate_button(self, Amnt):
-           Data =  "<form action=\"https://perfectmoney.is/api/step1.asp\" method=\"POST\">\
+           Data =  "<form id='pay_p_form' action=\"https://perfectmoney.is/api/step1.asp\" method=\"POST\">\
 <p>\
     <input type=\"hidden\" id=\"p_public_key\" name=\"PAYEE_ACCOUNT\" value=\"U%s\">\
     <input type=\"hidden\"  name=\"PAYEE_NAME\" value=\"BITCOIN TRADE COMPANY\">\
