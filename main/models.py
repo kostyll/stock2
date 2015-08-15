@@ -896,13 +896,13 @@ class TransIn(models.Model):
                                null = True)
    
    user = models.ForeignKey( User, verbose_name = u"Клиент",  
-                             related_name = "user_requested_p24",
+                             related_name = "user_requested_all",
                              editable = False,
                              blank = True,
                              null = True)
 
    user_accomplished = models.ForeignKey( User, verbose_name = u"Оператор проводки", 
-                                           related_name = "operator_processed_p24", 
+                                           related_name = "operator_processed_all", 
                                            blank = True, null = True, editable = False)
    pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата",editable = False )
    
