@@ -232,7 +232,7 @@ var finance  = {
                                                          return finance.p_flag;
                                                          //strange but not work without it
                                                     });
-                                                   $("#p_submit_button").bind( "click", finance.p_start);
+                                                   $("#perfect_submit_button").bind( "click", finance.p_start);
                                                    
                                          }
                                      });   
