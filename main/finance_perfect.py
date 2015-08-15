@@ -38,7 +38,7 @@ from datetime import date
     
 
 @auth_required
-def perfect_transfer_withdraw(Req, CurrencyTitle ):
+def perfect_transfer_withdraw(Req, CurrencyTitle, Amnt ):
         
      Dict = {}
      CurrencyIn = Currency.objects.get(title = CurrencyTitle)    

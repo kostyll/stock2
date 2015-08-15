@@ -422,7 +422,7 @@ def confirm_withdraw_bank(Req, S):
        
              
 @auth_required
-def okpay_transfer_withdraw(Req, CurrencyTitle ):
+def okpay_transfer_withdraw(Req, CurrencyTitle, Amnt ):
         
      Dict = {}
      CurrencyIn = Currency.objects.get(title = CurrencyTitle)    
