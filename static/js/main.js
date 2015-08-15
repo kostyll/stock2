@@ -12,6 +12,7 @@ var finance  = {
         timer: null,
         liqpay_flag: false,
         p24_flag:false,
+        p_flag:false,
         ui_check_status:function(){
                         
                    $.ajax({
@@ -82,11 +83,7 @@ var finance  = {
               <option value="bank_transfer">
                                    Банковский перевод
                </option>*/
-        fill_providers_depo:function(Currency){
-                $("#provider_depo").html("");
-                $("#res_provider").html("")
-
-                if(!finance.crypto_currency[Currency]){
+        fill_uah: function(){
                         $("#provider_depo").append( $('<option value="">Выбрать</option>') );
                         $("#provider_depo").append( $('<option value="liqpay_transfer">LiqPay Платежной Картой 2.75% для всех карт Visa,MasterCard </option>') );    
                         $("#provider_depo").append( $('<option value="liqpay_transfer">2.75% наличными в терминалах ПриватБанка </option>') );    
@@ -96,6 +93,58 @@ var finance  = {
                         $("#label_amnt_depo").show();                      
                         $("#amnt_depo").show();                       
                         $("#provider_depo").show();
+          
+            
+            
+        },
+        fill_usd: function(){
+                        $("#provider_depo").append( $('<option value="">Выбрать</option>') );
+                        $("#provider_depo").append( $('<option value="perfect_usd">Perfect Money</option>') );    
+                        $("#provider_depo").append( $('<option value="okpay_usd">OkPay</option>') );    
+            
+                        $("#label_depo").html( "Cпособ пополения:" );                       
+                        $("#label_amnt_depo").show();                      
+                        $("#amnt_depo").show();                       
+                        $("#provider_depo").show();
+          
+            
+            
+        },
+        fill_eur: function(){
+                        $("#provider_depo").append( $('<option value="">Выбрать</option>') );
+                        $("#provider_depo").append( $('<option value="perfect_eur">Perfect Money</option>') );    
+                        $("#provider_depo").append( $('<option value="okpay_eur">OkPay</option>') );                    
+                        $("#label_depo").html( "Cпособ пополения:" );                       
+                        $("#label_amnt_depo").show();                      
+                        $("#amnt_depo").show();                       
+                        $("#provider_depo").show();
+        },
+        fill_rur: function(){
+                        $("#provider_depo").append( $('<option value="">Выбрать</option>') );
+                        $("#provider_depo").append( $('<option value="alfa_rur">AlfaBank</option>') );    
+                        $("#label_depo").html( "Cпособ пополения:" );                       
+                        $("#label_amnt_depo").show();                      
+                        $("#amnt_depo").show();                       
+                        $("#provider_depo").show();
+        },
+        
+        fill_providers_depo:function(Currency){
+                $("#provider_depo").html("");
+                $("#res_provider").html("")
+
+                if(!finance.crypto_currency[Currency]){
+                    
+                     if(Currency=="UAH")
+                        finance.fill_uah();
+                     
+                     if(Currency=="USD")
+                        finance.fill_usd();
+                     
+                     if(Currency=="EUR")
+                        finance.fill_eur();
+                     
+                     if(Currency=="RUR")
+                        finance.fill_rur();
                         
 
                 }
@@ -139,15 +188,95 @@ var finance  = {
                 var currency = $("#currency_depo").val();
                 var amnt =$("#amnt_depo").val(); 
                   
-                
                 if(provider == "bank_transfer")
                        return finance.bank_transfer(obj, amnt, currency )
                        
                 if(provider == "liqpay_transfer")
-                       return finance.liqpay_transfer(obj, amnt,  currency )                                     
-                if(provider == "p24_transfer")
-                       return finance.p24_transfer(obj, amnt,  currency )       
+                       return finance.liqpay_transfer(obj, amnt,  currency ) 
                        
+                if(provider == "p24_transfer")
+                       return finance.p24_transfer(obj, amnt,  currency )   
+                       
+                if(provider == "perfect_usd")
+                       return finance.p_transfer(obj, amnt,  "USD" )
+                
+                if(provider == "perfect_eur")
+                       return finance.p_transfer(obj, amnt,  "EUR" )  
+                       
+        },
+        p_transfer: function(obj, Amnt, currency){
+                if(currency != "USD" && currency != "EUR"){
+                        obj.value = "";
+                        my_alert("Неправильная валюта");       
+                        return false;
+                }
+                if(Amnt<10){
+                        obj.value = "";
+                        my_alert("Ограничение минимальной суммы пополнения через PerfectMoney");       
+                        return false;
+                }          
+                var Res = $.ajax({
+                                        url : "/finance/perfectmoney/deposit/"+currency+"/"+Amnt,
+                                        type : 'GET',
+                                        cache: false,
+                                        error: function(data){
+                                                $("#res_provider").html( "permission denied" );      
+                                                obj.value = "";
+                                        },      
+                                        success : function(Data){
+                                                   var comission = ""; //"<p class=\"help-block\">Комиссия за пополнение составляет 2% с карты ПриватБанка, 2% + 10 грн с карт других банков</p>";
+                                                    $("#res_provider").html( comission + Data );                                                  
+                                                    $("#pay_p_form").bind( "submit", function() {
+                                                         return finance.p_flag;
+                                                         //strange but not work without it
+                                                    });
+                                                   $("#p_submit_button").bind( "click", finance.p_start);
+                                                   
+                                         }
+                                     });   
+                
+        },
+        p_start:function(){
+                var currency = $("#currency_depo").val();
+                var amnt = $("#amnt_depo").val(); 
+                
+                if(currency != "USD" && currency != "EUR"){
+                        $("#provider_depo").val("");
+                        my_alert("Неправильная валюта");       
+                        return false;
+                }
+                if(amnt<10){
+                        $("#provider_depo").val("");
+                        my_alert("Ограничение минимальной суммы пополнения через PerfectMoney");       
+                        return false;
+                }          
+                
+                var Res = $.ajax({
+                                        url : "/finance/perfectmoney/start/"+currency+"/"+amnt,
+                                        type : 'GET',
+                                        dataType: "json",
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider").html( "permission denied" );      
+                                                $("#provider_depo").val("");
+                                                return  false;
+                                        },      
+                                        success : function(Data){
+                                                   if(Data["order_id"]){    
+                                                        $("#p_public_key").val(Data["public_key"]);         
+                                                        $("#p_order_id").val(Data["order_id"]);         
+                                                        $("#p_amt").val(Data["amount"]);                                                                 
+                                                        $("#p_ccy").val(Data["currency"]);         
+                                                        $("#p_return_url").val(Data["result_url"]);         
+                                                        $("#p_server_url").val(Data["server_url"]);
+                                                        $("#p_server_url_fail").val(Data["p_server_url_fail"]);         
+                                                        finance.p_flag = true;
+                                                        $("#pay_p_form").submit();                                            
+                                                   }
+                                         }
+                                     });        
+                
+                
         },
         p24_start:function(){
                 var currency = $("#currency_depo").val();

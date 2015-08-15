@@ -859,7 +859,99 @@ def process_p24_in(OrderId, Description, Comis, Key):
                      DebCred.sign_record(Key)
                      DebCred.save()
                      return True
-	
+
+class TransInAdmin(admin.ModelAdmin):
+    list_display = ['ref','user','pub_date', 'amnt']
+    list_filter = ['user']
+    search_fields = [ 'ref', 'user']
+    actions = []
+
+        
+        
+class TransIn(models.Model):
+
+   ref = models.CharField( max_length = 255,
+                           verbose_name = u"Reference",
+                           blank = True,
+                           null = True)
+
+  
+   currency =  models.ForeignKey( "Currency",  
+                                  verbose_name = u"Валюта",
+                                  editable = False,
+                                  blank = True,
+                                  null = True)
+   amnt = models.DecimalField( max_digits = 18,
+                               decimal_places = 2,
+                               verbose_name = u"Сумма",
+                               editable = False,
+                               blank = True,
+                               null = True) 
+     
+   comission = models.DecimalField( max_digits = 18,
+                               decimal_places = 2,
+                               verbose_name = u"комиссия",
+                               editable = False,
+                               blank = True,
+                               null = True)
+   
+   user = models.ForeignKey( User, verbose_name = u"Клиент",  
+                             related_name = "user_requested_p24",
+                             editable = False,
+                             blank = True,
+                             null = True)
+
+   user_accomplished = models.ForeignKey( User, verbose_name = u"Оператор проводки", 
+                                           related_name = "operator_processed_p24", 
+                                           blank = True, null = True, editable = False)
+   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата",editable = False )
+   
+   status =  models.CharField( max_length = 40,
+                               choices = STATUS_ORDER,
+                               default = 'created', editable = False, blank = True, null = True,)
+
+   order = models.ForeignKey("Orders",  verbose_name = u"Ордер",
+                              editable = False, null = True, blank = True)
+
+   sign = models.CharField( max_length = 255, blank = True, null = True,
+                                   editable = False)
+
+
+
+   def fields4sign(self):
+        List = []
+        for i in  ('amnt','comission','user','comission'):
+           Val = getattr(self, i)          
+           if i in ('amnt','comission'):
+               List.append(format_numbers_strong(Val ) )
+           else:
+               List.append(str(Val))
+        
+        return ",".join(List)
+            
+
+   def verify(self, key):
+        Fields = self.fields4sign()
+        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
+        return  Sign == self.sign 
+
+   def sign_record(self, key):
+        Fields = self.fields4sign()
+        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
+        self.save()
+
+
+
+   class Meta: 
+        verbose_name=u'Приход'        
+        verbose_name_plural = u'Приходы'
+        
+   ordering = ('id',) 
+      
+   def __unicode__(o):
+      return   str(o.id) + " " + str(o.amnt) + " " +  o.user.username
+                     
+                     
 class P24TransInAdmin(admin.ModelAdmin):
     list_display = ['ref','phone','user','pub_date', 'amnt']
     list_filter = ['phone','user']
@@ -1650,25 +1742,6 @@ class PoolAccounts(models.Model):
    def __unicode__(o):
                 return o.user.username + " " +str(o.address) + " " + str(o.currency)
 
-class AccountsConv(models.Model):
-        
-   user = models.ForeignKey(User)
-   currency =  models.ForeignKey("Currency", verbose_name = u"Валюта" )
-   balance = models.DecimalField(verbose_name = u"Баланс",default = 0, max_digits = 20, decimal_places = 10 )
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата публикации" )
-   reference = models.CharField( max_length = 255, 
-                                 null = True,
-                                 unique = True,
-                                 verbose_name = u" Внешний ключ идентификации или кошелек криптовалюты " )
-   
-   class Meta: 
-      verbose_name=u'OldBalance'
-      verbose_name_plural = u'OldBalances'
-      ordering = ('id',)     
-      db_table = 'main_accounts_conv'
-	 
-   def __unicode__(o):
-                return o.user.username + " " +str(o.balance) + " " + str(o.currency)
 
  
 class Accounts(models.Model):
