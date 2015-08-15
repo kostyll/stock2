@@ -265,13 +265,13 @@ var finance  = {
                                         },      
                                         success : function(Data){
                                                    if(Data["order_id"]){    
-                                                        $("#p_public_key").val(Data["public_key"]);         
+                                                        //$("#p_public_key").val(Data["public_key"]);         
                                                         $("#p_order_id").val(Data["order_id"]);         
                                                         $("#p_amt").val(Data["amount"]);                                                                 
                                                         $("#p_ccy").val(Data["currency"]);         
                                                         $("#p_return_url").val(Data["result_url"]);         
                                                         $("#p_server_url").val(Data["server_url"]);
-                                                        $("#p_server_url_fail").val(Data["p_server_url_fail"]);         
+                                                        $("#p_server_url_fail").val(Data["server_url_fail"]);         
                                                         finance.p_flag = true;
                                                         $("#pay_p_form").submit();                                            
                                                    }
