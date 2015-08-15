@@ -14,7 +14,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from main.http_common import generate_key, my_cached_paging
-from main.models import TransIn
+from main.models import TransIn,TransOut
 
 
 import hashlib
@@ -29,12 +29,39 @@ from sdk.perfect_money_sdk import perfect_money_sdk
 import sdk.perfect_money_settings
 from main.my_cache_key import check_freq
 #from sdk.crypto import CryptoAccount
+from main.finance_forms import FiatCurrencyTransferForm
 
 #from sdk.crypto_settings import Settings as SDKCryptoCurrency
 from datetime import date
 
 
+    
 
+@auth_required
+def perfect_transfer_withdraw(Req, CurrencyTitle ):
+        
+     Dict = {}
+     CurrencyIn = Currency.objects.get(title = CurrencyTitle)    
+     Dict["currency"] = CurrencyTitle
+     Dict["use_f2a"] = False
+     if Req.session.has_key("use_f2a"):
+             Dict["use_f2a"] =  Req.session["use_f2a"]
+             
+     t = loader.get_template("ajax_form.html")
+     Dict["action"] = "/finance/perfect_transfer_withdraw_submit"
+     Dict["action_title"] = settings.withdraw_transfer
+      
+     try :
+             Last = TransOut.objects.filter(user = Req.user, provider="perfect", currency = CurrencyIn, status="processed" ).order_by('-id')[0]
+             Dict["wallet"] = Last.account
+     except :
+             pass
+     
+     Form  = FiatCurrencyTransferForm(initial = Dict, user = Req.user )
+     
+     Dict["form"] = Form.as_p()
+     return  tmpl_context(Req, t, Dict )
+        
 
 def confirm_withdraw_msg_auto(Req):
         t = loader.get_template("simple_msg.html")   

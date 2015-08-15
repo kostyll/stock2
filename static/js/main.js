@@ -510,6 +510,32 @@ var finance  = {
                 $("#withdraw_form").slideDown("slow");
                 finance.withdraw_providers(Currency);                
         },
+        
+         
+        fill_usd_withdraw: function(){
+                        $("#provider_withdraw").append( $('<option value="">Выбрать</option>') );
+                        $("#provider_withdraw").append( $('<option value="perfect">Perfect Money</option>') );    
+                        $("#provider_withdraw").append( $('<option value="okpay">OkPay</option>') );    
+                        $("#label_provider_withdraw").html( "Cпособ вывода:" );                       
+                        $("#provider_withdraw").show();
+          
+            
+            
+        },
+        fill_eur_withdraw: function(){
+                        $("#provider_withdraw").append( $('<option value="">Выбрать</option>') );
+                        $("#provider_withdraw").append( $('<option value="perfect">Perfect Money</option>') );    
+                        $("#provider_withdraw").append( $('<option value="okpay">OkPay</option>') );                    
+                        $("#label_provider_withdraw").html( "Cпособ вывода:" );                       
+                        $("#provider_withdraw").show();
+        },
+        fill_rur_withdraw: function(){
+                        $("#provider_withdraw").append( $('<option value="">Выбрать</option>') );
+                        $("#provider_withdraw").append( $('<option value="alfa">AlfaBank</option>') );    
+                        $("#label_provider_withdraw").html( "Cпособ вывода:" );                       
+                        $("#provider_withdraw").show();
+        },
+        
         withdraw_providers: function(Currency){
                 $("#provider_withdraw").html("");                
                 if(Currency == "UAH"){
@@ -523,6 +549,20 @@ var finance  = {
                         $("#provider_withdraw").append( $('<option value="card_transfer">На платежную карту (Visa,MasterCard)</option>') );    
 
                 }
+                if(Currency == "USD"){
+                    finance.fill_usd_withdraw();
+                    return
+                }
+                if(Currency == "EUR"){
+                    finance.fill_eur_withdraw();
+                    return
+                }
+                if(Currency == "RUR"){
+                    finance.fill_rur_withdraw();
+                    return
+                }
+                
+                
                 if(finance.crypto_currency[Currency]){
                      
                         $("#provider_withdraw").hide();
@@ -538,27 +578,6 @@ var finance  = {
                                         success : function(Data){
                                                 
                                                    $("#res_provider_withdraw").html( Data ); 
-//                                                    console.log(Login.use_f2a);
-//                                                    if(!Login.use_f2a){
-//                                                         $("#ajax_form").submit(function(event){
-//                                                                 console.log("submit form " + $("#ajax_form_g2a_session" ).val());
-//                                                                 if(  $("#ajax_form_g2a_session" ).val() ) {
-//                                                                       return;
-//                                                                 }
-//                                                                 var turning_off_ga2 = function(ga2_Session){
-//                                                                               var newdiv1 = $("<input type='hidden' id='ajax_form_g2a_session' value='"+ga2_Session+"' name='g2a_session' />");
-//                                                                               $("#ajax_form").prepend( newdiv1 );
-//                                                                               $("#ajax_form").submit();
-//                                                                 };
-//                                                                 event.preventDefault();
-//                                                                 
-//                                                                 Login.start_f2a_for_custom(turning_off_ga2);
-//                                                         });
-                                                        
-                          
-                                                 
-//                                                   Pins.attach2pin("id_pin", "container_pin");
-//                                                     }
                                                    
                                         }
                                      });
@@ -585,12 +604,67 @@ var finance  = {
                 if(provider == "card_transfer")
                        return finance.p2p_transfer_withdraw(obj,   currency )     
                        
+                if(provider == "perfect")
+                       return finance.perfect_transfer_withdraw(obj,  currency )
+                       
+                if(provider == "okpay")
+                       return finance.okpay_transfer_withdraw(obj,   currency )     
+                
+                return
                        
                        
                        
                 
                 
         },
+         perfect_transfer_withdraw:function(obj,  Currency){
+                if(Currency != "USD" && Currency != "EUR" ){
+                        obj.value = "";
+                        my_alert("Неправильная валюта");       
+                        return ;
+                }
+                var Amnt = 10;       
+                var Res = $.ajax({
+                                        url : "/finance/perfect_transfer_withdraw/"+Currency+"/" + Amnt,
+                                        type : 'GET',
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider_withdraw").html( data );      
+                                                obj.value = "";
+                                        },      
+                                        success : function(Data){
+                                                   $("#res_provider_withdraw").html( Data ); 
+
+                                         }
+                                     });
+                
+                
+        },
+        okpay_transfer_withdraw:function(obj,  Currency){
+                if(Currency != "USD" && Currency != "EUR" ){
+                        obj.value = "";
+                        my_alert("Неправильная валюта");       
+                        return ;
+                }
+                var Amnt = 10;       
+                var Res = $.ajax({
+                                        url : "/finance/okpay_transfer_withdraw/"+Currency+"/" + Amnt,
+                                        type : 'GET',
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider_withdraw").html( data );      
+                                                obj.value = "";
+                                        },      
+                                        success : function(Data){
+                                                   $("#res_provider_withdraw").html( Data ); 
+
+                                         }
+                                     });
+                
+                
+        },
+        
+        
         p2p_transfer_withdraw:function(obj,  Currency){
                 if(Currency != "UAH"){
                         obj.value = "";

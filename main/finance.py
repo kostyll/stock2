@@ -20,7 +20,7 @@ from main.http_common import generate_key, my_cached_paging
 import hashlib
 import random
 import datetime
-from main.finance_forms import BankTransferForm, LiqPayTransferForm, CurrencyTransferForm, CardP2PTransfersForm, PinForm
+from main.finance_forms import BankTransferForm, LiqPayTransferForm, CurrencyTransferForm, CardP2PTransfersForm, PinForm, FiatCurrencyTransferForm
 from decimal import Decimal, getcontext
 from main.http_common import http_tmpl_context, http_json, json_false, json_denied, json_true, denied, setup_custom_meta, tmpl_context, caching, get_client_ip
 from main.http_common import json_auth_required, format_numbers10, format_numbers_strong, format_numbers, format_numbers4, auth_required, g2a_required, json_false500, login_page_with_redirect
@@ -421,7 +421,33 @@ def confirm_withdraw_bank(Req, S):
         return tmpl_context(Req, t, Dict)
        
              
-
+@auth_required
+def okpay_transfer_withdraw(Req, CurrencyTitle ):
+        
+     Dict = {}
+     CurrencyIn = Currency.objects.get(title = CurrencyTitle)    
+     Dict["currency"] = CurrencyTitle
+     Dict["use_f2a"] = False
+     if Req.session.has_key("use_f2a"):
+             Dict["use_f2a"] =  Req.session["use_f2a"]
+             
+     t = loader.get_template("ajax_form.html")
+     Dict["action"] = "/finance/okpay_transfer_withdraw_submit"
+     Dict["action_title"] = settings.withdraw_transfer
+      
+     try :
+             Last = TransOut.objects.filter(user = Req.user, provider="okpay", currency = CurrencyIn, status="processed" ).order_by('-id')[0]
+             Dict["wallet"] = Last.account
+     except :
+             pass
+     
+     Form  = FiatCurrencyTransferForm(initial = Dict, user = Req.user )
+     
+     Dict["form"] = Form.as_p()
+     return  tmpl_context(Req, t, Dict )
+        
+             
+             
 
 @auth_required
 def crypto_currency_withdraw(Req, CurrencyTitle ):
