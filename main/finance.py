@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 from django.utils.translation import ugettext_lazy as _
 from django.utils import formats
 
-
+from crypton import my_messages
 from django.db import connection
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
@@ -433,7 +433,7 @@ def okpay_transfer_withdraw(Req, CurrencyTitle, Amnt ):
              
      t = loader.get_template("ajax_form.html")
      Dict["action"] = "/finance/okpay_transfer_withdraw_submit"
-     Dict["action_title"] = settings.withdraw_transfer
+     Dict["action_title"] = my_messages.withdraw_transfer
       
      try :
              Last = TransOut.objects.filter(user = Req.user, provider="okpay", currency = CurrencyIn, status="processed" ).order_by('-id')[0]

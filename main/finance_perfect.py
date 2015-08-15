@@ -33,7 +33,7 @@ from main.finance_forms import FiatCurrencyTransferForm
 
 #from sdk.crypto_settings import Settings as SDKCryptoCurrency
 from datetime import date
-
+from crypton import my_messages
 
     
 
@@ -49,7 +49,7 @@ def perfect_transfer_withdraw(Req, CurrencyTitle, Amnt ):
              
      t = loader.get_template("ajax_form.html")
      Dict["action"] = "/finance/perfect_transfer_withdraw_submit"
-     Dict["action_title"] = settings.withdraw_transfer
+     Dict["action_title"] = my_messages.withdraw_transfer
       
      try :
              Last = TransOut.objects.filter(user = Req.user, provider="perfect", currency = CurrencyIn, status="processed" ).order_by('-id')[0]
