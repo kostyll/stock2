@@ -52,23 +52,23 @@ class perfectmoney_sdk:
           pass
     
     def generate_button(self, Amnt):
-           Data =  "<form action=\"https://perfectmoney.is/api/step1.asp\" method=\"POST\">
-<p>
-    <input type=\"hidden\" id=\"p_public_key\" name=\"PAYEE_ACCOUNT\" value=\"U%s\">
-    <input type=\"hidden\"  name=\"PAYEE_NAME\" value=\"BITCOIN TRADE COMPANY\">
-    <input type=\"hidden\" id=\"p_amt\" name=\"PAYMENT_AMOUNT\" value=\"%s\">
-    <input type=\"hidden\" id=\"p_ccy\" name=\"PAYMENT_UNITS\" value=\"%s\">
-    <input type=\"hidden\" id=\"p_server_url\" name=\"STATUS_URL\" 
-        value=\"\">
-    <input type=\"hidden\"  id=\"p_return_url\" name=\"PAYMENT_URL\" 
-        value=\"\">
-    <input type=\"hidden\" id=\"p_server_url_fail\" name=\"NOPAYMENT_URL\" 
-        value=\"\">
-    <input type=\"hidden\" name=\"BAGGAGE_FIELDS\" 
-        value=\"ORDER_NUM\">
-    <input type=\"hidden\" id=\"p_order_id\" name=\"ORDER_NUM\" value=\"\">
-    <input type=\"submit\" name=\"PAYMENT_METHOD\" value=\"PerfectMoney account\">
-</p>
+           Data =  "<form action=\"https://perfectmoney.is/api/step1.asp\" method=\"POST\">\
+<p>\
+    <input type=\"hidden\" id=\"p_public_key\" name=\"PAYEE_ACCOUNT\" value=\"U%s\">\
+    <input type=\"hidden\"  name=\"PAYEE_NAME\" value=\"BITCOIN TRADE COMPANY\">\
+    <input type=\"hidden\" id=\"p_amt\" name=\"PAYMENT_AMOUNT\" value=\"%s\">\
+    <input type=\"hidden\" id=\"p_ccy\" name=\"PAYMENT_UNITS\" value=\"%s\">\
+    <input type=\"hidden\" id=\"p_server_url\" name=\"STATUS_URL\" \
+        value=\"\">\
+    <input type=\"hidden\"  id=\"p_return_url\" name=\"PAYMENT_URL\" \
+        value=\"\">\
+    <input type=\"hidden\" id=\"p_server_url_fail\" name=\"NOPAYMENT_URL\" \
+        value=\"\">\
+    <input type=\"hidden\" name=\"BAGGAGE_FIELDS\" \
+        value=\"ORDER_NUM\">\
+    <input type=\"hidden\" id=\"p_order_id\" name=\"ORDER_NUM\" value=\"\">\
+    <input type=\"submit\" name=\"PAYMENT_METHOD\" value=\"PerfectMoney account\">\
+</p>\
 </form>" % (self.__public_id, Amnt, self.__currency.title  )
            return Data
        
