@@ -874,6 +874,11 @@ class TransIn(models.Model):
                            verbose_name = u"Reference",
                            blank = True,
                            null = True)
+                           
+   provider = models.CharField( max_length = 255,
+                                verbose_name = u"Provider",
+                                blank = True,
+                                null = True)
 
   
    currency =  models.ForeignKey( "Currency",  
