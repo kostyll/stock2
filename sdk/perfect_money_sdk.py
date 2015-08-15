@@ -67,9 +67,9 @@ class perfect_money_sdk:
     <input type=\"hidden\" name=\"BAGGAGE_FIELDS\" \
         value=\"ORDER_NUM\">\
     <input type=\"hidden\" id=\"p_order_id\" name=\"ORDER_NUM\" value=\"\">\
-    <input type=\"submit\" name=\"PAYMENT_METHOD\" value=\"PerfectMoney account\">\
+    <input type=\"submit\" name=\"PAYMENT_METHOD\" value=\"%s\">\
 </p>\
-</form>" % (self.__public_id, Amnt, self.__currency.title  )
+</form>" % (self.__public_id, Amnt, self.__currency.title, u"Оплатить"  )
            return Data
        
     def   balance(self):
