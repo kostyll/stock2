@@ -107,6 +107,7 @@ class perfect_money_sdk:
         order = Orders(         user = User,
                                 currency1 = self.__currency,
                                 currency2 = self.__currency, 
+                                price=AmountStr,
                                 sum1_history = AmountStr,
                                 sum2_history = AmountStr,
                                 sum1 = AmountStr, 
