@@ -1088,7 +1088,7 @@ var Main = {
                                                                 var usd_price =  Main.format_float4(List[i]["price"]/Main.usd_uah_rate);
                                                                 var NewElement = "<tr class='cursor' onclick='Main.order2this_buy(this,"+ List[i]["price"] +","+ List[i]["currency_trade"] +" )'>";                                                        
                                                                 NewElement +="<td>"  + Main.format_float6(List[i]["price"]) +"&nbsp;<strong>"  + Main.currency_base + "</strong>";
-                                                                NewElement += "&nbsp;<small>("+usd_price+"&#36;</small>)</td>";
+                                                                NewElement += "&nbsp;</td>";//<small>("+usd_price+"&#36;</small>)
                                                                 NewElement +="<td >" + Main.format_float6(List[i]["currency_trade"]) + "</td>";
                                                                 NewElement +="<td>"  + Main.format_float6(List[i]["currency_base"]) + "</td></tr>";
                                                                 $("#sell_orders_list").append( NewElement );
@@ -1173,7 +1173,7 @@ var Main = {
 
                                                                 var NewElement = "<tr class='cursor' onclick='Main.order2this_sell(this,"+ List[i]["price"] +","+ List[i]["currency_trade"] +" )'>";                                                        
                                                                 NewElement +="<td>" + Main.format_float6(List[i]["price"]) +"&nbsp;<strong>" 
-                                                                                 + Main.currency_base + "</strong>&nbsp;<small>("+usd_price+"&#36;</small>)</td>";
+                                                                                 + Main.currency_base + "</td>";//</strong>&nbsp;<small>("+usd_price+"&#36;</small>)
                                                                 NewElement +="<td>" +Main.format_float6( List[i]["currency_trade"]) + "</td>";
                                                                 NewElement +="<td>" +Main.format_float6(List[i]["currency_base"]) + "</td></tr>";
                                                                 $("#buy_orders_list").append( NewElement );
