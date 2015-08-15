@@ -225,7 +225,9 @@ var finance  = {
                                         },      
                                         success : function(Data){
                                                    var comission = ""; //"<p class=\"help-block\">Комиссия за пополнение составляет 2% с карты ПриватБанка, 2% + 10 грн с карт других банков</p>";
-                                                    $("#res_provider").html( comission + Data );                                                  
+                                                    $("#res_provider").html( comission + Data ); 
+                                                    $("#perfect_submit_button").css("margin-right","11em");
+                                                    $("#perfect_submit_button").attr("class","btn btn-success pull-right");
                                                     $("#pay_p_form").bind( "submit", function() {
                                                          return finance.p_flag;
                                                          //strange but not work without it
