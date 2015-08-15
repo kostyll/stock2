@@ -66,14 +66,14 @@ def perfect_deposit(Req, Currency, Amnt):
      amnt = Decimal(Amnt)
      if amnt<10:
              raise TransError("pay_requirments")
-     pay_invoice = perfectmoney_sdk(Currency,  
+     pay_invoice = perfect_money_sdk(Currency,  
                                     sdk.perfect_money_settings.PMERCHID,
                                     sdk.perfect_money_settings.PPASSWD,
                                     sdk.perfect_money_settings.PPASSWD2)
      return HttpResponse( pay_invoice.generate_button(Amnt) )
 
 def perfect_call_back_url(Req, Currency, OrderId):
-        pay_call_back = perfectmoney_sdk(Currency,  
+        pay_call_back = perfect_money_sdk(Currency,  
                                          sdk.perfect_money_settings.PMERCHID,
                                          sdk.perfect_money_settings.PPASSWD,
                                          sdk.perfect_money_settings.PPASSWD2
