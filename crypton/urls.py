@@ -123,8 +123,8 @@ urlpatterns = patterns('',
     url(r'^finance/p24/start/([\w\.]+)', 'main.finance.p24_start_pay', name='p24_start_pay' ),    
     url(r'^finance/p24/hui_hui_hui/([\w]+)', 'main.finance.p24_call_back_url', name='p24_call_back_url' ), 
     
-    url(r'^finance/perfectmoney/deposit/([\w\.]+)/([\w\.]+)', 'main.finance_perfect.perfect_deposit', name='perfect_deposit' ),
-    url(r'^finance/perfectmoney/start/([\w\.]+)/([\w\.]+)', 'main.finance_perfect.perfect_start_pay', name='perfect_start_pay' ),    
+    url(r'^finance/perfectmoney/deposit/([\w]+)/([\w\.]+)', 'main.finance_perfect.perfect_deposit', name='perfect_deposit' ),
+    url(r'^finance/perfectmoney/start/([\w]+)/([\w\.]+)', 'main.finance_perfect.perfect_start_pay', name='perfect_start_pay' ),    
     url(r'^finance/perfectmoney/hui_hui_hui/([\w]+)/([\w\.]+)', 'main.finance_perfect.perfect_call_back_url', name='perfect_call_back_url' ), 
     url(r'^finance/perfectmoney/hui_hui_hui_hui/([\w]+)', 'main.finance_perfect.perfect_call_back_url_fail', name='perfect_call_back_url_fail' ), 
     
