@@ -15,7 +15,7 @@ from xml.dom import minidom
 from sdk.perfectmoney import PerfectMoney
 
 
-class perfectmoney_sdk:
+class perfect_money_sdk:
         
     @staticmethod          
     def str_class_name():
@@ -40,7 +40,7 @@ class perfectmoney_sdk:
         self.__min_amnt = Decimal("10.00")
         self.comis = Decimal("0.00")
         self.description = "buying btc"
-        PUser =  User.objects.get(username = perfectmoney_sdk.str_class_name() )        
+        PUser =  User.objects.get(username = perfect_money_sdk.str_class_name() )        
         CurrencyPay =  Currency.objects.get( title = Cur)        
         self.__currency = CurrencyPay
         self.__transit_account = Accounts.objects.get(user  = PUser, currency = CurrencyPay)
