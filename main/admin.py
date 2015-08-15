@@ -1,6 +1,8 @@
 from main.models import TradePairs
-from main.models import Accounts, AccountsAdmin, AccountsConv
+from main.models import Accounts, AccountsAdmin
 from main.models import Trans, TransAdmin
+from main.models import TransIn, TransInAdmin
+
 from main.models import Orders, OrdersAdmin
 from main.models import MsgAdmin, Msg, StaticPage
 from main.models import BankTransfersAdmin, BankTransfers
@@ -35,6 +37,7 @@ from main.models import Balances, ResetPwdLink
 
 
 admin.site.disable_action('delete_selected')
+admin.site.register(TransIn, TransInAdmin)
 
 admin.site.register(Partnership, PartnershipAdmin)
 admin.site.register(OrderTimer, OrderTimerAdmin)

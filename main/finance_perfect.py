@@ -111,6 +111,7 @@ def process_perfect_in(OrderId, Comis, Key):
         DebCred = TransIn(  currency=order.currency1,
                             amnt=order.sum1,
                             user=order.user,
+                            provider='perfect_money',
                             comission=Comission,
                             user_accomplished_id=1,
                             status="created",

@@ -861,7 +861,7 @@ def process_p24_in(OrderId, Description, Comis, Key):
                      return True
 
 class TransInAdmin(admin.ModelAdmin):
-    list_display = ['ref','user','pub_date', 'amnt']
+    list_display = ['ref','provider','user','pub_date', 'amnt']
     list_filter = ['user']
     search_fields = [ 'ref', 'user']
     actions = []
