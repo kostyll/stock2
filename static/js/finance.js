@@ -103,7 +103,7 @@ var finance  = {
                         $("#provider_depo").append( $('<option value="">Выбрать</option>') );
                         $("#provider_depo").append( $('<option value="perfect_usd">Perfect Money</option>') );    
                         $("#provider_depo").append( $('<option value="okpay_usd">OkPay</option>') );    
-            
+                        $("#provider_depo").append( $('<option value="payeer_usd">Payeer</option>') );  
                         $("#label_depo").html( "Cпособ пополения:" );                       
                         $("#label_amnt_depo").show();                      
                         $("#amnt_depo").show();                       
@@ -115,7 +115,8 @@ var finance  = {
         fill_eur: function(){
                         $("#provider_depo").append( $('<option value="">Выбрать</option>') );
                         $("#provider_depo").append( $('<option value="perfect_eur">Perfect Money</option>') );    
-                        $("#provider_depo").append( $('<option value="okpay_eur">OkPay</option>') );                    
+                        $("#provider_depo").append( $('<option value="okpay_eur">OkPay</option>') );    
+                        $("#provider_depo").append( $('<option value="payeer_eur">Payeer</option>') );
                         $("#label_depo").html( "Cпособ пополения:" );                       
                         $("#label_amnt_depo").show();                      
                         $("#amnt_depo").show();                       
@@ -123,7 +124,9 @@ var finance  = {
         },
         fill_rur: function(){
                         $("#provider_depo").append( $('<option value="">Выбрать</option>') );
-                        $("#provider_depo").append( $('<option value="alfa_rur">AlfaBank</option>') );    
+                        $("#provider_depo").append( $('<option value="yandex_rur">Yandex</option>') );  
+                        $("#provider_depo").append( $('<option value="okpay_rur">OkPay</option>') );    
+                        $("#provider_depo").append( $('<option value="payeer_rur">Payeer</option>') );  
                         $("#label_depo").html( "Cпособ пополения:" );                       
                         $("#label_amnt_depo").show();                      
                         $("#amnt_depo").show();                       
@@ -206,6 +209,90 @@ var finance  = {
                        return finance.p_transfer(obj, amnt,  "EUR" )  
                        
         },
+        okpay_transfer: function(obj, Amnt, currency){
+                if(currency != "USD" && currency != "EUR" && currency != "RUR"){
+                        obj.value = "";
+                        my_alert("Неправильная валюта");       
+                        return false;
+                }
+                if(Amnt<10){
+                        obj.value = "";
+                        my_alert("Ограничение минимальной суммы пополнения через OkPay");       
+                        return false;
+                }          
+                var Res = $.ajax({
+                                        url : "/finance/okpay/deposit/"+currency+"/"+Amnt,
+                                        type : 'GET',
+                                        cache: false,
+                                        error: function(data){
+                                                $("#res_provider").html( "permission denied" );      
+                                                obj.value = "";
+                                        },      
+                                        success : function(Data){
+                                                   var comission = ""; //"<p class=\"help-block\">Комиссия за пополнение составляет 2% с карты ПриватБанка, 2% + 10 грн с карт других банков</p>";
+                                                    $("#res_provider").html( comission + Data ); 
+                                                    $("#okpay_submit_button").css("margin-right","11em");
+                                                    $("#okpay_submit_button").attr("class","btn btn-success pull-right");
+                                                    $("#pay_p_form").bind( "submit", function() {
+                                                         return finance.p_flag;
+                                                         //strange but not work without it
+                                                    });
+                                                   $("#okpay_submit_button").bind( "click", finance.okpay_start);
+                                                   
+                                         }
+                                     });   
+                
+        },
+        okpay_start:function(){
+                var currency = $("#currency_depo").val();
+                var amnt = $("#amnt_depo").val(); 
+                
+                if(currency != "USD" && currency != "EUR"&& currency != "RUR"){
+                        $("#provider_depo").val("");
+                        my_alert("Неправильная валюта");       
+                        return false;
+                }
+                if(amnt<10){
+                        $("#provider_depo").val("");
+                        my_alert("Ограничение минимальной суммы пополнения через OkPay");       
+                        return false;
+                }          
+                
+                var Res = $.ajax({
+                                        url : "/finance/okpay/start/"+currency+"/"+amnt,
+                                        type : 'GET',
+                                        dataType: "json",
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider").html( "permission denied" );      
+                                                $("#provider_depo").val("");
+                                                return  false;
+                                        },      
+                                        success : function(Data){
+                                                   if(Data["order_id"]){    
+                                                        //$("#p_public_key").val(Data["public_key"]);         
+                                                        $("#p_order_id").val(Data["order_id"]);         
+                                                        $("#p_amt").val(Data["amount"]);                                                                 
+                                                        $("#p_ccy").val(Data["currency"]);         
+                                                        $("#p_return_url").val(Data["result_url"]);         
+                                                        $("#p_server_url").val(Data["server_url"]);
+                                                        $("#p_server_url_fail").val(Data["server_url_fail"]);         
+                                                        finance.p_flag = true;
+                                                        $("#pay_p_form").submit();                                            
+                                                   }
+                                         }
+                                     });        
+                
+                
+        },
+        
+        
+        
+        
+        
+        
+        
+        
         p_transfer: function(obj, Amnt, currency){
                 if(currency != "USD" && currency != "EUR"){
                         obj.value = "";
