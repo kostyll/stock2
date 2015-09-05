@@ -128,6 +128,21 @@ urlpatterns = patterns('',
     url(r'^finance/perfectmoney/hui_hui_hui/([\w]+)/([\w\.]+)', 'main.finance_perfect.perfect_call_back_url', name='perfect_call_back_url' ), 
     url(r'^finance/perfectmoney/hui_hui_hui_hui/([\w]+)', 'main.finance_perfect.perfect_call_back_url_fail', name='perfect_call_back_url_fail' ), 
     
+    url(r'^finance/okpay/deposit/([\w]+)/([\w\.]+)', 'main.okpay.deposit', name='okpay_deposit' ),
+    url(r'^finance/okpay/start/([\w]+)/([\w\.]+)', 'main.okpay.start_pay', name='okpay_start_pay' ),    
+    url(r'^finance/okpay/hui_hui_hui/([\w]+)/([\w\.]+)', 'main.okpay.call_back_url', name='okpay_call_back_url' ), 
+    url(r'^finance/okpay/hui_hui_hui_hui/([\w]+)', 'main.okpay.call_back_url_fail', name='okpay_call_back_url_fail' ), 
+    
+    url(r'^finance/payeer/deposit/([\w]+)/([\w\.]+)', 'main.payeer.deposit', name='payeer_deposit' ),
+    url(r'^finance/payeer/start/([\w]+)/([\w\.]+)', 'main.payeer.start_pay', name='payeer_start_pay' ),    
+    url(r'^finance/payeer/hui_hui_hui/([\w]+)/([\w\.]+)', 'main.payeer.call_back_url', name='payeer_call_back_url' ), 
+    url(r'^finance/payeer/hui_hui_hui_hui/([\w]+)', 'main.payeer.call_back_url_fail', name='payeer_call_back_url_fail' ), 
+    
+    url(r'^finance/ya/deposit/([\w]+)/([\w\.]+)', 'main.ya.deposit', name='ya_deposit' ),
+    url(r'^finance/ya/start/([\w]+)/([\w\.]+)', 'main.ya.start_pay', name='ya_start_pay' ),    
+    url(r'^finance/ya/hui_hui_hui/([\w]+)/([\w\.]+)', 'main.ya.call_back_url', name='ya_call_back_url' ), 
+    url(r'^finance/ya/hui_hui_hui_hui/([\w]+)', 'main.ya.call_back_url_fail', name='ya_call_back_url_fail' ), 
+ 
     
     
     url(r'^finance/trans$', 'main.finance.trans', name='trans' ),
