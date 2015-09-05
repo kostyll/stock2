@@ -26,7 +26,7 @@ from main.http_common import json_auth_required, format_numbers10, format_number
 
 from main import views
 from sdk.perfect_money_sdk import perfect_money_sdk
-import sdk.perfect_money_settings
+import sdk.okpay_settings
 from main.my_cache_key import check_freq
 #from sdk.crypto import CryptoAccount
 from main.finance_forms import FiatCurrencyTransferForm
@@ -38,7 +38,7 @@ from crypton import my_messages
     
 
 @auth_required
-def perfect_transfer_withdraw(Req, CurrencyTitle, Amnt ):
+def transfer_withdraw(Req, CurrencyTitle, Amnt ):
         
      Dict = {}
      CurrencyIn = Currency.objects.get(title = CurrencyTitle)    
@@ -48,11 +48,11 @@ def perfect_transfer_withdraw(Req, CurrencyTitle, Amnt ):
              Dict["use_f2a"] =  Req.session["use_f2a"]
              
      t = loader.get_template("ajax_form.html")
-     Dict["action"] = "/finance/perfect_transfer_withdraw_submit"
+     Dict["action"] = "/finance/okpay_transfer_withdraw_submit"
      Dict["action_title"] = my_messages.withdraw_transfer
       
      try :
-             Last = TransOut.objects.filter(user = Req.user, provider="perfect", currency = CurrencyIn, status="processed" ).order_by('-id')[0]
+             Last = TransOut.objects.filter(user = Req.user, provider="okpay", currency = CurrencyIn, status="processed" ).order_by('-id')[0]
              Dict["wallet"] = Last.account
      except :
              pass
@@ -78,43 +78,43 @@ def confirm_withdraw_msg(Req):
         return tmpl_context(Req, t, Dict) 
 
 
-def perfect_start_pay(Req, Currency, Amnt):
-     pay_invoice = perfect_money_sdk(Currency,
-                                     sdk.perfect_money_settings.PMERCHID,
-                                     sdk.perfect_money_settings.PPASSWD,
-                                     sdk.perfect_money_settings.PPASSWD2,
+def start_pay(Req, Currency, Amnt):
+     pay_invoice = okpay_money_sdk(Currency,
+                                     sdk.okpay_money_settings.PMERCHID,
+                                     sdk.okpay_money_settings.PPASSWD,
+                                     sdk.okpay_money_settings.PPASSWD2,
                                      )
      if not Req.user.is_authenticated():
              return denied(Req)  
      else:
         return pay_invoice.generate_pay_request(Req.user, Amnt)  
      
-def perfect_deposit(Req, Currency, Amnt):
+def deposit(Req, Currency, Amnt):
      amnt = Decimal(Amnt)
      if amnt<10:
              raise TransError("pay_requirments")
-     pay_invoice = perfect_money_sdk(Currency,  
-                                    sdk.perfect_money_settings.PMERCHID,
-                                    sdk.perfect_money_settings.PPASSWD,
-                                    sdk.perfect_money_settings.PPASSWD2)
+     pay_invoice = okpay_money_sdk(Currency,  
+                                    sdk.okpay_money_settings.PMERCHID,
+                                    sdk.okpay_money_settings.PPASSWD,
+                                    sdk.okpay_money_settings.PPASSWD2)
      return HttpResponse( pay_invoice.generate_button(Amnt) )
 
-def perfect_call_back_url(Req, Currency, OrderId):
-        pay_call_back = perfect_money_sdk(Currency,  
-                                         sdk.perfect_money_settings.PMERCHID,
-                                         sdk.perfect_money_settings.PPASSWD,
-                                         sdk.perfect_money_settings.PPASSWD2
+def call_back_url(Req, Currency, OrderId):
+        pay_call_back = okpay_money_sdk(Currency,  
+                                         sdk.okpay_money_settings.PMERCHID,
+                                         sdk.okpay_money_settings.PPASSWD,
+                                         sdk.okpay_money_settings.PPASSWD2
                                          )
         rlog_req = OutRequest(raw_text = str(Req.REQUEST), from_ip = get_client_ip(Req) )
         rlog_req.save()
         return pay_call_back.api_callback_pay( Req.REQUEST,  process_perfect_in)
 
         
-def perfect_call_back_url_fail(Req, OrderId):
+def call_back_url_fail(Req, OrderId):
     return  json_false(Req)
 
     
-def process_perfect_in2(OrderId, Comission):   
+def process_in2(OrderId, Comission):   
                      order = Orders.objects.get(id = int(OrderId), status='processing2' )            
                      
                      add_trans( order.transit_1 , order.sum1, order.currency1,
@@ -138,7 +138,7 @@ def process_perfect_in(OrderId, Comis, Key):
         DebCred = TransIn(  currency=order.currency1,
                             amnt=order.sum1,
                             user=order.user,
-                            provider='perfect_money',
+                            provider='okpay',
                             comission=Comission,
                             user_accomplished_id=1,
                             status="created",
@@ -146,6 +146,6 @@ def process_perfect_in(OrderId, Comis, Key):
                             )
         DebCred.sign_record(Key)
         DebCred.save()
-        process_perfect_in2(OrderId, Comis)
+        process_in2(OrderId, Comis)
         return True
     
