@@ -1,4 +1,9 @@
 
+"use strict";
+
+var server_name = "bitcoin trade company";
+
+
 var finance  = {
         crypto_currency:
         {
