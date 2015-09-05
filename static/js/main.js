@@ -832,7 +832,7 @@ var Main = {
                               });     
                 
         },
-        stock_stat: function(){
+        stock_stat: function(callback){
                   if (!Main.trade_pair){
                      
                       Main.trade_pair='btc_usd';
@@ -863,7 +863,7 @@ var Main = {
                 
                 
         },
-        last_price: function(){
+        last_price: function(callback){
                   if (!Main.trade_pair){
                      
                       Main.trade_pair='btc_usd';
