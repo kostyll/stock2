@@ -224,12 +224,78 @@ var finance  = {
                        
         },
         ya_transfer: function(obj, Amnt){
-            
+            if(currency != "RUR"){
+                        obj.value = "";
+                        my_alert("Неправильная валюта");       
+                        return false;
+                }
+                if(Amnt<10){
+                        obj.value = "";
+                        my_alert("Ограничение минимальной суммы пополнения через Yandex Money");       
+                        return false;
+                }          
+                var Res = $.ajax({
+                                        url : "/finance/ya/deposit/"+currency+"/"+Amnt,
+                                        type : 'GET',
+                                        cache: false,
+                                        error: function(data){
+                                                $("#res_provider").html( "permission denied" );      
+                                                obj.value = "";
+                                        },      
+                                        success : function(Data){
+                                                   var comission = ""; //"<p class=\"help-block\">Комиссия за пополнение составляет 2% с карты ПриватБанка, 2% + 10 грн с карт других банков</p>";
+                                                    $("#res_provider").html( comission + Data ); 
+                                                    $("#ya_submit_button").css("margin-right","11em");
+                                                    $("#ya_submit_button").attr("class","btn btn-success pull-right");
+                                                    $("#pay_form").bind( "submit", function() {
+                                                         return finance.o_flag;
+                                                         //strange but not work without it
+                                                    });
+                                                   $("#ya_submit_button").bind( "click", finance.okpay_start);
+                                                   
+                                         }
+                                     }); 
             
             
         },
-        
-        
+        ya_start: function(obj, Amnt){
+                var currency = $("#currency_depo").val();
+                var amnt = $("#amnt_depo").val(); 
+                
+                if( currency != "RUR"){
+                        $("#provider_depo").val("");
+                        my_alert("Неправильная валюта");       
+                        return false;
+                }
+                if(amnt<10){
+                        $("#provider_depo").val("");
+                        my_alert("Ограничение минимальной суммы пополнения через Yandex Money");       
+                        return false;
+                }          
+                
+                var Res = $.ajax({
+                                        url : "/finance/ya/start/"+currency+"/"+amnt,
+                                        type : 'GET',
+                                        dataType: "json",
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider").html( "permission denied" );      
+                                                $("#provider_depo").val("");
+                                                return  false;
+                                        },      
+                                        success : function(Data){
+                                                   if(Data["order_id"]){    
+                                                        //$("#p_public_key").val(Data["public_key"]);         
+                                                        $("#invoice").val(Data["order_id"]);         
+                                                        $("#sum").val(Data["amount"]);                                                                 
+                                                        finance.o_flag = true;
+                                                        $("#pay_form").submit();                                            
+                                                   }
+                                         }
+                                     });        
+            
+            
+        },
         okpay_transfer: function(obj, Amnt, currency){
                 if(currency != "USD" && currency != "EUR" && currency != "RUR"){
                         obj.value = "";
