@@ -14,7 +14,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from main.http_common import generate_key, my_cached_paging
-from main.models import TransIn,TransOut,Currency
+from main.models import TransIn,TransOut,Currency, Accounts, TradePairs, Orders
 
 
 import hashlib
@@ -25,7 +25,6 @@ from main.http_common import http_tmpl_context, http_json, json_false, json_deni
 from main.http_common import json_auth_required, format_numbers10, format_numbers_strong, format_numbers, format_numbers4, auth_required, g2a_required, json_false500, login_page_with_redirect
 
 from main import views
-from sdk.okpay_money_sdk import okpay_money_sdk
 import sdk.okpay_settings
 from main.my_cache_key import check_freq
 #from sdk.crypto import CryptoAccount
@@ -33,9 +32,8 @@ from main.finance_forms import FiatCurrencyTransferForm
 
 #from sdk.crypto_settings import Settings as SDKCryptoCurrency
 from datetime import date
-from crypton import my_messages
-
-    
+from crypton import my_messages, settings
+import json    
 
 @auth_required
 def transfer_withdraw(Req, CurrencyTitle, Amnt ):
@@ -78,50 +76,51 @@ def confirm_withdraw_msg(Req):
         return tmpl_context(Req, t, Dict) 
 
 
-def start_pay(Req, Currency, Amnt):
+def deposit(Req, Currency, Amnt):
      if not Req.user.is_authenticated():
              return denied(Req)  
      else:
-        return generate_button(Req.user, Amnt)  
+        return generate_button(Currency, Amnt)  
 
 def   generate_button( currency,  Amnt):
 
            Data =  "<form id='pay_form' action=\"https://checkout.okpay.com\" method=\"POST\">\
 <p>\
+    <input type=\"hidden\" name=\"ok_receiver\" value=\"%s\"/>\
     <input type=\"hidden\" id=\"o_currency\" name=\"ok_currency\" value=\"%s\">\
     <input type=\"hidden\" name=\"ok_item_1_name\" value=\"account payin\" />\
     <input type=\"hidden\" name=\"ok_item_1_type\" value=\"service\" />\
     <input type=\"hidden\" id='o_amnt' name=\"ok_item_1_price\" value=\"%s\" />\
-    #<input type=\"hidden\"  id=\"ok_return_success\" name=\"ok_return_success\"  \
-        value=\"\">\
-    <input type=\"hidden\"  id=\"ok_return_fail\" name=\"ok_return_fail\" \
-        value=\"\">\
+    <input type=\"hidden\"  id=\"ok_return_success\" name=\"ok_return_success\" value=\"\">\
+    <input type=\"hidden\"  id=\"ok_return_fail\" name=\"ok_return_fail\" value=\"\">\
     <input type=\"hidden\" id=\"ok_ipn\" name=\"ok_ipn\" value=\"\">\
     <input type=\"hidden\" id=\"ok_invoice\" name=\"ok_invoice\" value=\"\">\
     <input type=\"hidden\"  name=\"ok_fees\" value=\"1\">\
-    <input id='perfect_submit_button' type=\"submit\"  value=\"%s\" >\
+    <input id='okpay_submit_button' type=\"submit\"  value=\"%s\" \
+     class=\"btn btn-success pull-right\" style=\"margin-right: 11em;\">\
 </p>\
-</form>" % (acc, Amnt, self.__currency, _(u"Оплатить")  )
-           return Data        
+</form>" % (sdk.okpay_settings.ACCOUNTS[currency], Amnt, currency, _(u"Оплатить")  )
+           return HttpResponse(Data)
  
-def generate_result_url(self, order, User,  Amount ):
+def generate_result_url( order, User,  Amount ):
             return settings.BASE_URL + "finance/common_confirm_page/" + str(order.id)
     
-def generate_api_result_url(self, order, User,  Amount ):
+def generate_api_result_url( order, User,  Amount ):
             return settings.BASE_URL + "finance/okpay/hui_hui_hui/"+str(order.id)
  
 @json_auth_required
-def deposit(Req, CurrencyTitle, Amnt):
-        AmountStr = Decimal(Amount)  
+def start_pay(Req, CurrencyTitle, Amnt):
+        AmountStr = Decimal(Amnt)  
         User = Req.user
         currency = CurrencyIn = Currency.objects.get(title = CurrencyTitle)
         user_account = Accounts.objects.get(user  = User, currency = currency)
         if AmountStr<0:
                 raise TransError("NegativeAmount")
         
-        if AmountStr < self.__min_amnt  :
+  	trade_pair = TradePairs.objects.get(url_title="okpay_"+CurrencyTitle.lower()) 
+        if AmountStr < trade_pair.min_trade_base  :
                 raise TransError("MinAmount")
-        
+     
         order = Orders(         user = User,
                                 currency1 = currency,
                                 currency2 = currency, 
@@ -130,14 +129,14 @@ def deposit(Req, CurrencyTitle, Amnt):
                                 sum2_history = AmountStr,
                                 sum1 = AmountStr, 
                                 sum2 = AmountStr,
-                                transit_1 = self.__transit_account,
+                                transit_1 = trade_pair.transit_on,
                                 transit_2 = user_account,
-                                trade_pair = self.__trade_pair,
+                                trade_pair = trade_pair,
                                 status = "processing"
                         )
         order.save()
-        ResultUrl = self.generate_result_url(order, User,  Amount )
-        ServerResultUrl = self.generate_api_result_url(order, User,  Amount )
+        ResultUrl = generate_result_url(order, User,  Amnt )
+        ServerResultUrl = generate_api_result_url(order, User,  Amnt )
         
         Dict = {
                 "order_id":   str(order.id),
