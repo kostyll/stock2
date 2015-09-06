@@ -115,7 +115,7 @@ def deposit(Req, CurrencyTitle, Amnt):
         AmountStr = Decimal(Amount)  
         User = Req.user
         currency = CurrencyIn = Currency.objects.get(title = CurrencyTitle)
-        user_account = Accounts.objects.get(user  = User, currency = )
+        user_account = Accounts.objects.get(user  = User, currency = currency)
         if AmountStr<0:
                 raise TransError("NegativeAmount")
         
