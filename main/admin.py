@@ -26,7 +26,6 @@ from main.models import PartnershipAdmin, Partnership
 from django.contrib import admin
 
 from main.models import OrderTimerAdmin, OrderTimer
-from main.models import ConvBalanceAdmin, ConvBalance
 from main.models import UserCustomSettings, UserCustomSettingsAdmin
 from main.models import CustomSettings, CustomSettingsAdmin
 from main.models import CurrencyAdmin, Currency
@@ -41,7 +40,6 @@ admin.site.register(TransIn, TransInAdmin)
 
 admin.site.register(Partnership, PartnershipAdmin)
 admin.site.register(OrderTimer, OrderTimerAdmin)
-admin.site.register(ConvBalance,ConvBalanceAdmin)
 admin.site.register(PinsImages, PinsImagesAdmin)
 admin.site.register(Balances)
 admin.site.register(P24TransIn, P24TransInAdmin)

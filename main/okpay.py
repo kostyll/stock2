@@ -25,7 +25,7 @@ from main.http_common import http_tmpl_context, http_json, json_false, json_deni
 from main.http_common import json_auth_required, format_numbers10, format_numbers_strong, format_numbers, format_numbers4, auth_required, g2a_required, json_false500, login_page_with_redirect
 
 from main import views
-from sdk.perfect_money_sdk import perfect_money_sdk
+from sdk.okpay_money_sdk import okpay_money_sdk
 import sdk.okpay_settings
 from main.my_cache_key import check_freq
 #from sdk.crypto import CryptoAccount
@@ -79,32 +79,83 @@ def confirm_withdraw_msg(Req):
 
 
 def start_pay(Req, Currency, Amnt):
-     pay_invoice = okpay_money_sdk(Currency,
-                                     sdk.okpay_money_settings.PMERCHID,
-                                     sdk.okpay_money_settings.PPASSWD,
-                                     sdk.okpay_money_settings.PPASSWD2,
-                                     )
      if not Req.user.is_authenticated():
              return denied(Req)  
      else:
-        return pay_invoice.generate_pay_request(Req.user, Amnt)  
-     
-def deposit(Req, Currency, Amnt):
-     amnt = Decimal(Amnt)
-     if amnt<10:
-             raise TransError("pay_requirments")
-     pay_invoice = okpay_money_sdk(Currency,  
-                                    sdk.okpay_money_settings.PMERCHID,
-                                    sdk.okpay_money_settings.PPASSWD,
-                                    sdk.okpay_money_settings.PPASSWD2)
-     return HttpResponse( pay_invoice.generate_button(Amnt) )
+        return generate_button(Req.user, Amnt)  
 
-def call_back_url(Req, Currency, OrderId):
-        pay_call_back = okpay_money_sdk(Currency,  
-                                         sdk.okpay_money_settings.PMERCHID,
-                                         sdk.okpay_money_settings.PPASSWD,
-                                         sdk.okpay_money_settings.PPASSWD2
-                                         )
+def   generate_button( currency,  Amnt):
+
+           Data =  "<form id='pay_form' action=\"https://checkout.okpay.com\" method=\"POST\">\
+<p>\
+    <input type=\"hidden\" id=\"o_currency\" name=\"ok_currency\" value=\"%s\">\
+    <input type=\"hidden\" name=\"ok_item_1_name\" value=\"account payin\" />\
+    <input type=\"hidden\" name=\"ok_item_1_type\" value=\"service\" />\
+    <input type=\"hidden\" id='o_amnt' name=\"ok_item_1_price\" value=\"%s\" />\
+    #<input type=\"hidden\"  id=\"ok_return_success\" name=\"ok_return_success\"  \
+        value=\"\">\
+    <input type=\"hidden\"  id=\"ok_return_fail\" name=\"ok_return_fail\" \
+        value=\"\">\
+    <input type=\"hidden\" id=\"ok_ipn\" name=\"ok_ipn\" value=\"\">\
+    <input type=\"hidden\" id=\"ok_invoice\" name=\"ok_invoice\" value=\"\">\
+    <input type=\"hidden\"  name=\"ok_fees\" value=\"1\">\
+    <input id='perfect_submit_button' type=\"submit\"  value=\"%s\" >\
+</p>\
+</form>" % (acc, Amnt, self.__currency, _(u"Оплатить")  )
+           return Data        
+ 
+def generate_result_url(self, order, User,  Amount ):
+            return settings.BASE_URL + "finance/common_confirm_page/" + str(order.id)
+    
+def generate_api_result_url(self, order, User,  Amount ):
+            return settings.BASE_URL + "finance/okpay/hui_hui_hui/"+str(order.id)
+ 
+@json_auth_required
+def deposit(Req, CurrencyTitle, Amnt):
+        AmountStr = Decimal(Amount)  
+        User = Req.user
+        currency = CurrencyIn = Currency.objects.get(title = CurrencyTitle)
+        user_account = Accounts.objects.get(user  = User, currency = )
+        if AmountStr<0:
+                raise TransError("NegativeAmount")
+        
+        if AmountStr < self.__min_amnt  :
+                raise TransError("MinAmount")
+        
+        order = Orders(         user = User,
+                                currency1 = currency,
+                                currency2 = currency, 
+                                price=AmountStr,
+                                sum1_history = AmountStr,
+                                sum2_history = AmountStr,
+                                sum1 = AmountStr, 
+                                sum2 = AmountStr,
+                                transit_1 = self.__transit_account,
+                                transit_2 = user_account,
+                                trade_pair = self.__trade_pair,
+                                status = "processing"
+                        )
+        order.save()
+        ResultUrl = self.generate_result_url(order, User,  Amount )
+        ServerResultUrl = self.generate_api_result_url(order, User,  Amount )
+        
+        Dict = {
+                "order_id":   str(order.id),
+                "result_url" : ResultUrl,
+                "type":"okpay",
+                "ext_details":"none",
+                "currency" :currency.title,
+                "server_url": ServerResultUrl,
+                "amount": str(AmountStr)
+                }
+    
+        Response =  HttpResponse( json.JSONEncoder().encode(Dict) )
+        Response['Content-Type'] = 'application/json'
+        return Response
+
+def call_back_url(Req,  OrderId):
+        ok_invoice
+        ok_txn_status
         rlog_req = OutRequest(raw_text = str(Req.REQUEST), from_ip = get_client_ip(Req) )
         rlog_req.save()
         return pay_call_back.api_callback_pay( Req.REQUEST,  process_perfect_in)
@@ -114,24 +165,24 @@ def call_back_url_fail(Req, OrderId):
     return  json_false(Req)
 
     
-def process_in2(OrderId, Comission):   
-                     order = Orders.objects.get(id = int(OrderId), status='processing2' )            
+def process_in2(OrderId):   
+    order = Orders.objects.get(id = int(OrderId), status='processing2' )            
                      
-                     add_trans( order.transit_1 , order.sum1, order.currency1,
+    add_trans( order.transit_1 , order.sum1, order.currency1,
                                 order.transit_2, order, 
                                 "payin", None , False)
-                     if Comission>0:       
-                        add_trans(order.transit_2 , Comission, order.currency1,
-                                  order.transit_1,  order, 
-                                  "comission", None, False)
+    if Comission>0:       
+        add_trans(order.transit_2 , Comission, order.currency1,
+                    order.transit_1,  order, 
+                    "comission", None, False)
 
-                     order.status = "processed"
-                     order.save()
-                     notify_email(order.user, "deposit_notify", DebCred ) 
-                     return True
+    order.status = "processed"
+    order.save()
+    notify_email(order.user, "deposit_notify", DebCred ) 
+    return True
          
          
-def process_perfect_in(OrderId, Comis, Key):
+def process_in(OrderId, Comis, Key):
         order = Orders.objects.get(id = int(OrderId), status = "processing" )            
         order.status = "processing2"
         order.save()

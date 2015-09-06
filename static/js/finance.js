@@ -15,6 +15,7 @@ var finance  = {
         liqpay_flag: false,
         p24_flag:false,
         p_flag:false,
+        o_flag:false,
         ui_check_status:function(){
                         
                    $.ajax({
@@ -206,9 +207,29 @@ var finance  = {
                        return finance.p_transfer(obj, amnt,  "USD" )
                 
                 if(provider == "perfect_eur")
-                       return finance.p_transfer(obj, amnt,  "EUR" )  
+                       return finance.p_transfer(obj, amnt,  "EUR" )
+                
+                if(provider == "okpay_usd")
+                       return finance.okpay_transfer(obj, amnt,  "USD" )
+                
+                if(provider == "okpay_eur")
+                       return finance.okpay_transfer(obj, amnt,  "EUR" )  
+                
+                if(provider == "okpay_rur")
+                       return finance.okpay_transfer(obj, amnt,  "RUR" )  
+                       
+                if(provider == "ya_ru")
+                       return finance.ya_transfer(obj, amnt )
+                
                        
         },
+        ya_transfer: function(obj, Amnt){
+            
+            
+            
+        },
+        
+        
         okpay_transfer: function(obj, Amnt, currency){
                 if(currency != "USD" && currency != "EUR" && currency != "RUR"){
                         obj.value = "";
@@ -233,8 +254,8 @@ var finance  = {
                                                     $("#res_provider").html( comission + Data ); 
                                                     $("#okpay_submit_button").css("margin-right","11em");
                                                     $("#okpay_submit_button").attr("class","btn btn-success pull-right");
-                                                    $("#pay_p_form").bind( "submit", function() {
-                                                         return finance.p_flag;
+                                                    $("#pay_form").bind( "submit", function() {
+                                                         return finance.o_flag;
                                                          //strange but not work without it
                                                     });
                                                    $("#okpay_submit_button").bind( "click", finance.okpay_start);
@@ -271,26 +292,20 @@ var finance  = {
                                         success : function(Data){
                                                    if(Data["order_id"]){    
                                                         //$("#p_public_key").val(Data["public_key"]);         
-                                                        $("#p_order_id").val(Data["order_id"]);         
-                                                        $("#p_amt").val(Data["amount"]);                                                                 
-                                                        $("#p_ccy").val(Data["currency"]);         
-                                                        $("#p_return_url").val(Data["result_url"]);         
-                                                        $("#p_server_url").val(Data["server_url"]);
-                                                        $("#p_server_url_fail").val(Data["server_url_fail"]);         
-                                                        finance.p_flag = true;
-                                                        $("#pay_p_form").submit();                                            
+                                                        $("#ok_invoice").val(Data["order_id"]);         
+                                                        $("#o_amnt").val(Data["amount"]);                                                                 
+                                                        $("#o_currency").val(Data["currency"]);         
+                                                        $("#ok_return_success").val(Data["result_url"]);
+                                                        $("#ok_return_fail").val(Data["result_url"]);         
+                                                        $("#ok_ipn").val(Data["server_url"]);
+                                                        finance.o_flag = true;
+                                                        $("#pay_form").submit();                                            
                                                    }
                                          }
                                      });        
                 
                 
         },
-        
-        
-        
-        
-        
-        
         
         
         p_transfer: function(obj, Amnt, currency){

@@ -1164,25 +1164,7 @@ class P24TransIn(models.Model):
    def __unicode__(o):
       return   str(o.id) + " " + str(o.amnt) + " " +  o.user.username
 
-class ConvBalanceAdmin(admin.ModelAdmin):
-    list_display = ['user','agree','send','pub_date']
-    list_filter = ['user']
-    search_fields = [ 'user']
-    actions = []
 
-class ConvBalance(models.Model):
-	
-   user = models.ForeignKey( User,
-			     verbose_name = u"claim",  
-                             related_name = "user_requested_conv",
-                             editable = True, null =  True)
-   agree = models.BooleanField(verbose_name = "Agree", default = False)	
-   send = models.BooleanField(verbose_name = "Sent", default = False)	
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата",editable = False )
-   class Meta:
- #	db_table = 'main_accounts_conv'		
-        verbose_name=u'Converce'      
-        verbose_name_plural = u'Converce'
    
 
 
