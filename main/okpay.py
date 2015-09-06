@@ -153,40 +153,41 @@ def start_pay(Req, CurrencyTitle, Amnt):
         return Response
 
 def call_back_url(Req,  OrderId):
-        ok_invoice
-        ok_txn_status
+#        ok_invoice
+#        ok_txn_status
         rlog_req = OutRequest(raw_text = str(Req.REQUEST), from_ip = get_client_ip(Req) )
         rlog_req.save()
-        return pay_call_back.api_callback_pay( Req.REQUEST,  process_perfect_in)
+	FactAmnt = Decimal(Req.REQUEST["ok_txn_net"])
+        if  Req.REQUEST["ok_txn_status"] == "completed":
+		if process_in(Req.REQUEST["ok_invoice"], FactAmnt, Decimal("0.0") ,settings.COMMON_SALT)and process_in2(Req.REQUEST["ok_invoice"], FactAmnt):
+			return json_true(Req)
+		else:
+			return json_false(Req)
+	return json_false(Req)
 
         
 def call_back_url_fail(Req, OrderId):
     return  json_false(Req)
 
     
-def process_in2(OrderId):   
+def process_in2(OrderId, FactAmnt):   
     order = Orders.objects.get(id = int(OrderId), status='processing2' )            
                      
-    add_trans( order.transit_1 , order.sum1, order.currency1,
-                                order.transit_2, order, 
+    add_trans( order.transit_1, FactAmnt, order.currency1,
+               order.transit_2, order, 
                                 "payin", None , False)
-    if Comission>0:       
-        add_trans(order.transit_2 , Comission, order.currency1,
-                    order.transit_1,  order, 
-                    "comission", None, False)
-
     order.status = "processed"
     order.save()
     notify_email(order.user, "deposit_notify", DebCred ) 
     return True
          
          
-def process_in(OrderId, Comis, Key):
+def process_in(OrderId, FactAmnt ,Comis, Key):
         order = Orders.objects.get(id = int(OrderId), status = "processing" )            
         order.status = "processing2"
         order.save()
         DebCred = TransIn(  currency=order.currency1,
-                            amnt=order.sum1,
+                            amnt=FactAmnt,
                             user=order.user,
                             provider='okpay',
                             comission=Comission,
