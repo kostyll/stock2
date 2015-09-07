@@ -80,9 +80,9 @@ def deposit(Req, Currency, Amnt):
      if not Req.user.is_authenticated():
              return denied(Req)  
      else:
-        return generate_button(Currency, Amnt)  
+        return generate_button(Amnt)  
 
-def   generate_button( currency,  Amnt):
+def   generate_button(Amnt):
 
            Data =  "<form id='pay_form' action=\"\" method=\"POST\">\
 <p>\
@@ -98,7 +98,7 @@ def   generate_button( currency,  Amnt):
     <input id='ya_submit_button' type=\"submit\"  value=\"%s\" \
      class=\"btn btn-success pull-right\" style=\"margin-right: 11em;\">\
 </p>\
-</form>" % (sdk.okpay_settings.ACCOUNTS[currency], Amnt, currency, _(u"Оплатить")  )
+</form>" % (sdk.ya_settings.ACCOUNT, Amnt,  _(u"Оплатить")  )
            return HttpResponse(Data)
  
 def generate_result_url( order, User,  Amount ):
@@ -140,7 +140,7 @@ def start_pay(Req, CurrencyTitle, Amnt):
         Dict = {
                 "order_id":   str(order.id),
                 "result_url" : ResultUrl,
-                "type":"okpay",
+                "type":"ya",
                 "ext_details":"none",
                 "currency" :currency.title,
                 "server_url": ServerResultUrl,
@@ -150,42 +150,43 @@ def start_pay(Req, CurrencyTitle, Amnt):
         Response =  HttpResponse( json.JSONEncoder().encode(Dict) )
         Response['Content-Type'] = 'application/json'
         return Response
-
+        
 def call_back_url(Req,  OrderId):
-        ok_invoice
-        ok_txn_status
-        rlog_req = OutRequest(raw_text = str(Req.REQUEST), from_ip = get_client_ip(Req) )
-        rlog_req.save()
-        return pay_call_back.api_callback_pay( Req.REQUEST,  process_perfect_in)
+#        ok_invoice
+#        ok_txn_status
+     rlog_req = OutRequest(raw_text = str(Req.REQUEST), from_ip = get_client_ip(Req) )
+     rlog_req.save()
+	FactAmnt = Decimal(Req.REQUEST["amount"])
+     if process_in(Req.REQUEST["label"], FactAmnt, Decimal("0.0") ,settings.COMMON_SALT)and process_in2(Req.REQUEST["label"], FactAmnt):
+			return json_true(Req)
+		else:
+			return json_false(Req)
+			
+	return json_false(Req)
 
         
 def call_back_url_fail(Req, OrderId):
     return  json_false(Req)
 
     
-def process_in2(OrderId):   
+def process_in2(OrderId, FactAmnt):   
     order = Orders.objects.get(id = int(OrderId), status='processing2' )            
                      
-    add_trans( order.transit_1 , order.sum1, order.currency1,
-                                order.transit_2, order, 
+    add_trans( order.transit_1, FactAmnt, order.currency1,
+               order.transit_2, order, 
                                 "payin", None , False)
-    if Comission>0:       
-        add_trans(order.transit_2 , Comission, order.currency1,
-                    order.transit_1,  order, 
-                    "comission", None, False)
-
     order.status = "processed"
     order.save()
     notify_email(order.user, "deposit_notify", DebCred ) 
     return True
          
          
-def process_in(OrderId, Comis, Key):
+def process_in(OrderId, FactAmnt ,Comis, Key):
         order = Orders.objects.get(id = int(OrderId), status = "processing" )            
         order.status = "processing2"
         order.save()
         DebCred = TransIn(  currency=order.currency1,
-                            amnt=order.sum1,
+                            amnt=FactAmnt,
                             user=order.user,
                             provider='okpay',
                             comission=Comission,
@@ -197,4 +198,3 @@ def process_in(OrderId, Comis, Key):
         DebCred.save()
         process_in2(OrderId, Comis)
         return True
-    
