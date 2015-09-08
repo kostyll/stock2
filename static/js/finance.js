@@ -218,7 +218,7 @@ var finance  = {
                 if(provider == "okpay_rur")
                        return finance.okpay_transfer(obj, amnt,  "RUR" )  
                        
-                if(provider == "ya_ru")
+                if(provider == "ya_rur")
                        return finance.ya_transfer(obj, amnt )
                 
                        
