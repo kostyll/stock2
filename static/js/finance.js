@@ -125,7 +125,7 @@ var finance  = {
         },
         fill_rur: function(){
                         $("#provider_depo").append( $('<option value="">Выбрать</option>') );
-                        $("#provider_depo").append( $('<option value="yandex_rur">Yandex</option>') );  
+                        $("#provider_depo").append( $('<option value="ya_rur">Yandex</option>') );  
                         $("#provider_depo").append( $('<option value="okpay_rur">OkPay</option>') );    
                         $("#provider_depo").append( $('<option value="payeer_rur">Payeer</option>') );  
                         $("#label_depo").html( "Cпособ пополения:" );                       
