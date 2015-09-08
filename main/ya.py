@@ -84,7 +84,7 @@ def deposit(Req, Currency, Amnt):
 
 def   generate_button(Amnt):
 
-           Data =  "<form id='pay_form' action=\"\" method=\"POST\">\
+           Data =  "<form id='pay_form' action=\"https://money.yandex.ru/quickpay/confirm.xml\" method=\"POST\">\
 <p>\
     <input type=\"hidden\" name=\"receiver\" value=\"%s\"/>\
     <input type=\"hidden\" id='sum' name=\"sum\" value=\"%s\" />\
