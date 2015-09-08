@@ -224,18 +224,14 @@ var finance  = {
                        
         },
         ya_transfer: function(obj, Amnt){
-            if(currency != "RUR"){
-                        obj.value = "";
-                        my_alert("Неправильная валюта");       
-                        return false;
-                }
+           
                 if(Amnt<10){
                         obj.value = "";
                         my_alert("Ограничение минимальной суммы пополнения через Yandex Money");       
                         return false;
                 }          
                 var Res = $.ajax({
-                                        url : "/finance/ya/deposit/"+currency+"/"+Amnt,
+                                        url : "/finance/ya/deposit/RUR/"+Amnt,
                                         type : 'GET',
                                         cache: false,
                                         error: function(data){
