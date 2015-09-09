@@ -876,7 +876,7 @@ class TransOut(models.Model):
                            blank = True,
                            null = True)
    wallet = models.CharField( max_length = 255,
-                                verbose_name = u"Provider",
+                                verbose_name = u"wallet",
                                 blank = True,
                                 null = True)
    
@@ -931,7 +931,7 @@ class TransOut(models.Model):
 
    def fields4sign(self):
         List = []
-        for i in  ('amnt','comission','user','comission'):
+        for i in  ('amnt','wallet','user','provider'):
            Val = getattr(self, i)          
            if i in ('amnt','comission'):
                List.append(format_numbers_strong(Val ) )
