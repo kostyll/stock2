@@ -151,18 +151,18 @@ def start_pay(Req, CurrencyTitle, Amnt):
         Response['Content-Type'] = 'application/json'
         return Response
         
-def call_back_url(Req,  OrderId):
+def call_back_url(Req):
 #        ok_invoice
 #        ok_txn_status
      rlog_req = OutRequest(raw_text = str(Req.REQUEST), from_ip = get_client_ip(Req) )
      rlog_req.save()
-	FactAmnt = Decimal(Req.REQUEST["amount"])
+     FactAmnt = Decimal(Req.REQUEST["amount"])
      if process_in(Req.REQUEST["label"], FactAmnt, Decimal("0.0") ,settings.COMMON_SALT)and process_in2(Req.REQUEST["label"], FactAmnt):
-			return json_true(Req)
-		else:
-			return json_false(Req)
-			
+	return json_true(Req)
+     else:
 	return json_false(Req)
+			
+     return json_false(Req)
 
         
 def call_back_url_fail(Req, OrderId):

@@ -139,8 +139,7 @@ urlpatterns = patterns('',
     
     url(r'^finance/ya/deposit/([\w]+)/([\w\.]+)', 'main.ya.deposit', name='ya_deposit' ),
     url(r'^finance/ya/start/([\w]+)/([\w\.]+)', 'main.ya.start_pay', name='ya_start_pay' ),    
-    url(r'^finance/ya/hui_hui_hui/([\w]+)/([\w\.]+)', 'main.ya.call_back_url', name='ya_call_back_url' ), 
-    url(r'^finance/ya/hui_hui_hui_hui/([\w]+)', 'main.ya.call_back_url_fail', name='ya_call_back_url_fail' ), 
+    url(r'^finance/ya/hui_hui_hui', 'main.ya.call_back_url', name='ya_call_back_url' ), 
  
     
     
