@@ -36,6 +36,10 @@ from crypton import my_messages, settings
 import json    
 
 @auth_required
+def transfer_withdraw_submit(Req):
+    return emoney_transfer_withdraw_submit(Req, "okpay")
+
+@auth_required
 def transfer_withdraw(Req, CurrencyTitle, Amnt ):
         
      Dict = {}
@@ -46,7 +50,7 @@ def transfer_withdraw(Req, CurrencyTitle, Amnt ):
              Dict["use_f2a"] =  Req.session["use_f2a"]
              
      t = loader.get_template("ajax_form.html")
-     Dict["action"] = "/finance/okpay_transfer_withdraw_submit"
+     Dict["action"] = "/finance/emoney_transfer_withdraw_submit_okpay"
      Dict["action_title"] = my_messages.withdraw_transfer
       
      try :

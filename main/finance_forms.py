@@ -129,8 +129,6 @@ class MyFinanceForms(forms.Form):
       
         
       
-                         
-   
    def check_funds_crypto(self):
            
         check = False   
@@ -295,7 +293,7 @@ class CurrencyTransferForm(MyFinanceForms):
         return self.cleaned_data
 
 class FiatCurrencyTransferForm(MyFinanceForms):
-    wallet = forms.CharField(max_length=120, label = _(u"Кошелек в системе"))
+    wallet = forms.CharField(max_length=120, label = _(u"Счет в системе"))
     amnt = forms.DecimalField(required = True, widget = forms.TextInput(attrs={'placeholder':_(u'сумма')}),
                                 label = _(u"Сумма"),
                                 min_value = 0.001)
@@ -305,12 +303,9 @@ class FiatCurrencyTransferForm(MyFinanceForms):
     required_css_class = 'required'
     
     def clean(self):
-        
-    
-        self.cleaned_data = super(CurrencyTransferForm, self).clean()         
+        self.cleaned_data = super(FiatCurrencyTransferForm, self).clean()         
         self.check_funds()           
         self.check_holds()
-        self.check_funds_crypto()
         return self.cleaned_data
 
         

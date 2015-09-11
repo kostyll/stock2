@@ -36,17 +36,21 @@ from crypton import my_messages, settings
 import json    
 
 @auth_required
+def transfer_withdraw_submit(Req):
+    return emoney_transfer_withdraw_submit(Req, "ya")
+
+@auth_required
 def transfer_withdraw(Req, CurrencyTitle, Amnt ):
-     CurrencyTitle="RUR"
+        
      Dict = {}
      CurrencyIn = Currency.objects.get(title = "RUR")    
-     Dict["currency"] = CurrencyTitle
+     Dict["currency"] = CurrencyIn.title
      Dict["use_f2a"] = False
      if Req.session.has_key("use_f2a"):
              Dict["use_f2a"] =  Req.session["use_f2a"]
              
      t = loader.get_template("ajax_form.html")
-     Dict["action"] = "/finance/ya_transfer_withdraw_submit"
+     Dict["action"] = "/finance/emoney_transfer_withdraw_submit_ya"
      Dict["action_title"] = my_messages.withdraw_transfer
       
      try :

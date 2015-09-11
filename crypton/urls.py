@@ -147,6 +147,7 @@ urlpatterns = patterns('',
     
     
     url(r'^finance/open_orders/([\w]+)', 'main.finance.open_orders', name='open_orders' ),
+    
     url(r'^finance/deals/([\w]+)', 'main.finance.deals', name='deals' ),
     
     url(r'^finance/common_confirm_page/([\w]+)', 'main.finance.common_confirm_page', name='common_confirm_page' ),
@@ -159,23 +160,27 @@ urlpatterns = patterns('',
     url(r'^finance/common_secure_confirm$','main.finance.common_secure_confirm', 
                 name='common_secure_confirm'),
     
-    url(r'^finance/liqpay_transfer_withdraw/([\w]+)/([\w\.]+)','main.finance.liqpay_transfer_withdraw', 
-                name='liqpay_transfer_withdraw'),
-                
     url(r'^finance/perfect_transfer_withdraw/([\w]+)/([\w\.]+)','main.finance_perfect.perfect_transfer_withdraw', 
                 name='perfect_transfer_withdraw'),  
                 
-    url(r'^finance/okpay_transfer_withdraw/([\w]+)/([\w\.]+)','main.finance.okpay_transfer_withdraw', 
+    url(r'^finance/okpay_transfer_withdraw/([\w]+)/([\w\.]+)','main.okpay.transfer_withdraw', 
                 name='okpay_transfer_withdraw'),
     
+    url(r'^finance/ya_transfer_withdraw/([\w]+)/([\w\.]+)','main.ya.transfer_withdraw', 
+                name='ya_transfer_withdraw'),
                 
-    
-    url(r'^finance/liqpay_transfer_withdraw_submit$','main.finance.liqpay_transfer_withdraw_submit', 
-                name='liqpay_transfer_withdraw_submit'),
-   
+    url(r'^finance/emoney_transfer_withdraw_submit_ya','main.ya.transfer_withdraw_submit', 
+                name='ya_transfer_withdraw_submit'),
+  
+    url(r'^finance/emoney_transfer_withdraw_submit_perfect','main.finance_perfect.perfect_transfer_withdraw', 
+                name='perfect_transfer_withdraw_submit'),
+                
+    url(r'^finance/emoney_transfer_withdraw_submit_okpay','main.okpay.transfer_withdraw_submit', 
+                name='okpay_transfer_withdraw_submit'),
+  
     url(r'^finance/p2p_transfer_withdraw/([\w]+)/([\w\.]+)','main.finance.p2p_transfer_withdraw', 
                 name='p2p_transfer_withdraw'),
-    
+        
     url(r'^finance/p2p_transfer_withdraw_submit$','main.finance.p2p_transfer_withdraw_submit', 
                 name='p2p_transfer_withdraw_submit'),
     
@@ -184,6 +189,7 @@ urlpatterns = patterns('',
     
     url(r'^finance/bank_transfer_withdraw_submit$','main.finance.bank_transfer_withdraw_submit', 
                 name='bank_transfer_withdraw_submit'),    
+                
     url(r'^finance/crypto_transfer_withdraw/([\w]+)','main.finance.crypto_currency_withdraw', 
                 name='crypto_currency_withdraw'),
     url(r'^finance/crypto_currency_withdraw_submit','main.finance.crypto_currency_withdraw_submit', 

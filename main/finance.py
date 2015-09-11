@@ -14,7 +14,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from main.models import add_trans,TransError,  Accounts, Currency, ActiveLink, CryptoTransfers, generate_private_sign
-from main.models import TradePairs, Orders, Trans, BankTransfers, LiqPayTrans, get_comisP2P, Partnership, OrdersMem
+from main.models import TradePairs, Orders, Trans, BankTransfers, LiqPayTrans, get_comisP2P, Partnership, OrdersMem, TransOut
 from main.http_common import generate_key, my_cached_paging
 
 import hashlib
@@ -37,6 +37,8 @@ from main.models import Accounts, Currency, ActiveLink, TradePairs, Orders, Msg,
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum
 from datetime import date
+from main.finance_forms import FiatCurrencyTransferForm
+from crypton import my_messages
 
 def confirm_p2p_withdraw_email(Post, Key):
         return _(u"Для подтверждение операции вывода инструментов на Карту\n\n\
@@ -421,31 +423,7 @@ def confirm_withdraw_bank(Req, S):
         return tmpl_context(Req, t, Dict)
        
              
-@auth_required
-def okpay_transfer_withdraw(Req, CurrencyTitle, Amnt ):
-        
-     Dict = {}
-     CurrencyIn = Currency.objects.get(title = CurrencyTitle)    
-     Dict["currency"] = CurrencyTitle
-     Dict["use_f2a"] = False
-     if Req.session.has_key("use_f2a"):
-             Dict["use_f2a"] =  Req.session["use_f2a"]
-             
-     t = loader.get_template("ajax_form.html")
-     Dict["action"] = "/finance/okpay_transfer_withdraw_submit"
-     Dict["action_title"] = my_messages.withdraw_transfer
-      
-     try :
-             Last = TransOut.objects.filter(user = Req.user, provider="okpay", currency = CurrencyIn, status="processed" ).order_by('-id')[0]
-             Dict["wallet"] = Last.account
-     except :
-             pass
-     
-     Form  = FiatCurrencyTransferForm(initial = Dict, user = Req.user )
-     
-     Dict["form"] = Form.as_p()
-     return  tmpl_context(Req, t, Dict )
-        
+       
              
              
 
@@ -763,6 +741,35 @@ def p2p_transfer_withdraw_common_operation(Req, Form):
                   [ Req.user.email ],
                   fail_silently = False)
 
+@auth_required
+def emoney_transfer_withdraw_submit(Req, provider ):
+   
+     
+    Form = FiatCurrencyTransferForm(Req.POST, user = Req.user)  
+    Dict = {}
+    if Form.is_valid():
+        ##check if it common operation
+        Last = list(TransOut.objects.filter(user = Req.user,
+                                            wallet = Form.cleaned_data["wallet"] ,
+                                            provider= provider,
+                                            status="processed").order_by('-id') )
+        if len(Last) > 0 :
+                emoney_transfer_withdraw_common_operation(Req, Form)
+                return redirect("/finance/confirm_withdraw_msg")
+        else:
+                emoney_transfer_withdraw_secure(Req, Form)
+                return redirect("/finance/confirm_withdraw_msg_auto")
+                        
+               
+    else :
+        t = loader.get_template("simple_form.html")   
+        Dict["action"] = "/finance/emoney_transfer_withdraw_submit_"+provider
+        Dict["action_title"] = my_messages.emoney_transfer
+        Dict["common_help_text"] = my_messages.emoney_attention_be_aware
+        Dict["form"] = Form.as_p()
+        return tmpl_context(Req, t, Dict )                  
+                  
+                  
 @auth_required
 def p2p_transfer_withdraw_submit(Req):
    

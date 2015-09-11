@@ -35,6 +35,10 @@ from main.finance_forms import FiatCurrencyTransferForm
 from datetime import date
 from crypton import my_messages
 
+
+@auth_required
+def perfect_transfer_withdraw_submit(Req):
+    return emoney_transfer_withdraw_submit(Req, "perfect")
     
 
 @auth_required
@@ -48,7 +52,7 @@ def perfect_transfer_withdraw(Req, CurrencyTitle, Amnt ):
              Dict["use_f2a"] =  Req.session["use_f2a"]
              
      t = loader.get_template("ajax_form.html")
-     Dict["action"] = "/finance/perfect_transfer_withdraw_submit"
+     Dict["action"] = "/finance/emoney_transfer_withdraw_submit_perfect"
      Dict["action_title"] = my_messages.withdraw_transfer
       
      try :
@@ -58,7 +62,6 @@ def perfect_transfer_withdraw(Req, CurrencyTitle, Amnt ):
              pass
      
      Form  = FiatCurrencyTransferForm(initial = Dict, user = Req.user )
-     
      Dict["form"] = Form.as_p()
      return  tmpl_context(Req, t, Dict )
         
