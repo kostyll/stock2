@@ -35,10 +35,11 @@ from main.finance import emoney_transfer_withdraw_submit
 from datetime import date
 from crypton import my_messages
 
+TITLE="perfect_money"
 
 @auth_required
 def perfect_transfer_withdraw_submit(Req):
-    return emoney_transfer_withdraw_submit(Req, "perfect")
+    return emoney_transfer_withdraw_submit(Req, TITLE)
     
 
 @auth_required
@@ -56,7 +57,7 @@ def perfect_transfer_withdraw(Req, CurrencyTitle, Amnt ):
      Dict["action_title"] = my_messages.withdraw_transfer
       
      try :
-             Last = TransOut.objects.filter(user = Req.user, provider="perfect", currency = CurrencyIn, status="processed" ).order_by('-id')[0]
+             Last = TransOut.objects.filter(user = Req.user, provider=TITLE, currency = CurrencyIn, status="processed" ).order_by('-id')[0]
              Dict["wallet"] = Last.account
      except :
              pass
@@ -141,7 +142,7 @@ def process_perfect_in(OrderId, Comis, Key):
         DebCred = TransIn(  currency=order.currency1,
                             amnt=order.sum1,
                             user=order.user,
-                            provider='perfect_money',
+                            provider=TITLE,
                             comission=Comission,
                             user_accomplished_id=1,
                             status="created",
