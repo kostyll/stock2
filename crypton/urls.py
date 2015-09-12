@@ -172,7 +172,7 @@ urlpatterns = patterns('',
     url(r'^finance/emoney_transfer_withdraw_submit_ya','main.ya.transfer_withdraw_submit', 
                 name='ya_transfer_withdraw_submit'),
   
-    url(r'^finance/emoney_transfer_withdraw_submit_perfect','main.finance_perfect.perfect_transfer_withdraw', 
+    url(r'^finance/emoney_transfer_withdraw_submit_perfect','main.finance_perfect.perfect_transfer_withdraw_submit', 
                 name='perfect_transfer_withdraw_submit'),
                 
     url(r'^finance/emoney_transfer_withdraw_submit_okpay','main.okpay.transfer_withdraw_submit', 
