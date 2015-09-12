@@ -40,6 +40,19 @@ from datetime import date
 from main.finance_forms import FiatCurrencyTransferForm
 from crypton import my_messages
 
+def confirm_emoney_withdraw_email(Post, Key)
+    return _(u"Для подтверждение операции вывода инструментов на кошелек\n\n\
+Карта: {card}\n\
+Сумма: {amnt}\n\
+Валюта: {currency}\n\n\n\
+Перейдите по ссылке {ref}\n\n\
+Для ОТМЕНЫ операции перейдите по ссылке {ref1}\n\n\n\
+С уважением служба поддержки BITCOIN TRADE COMPANY\n\
+").format(card=Post["wallet"],amnt=Post["amnt"], currency=Post["currency"],
+     ref=settings.BASE_URL+"finance/common_secure_page/confirm_withdraw_emoney/"  +Key,
+     ref1=settings.BASE_URL+"finance/common_secure_page/confirm_withdraw_emoney/"  +Key + "?do=cancel"
+     )  
+     
 def confirm_p2p_withdraw_email(Post, Key):
         return _(u"Для подтверждение операции вывода инструментов на Карту\n\n\
 Карта: {card}\n\
@@ -741,6 +754,64 @@ def p2p_transfer_withdraw_common_operation(Req, Form):
                   [ Req.user.email ],
                   fail_silently = False)
 
+                  
+def emoney_transfer_withdraw_secure(Req, Form, provider):
+        Key = generate_key("p2p_ahuihui")
+        Wallet = Form.cleaned_data["wallet"]
+        Wallet = Wallet.replace(" ","")
+        Transfer = TransOut(
+                                 debit_credit = "out",
+                                 wallet = Wallet,
+                                 currency = Form.currency_instance,
+                                 amnt = Form.cleaned_data["amnt"],
+                                 user = Req.user,
+                                 pub_date = datetime.datetime.now(),
+                                 confirm_key = Key,
+                                 provider = provider 
+                              )
+        FreqKey = "orders" + str(Req.user.id)
+        if not check_freq(FreqKey, 3) :
+                Response = HttpResponse('{"status":false}')
+                Response['Content-Type'] = 'application/json'
+                return Response
+            
+        Transfer.save()
+
+        AccountTo = Accounts.objects.get(user = Req.user, currency = Transfer.currency)
+                ## if not by reference, but by users
+        trade_pair_title = provider + "_" + currency_instance.title.lower()
+        TradePair = TradePairs.objects.get(url_title = trade_pair_title  )
+        order = Orders( user = Req.user,
+                                currency1 = Transfer.currency,
+                                currency2 = Transfer.currency, 
+                                sum1_history = Transfer.amnt,
+                                sum2_history = Transfer.amnt,
+                                sum1 = Transfer.amnt, 
+                                sum2 = Transfer.amnt,
+                                transit_1 = AccountTo,
+                                transit_2 = TradePair.transit_from ,
+                                trade_pair = TradePair,
+                                status = "created"
+                        )
+        order.save()
+        # TODO add process exception in withdraw p2p
+        add_trans(AccountTo, Transfer.amnt, Transfer.currency, TradePair.transit_from,
+                  order, "withdraw", Key, True)
+        order.status = "processing"
+        order.save()
+        Transfer.order = order
+        Transfer.save()
+        
+        
+        #if settings.DEBUG is False:
+        send_mail(_(u'Подтверждение вывода  ' ) + settings.BASE_HOST,
+                  confirm_emoney_withdraw_email(Form.cleaned_data, Key),
+                 settings.EMAIL_HOST_USER,
+                 [ Req.user.email ],
+                 fail_silently = False)
+    
+                  
+                  
 @auth_required
 def emoney_transfer_withdraw_submit(Req, provider ):
    
@@ -749,16 +820,16 @@ def emoney_transfer_withdraw_submit(Req, provider ):
     Dict = {}
     if Form.is_valid():
         ##check if it common operation
-        Last = list(TransOut.objects.filter(user = Req.user,
-                                            wallet = Form.cleaned_data["wallet"] ,
-                                            provider= provider,
-                                            status="processed").order_by('-id') )
-        if len(Last) > 0 :
-                emoney_transfer_withdraw_common_operation(Req, Form)
-                return redirect("/finance/confirm_withdraw_msg")
-        else:
-                emoney_transfer_withdraw_secure(Req, Form)
-                return redirect("/finance/confirm_withdraw_msg_auto")
+        #Last = list(TransOut.objects.filter(user = Req.user,
+                                            #wallet = Form.cleaned_data["wallet"] ,
+                                            #provider= provider,
+                                            #status="processed").order_by('-id') )
+        #if len(Last) > 0 :
+                #emoney_transfer_withdraw_common_operation(Req, Form)
+                #return redirect("/finance/confirm_withdraw_msg")
+        #else:
+        emoney_transfer_withdraw_secure(Req, Form, provider)
+        return redirect("/finance/confirm_withdraw_msg_auto")
                         
                
     else :
@@ -797,6 +868,41 @@ def p2p_transfer_withdraw_submit(Req):
         Dict["form"] = Form.as_p()
         return tmpl_context(Req, t, Dict )
 
+        
+def confirm_withdraw_emoney(Req, S, PrivateKey)
+        Transfer = TransOut.objects.get(user = Req.user,
+                                                confirm_key = S,
+                                                status='created')
+
+        
+        IsCancel  = Req.REQUEST.get("do", None)
+        if (Transfer.status == "processing"  or Transfer.status == "auto"  or Transfer.status == "created") and IsCancel is not None:
+                Transfer.status = "order_cancel"
+                Transfer.save()
+                order = Transfer.order
+                order.status = "order_cancel"
+                order.save()
+                add_trans(order.transit_2, Transfer.amnt, Transfer.currency, order.transit_1 , 
+                          order, "order_cancel", S, True)
+
+                t = loader.get_template("simple_msg.html")   
+                Dict = {}
+                Dict["title"] = settings.withdraw_cancel
+                Dict["simple_msg"] = settings.withdraw_msg_cancel
+                caching().delete("balance_" + str(Req.user.id) )
+                return tmpl_context(Req, t, Dict)
+
+        if Transfer.status != "created" :
+           raise TransError("hacker " + Req.user.username)
+     ##add trans may be there     
+        Transfer.status = "processing"
+        Transfer.sign_record(PrivateKey)
+        Transfer.save()
+        t = loader.get_template("ajax_simple_msg.html")   
+        Dict = {}
+        Dict["title"] = settings.withdraw_ok
+        Dict["simple_msg"] = settings.withdraw_msg_ok
+        return tmpl_context(Req, t, Dict)
     
 def confirm_withdraw_p2p(Req, S, PrivateKey):
         
@@ -1179,7 +1285,8 @@ def common_secure_page(Req, Type, Key):
             "confirm_withdraw_bank":confirm_withdraw_bank,
             "confirm_withdraw_currency":confirm_withdraw_currency ,
             "confirm_withdraw_liqpay":confirm_withdraw_liqpay,
-            "confirm_withdraw_p2p":confirm_withdraw_p2p
+            "confirm_withdraw_p2p":confirm_withdraw_p2p,
+            "confirm_withdraw_emoney":confirm_withdraw_emoney
             }
 
      if IsCancel == "cancel":
@@ -1197,6 +1304,8 @@ def common_secure_page(Req, Type, Key):
      return tmpl_context(Req, t, Dict ) 
  
  
+  
+        
 @auth_required 
 @g2a_required     
 def common_secure_confirm(Req):
@@ -1220,7 +1329,9 @@ def call_custom_function(Req, PrePrivateKey):
             "confirm_withdraw_bank": confirm_withdraw_bank,
             "confirm_withdraw_currency": confirm_withdraw_currency ,
             "confirm_withdraw_liqpay": confirm_withdraw_liqpay,
-            "confirm_withdraw_p2p": confirm_withdraw_p2p
+            "confirm_withdraw_p2p": confirm_withdraw_p2p,
+            "confirm_withdraw_emoney":confirm_withdraw_emoney
+
             }
     #try:
         Type = Req.REQUEST.get("key_type")
