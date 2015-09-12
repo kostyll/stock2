@@ -30,7 +30,7 @@ import sdk.perfect_money_settings
 from main.my_cache_key import check_freq
 #from sdk.crypto import CryptoAccount
 from main.finance_forms import FiatCurrencyTransferForm
-
+from main.finance import emoney_transfer_withdraw_submit
 #from sdk.crypto_settings import Settings as SDKCryptoCurrency
 from datetime import date
 from crypton import my_messages
