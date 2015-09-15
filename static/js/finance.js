@@ -17,7 +17,37 @@ var finance  = {
 		"perfect_money_eur": "Perfect Money EUR",
 		"p24_transfer": "Privat24 UAH",
 		"ya_rur": "Yandex RUR",
-		  },
+	},
+	currency_titles:{
+
+		"ya_rur": "Yandex RUR",
+		"okpay_usd": "OKPay USD",
+		"okpay_eur": "OKPay EUR",
+		"okpay_rur": "OKPay RUR",
+		"perfect_money_usd": "Perfect Money USD",
+		"perfect_money_eur": "Perfect Money EUR",
+		"p24_transfer": "Privat24 UAH",
+                "NVC":"NVC","BTC":"BTC","LTC":"LTC","DRK":"DASH","PPC":"PPC","DOGE":"DOGE",'NMC':"NMC",
+		"USD":"USD",
+		"EUR":"EUR",
+		"UAH":"UAH",
+		"RUR":"RUR"
+
+	},
+
+	
+	setup_emoney_change: function(){
+		var Emoney  = finance.emoney;
+		var trade = $("#emoney_trade");	
+		for(var i in  Emoney){
+
+			var title = Emoney[i];
+			trade.append("<tr><td onclick='finance.setup_emoney1(this)' id='"+i+"'>"+title+"</td><td onclick='finance.setup_emoney2(this)' id='"+i+"'>"+title+"</td></tr>");
+		} 	
+		
+	
+
+	},	
         order_id: "",
         min_deal: 0.00001,
         timer: null,

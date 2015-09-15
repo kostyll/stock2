@@ -13,6 +13,8 @@ var Main = {
         timer_sell_list: null,
         timer_buy_list: null,
         comission:0.0005, //0.1 percent
+	emoney1:null,
+	emoney2:null,
         start_last_price: function(){
                 Main.last_price(function(){
                                 setTimeout(Main.start_last_price, 5000)}
@@ -26,10 +28,65 @@ var Main = {
                 
         },
         
-        
-        
-        
+	
+
+	setup_emoney_change: function(){
+                var Emoney  = finance.emoney;
+                var trade = $("#emoney_trade");
+                for(var i in  Emoney){
+
+                        var title = Emoney[i];
+			var cl='';
+			if(i==Main.currency_on) 
+				cl='class="success"';
+			var cl1='';
+			if(i==Main.currency_base) 
+				cl1='class="success"';
+			
+                        trade.append("<tr><td "+cl+" onclick='Main.setup_emoney1(this)' data-id='"+i+"'>"+title+"</td><td "+cl1+" onclick='Main.setup_emoney2(this)' data-id='"+i+"'>"+title+"</td></tr>")
+                }
+		trade.append("<tr><td colspan='2'> <span onclick='Main.go2stock()' class='btn btn-success pull-right '>Go to Stock</span></td></tr>")	
+
+
+
+
+        },
+        setup_emoney1: function(obj){
+		var emoney=$(obj).data("id");
+		if(emoney == Main.emoney2)
+			return		
+		
+		Main.emoney1=emoney;
+		$("#emoney_trade tr>td:nth-child(1)").removeClass("info");
+		$(obj).addClass("info");
+
+	},
+        setup_emoney2: function(obj){	
+		var emoney=$(obj).data("id");
+		if(emoney == Main.emoney1)
+			return		
+		Main.emoney2=emoney;
+		$("#emoney_trade tr>td:nth-child(2)").removeClass("info");
+		$(obj).addClass("info");
+		
+        },
+	go2stock: function(){
+	   if(Main.emoney1==null) {
+		alert("Please choose the currency of trade");
+		return;		
+	  }
+
+	   if(Main.emoney2==null){
+		alert("Please choose the currency to change to");
+	        return;
+	   }
+		
+	
+	   window.location.href="/stock/"+Main.emoney1+"_"+Main.emoney2;
+
+	},
         start_stock: function(){
+	       Main.setup_emoney_change();
                Main.start_deals_timer();
                Main.start_my_orders();
                Main.start_sell_list();
@@ -117,9 +174,9 @@ var Main = {
                                                 callback();
                               }, 
                               success : function(Data){
-                                          $("#stock_min_price").html(Data["min"]+"&nbsp;"+Main.currency_base);
-                                          $("#stock_max_price").html(Data["max"] +"&nbsp;"+Main.currency_base);
-                                          var Volume = Data["volume_trade"]+"&nbsp;" + Main.currency_on + "&nbsp;/&nbsp;" + Data["volume_base"] + "&nbsp;" + Main.currency_base;
+                                          $("#stock_min_price").html(Data["min"]+"&nbsp;"+finance.currency_titles[Main.currency_base]);
+                                          $("#stock_max_price").html(Data["max"] +"&nbsp;"+finance.currency_titles[Main.currency_base]);
+                                          var Volume = Data["volume_trade"]+"&nbsp;" +finance.currency_titles[ Main.currency_on] + "&nbsp;/&nbsp;" + Data["volume_base"] + "&nbsp;" +finance.currency_titles[Main.currency_base];
                                           $("#stock_volume").html(Volume);
                                           callback();
                                }
@@ -148,7 +205,7 @@ var Main = {
                                                 callback();
                               }, 
                               success : function(Data){
-                                          $("#stock_last_price").html(Data["price"]+"&nbsp;"+Main.currency_base);
+                                          $("#stock_last_price").html(Data["price"]+"&nbsp;"+finance.currency_titles[Main.currency_base]);
                                           callback();
                               }
                    });              
@@ -177,7 +234,7 @@ var Main = {
                                                      }else{
                                                         NewElement +="<td style='color:red'>" +Data[i]["type"] + "</td>";      
                                                      }
-                                                     NewElement +="<td>" +Data[i]["price"]+ "&nbsp;<strong>" +Main.currency_base + "</strong></td>";
+                                                     NewElement +="<td>" +Data[i]["price"]+ "&nbsp;<strong>" +finance.currency_titles[Main.currency_base] + "</strong></td>";
                                                      NewElement +="<td>" +Data[i]["amnt_base"] + "</td>";
                                                      NewElement +="<td>" +Data[i]["amnt_trade"] + "</td></tr>";                                                    
                                                      $("#trade_deals").append( NewElement );
@@ -353,7 +410,7 @@ var Main = {
                                                              
                                                                 var usd_price =  Main.format_float4(List[i]["price"]/Main.usd_uah_rate);
                                                                 var NewElement = "<tr class='cursor' onclick='Main.order2this_buy(this,"+ List[i]["price"] +","+ List[i]["currency_trade"] +" )'>";                                                        
-                                                                NewElement +="<td>"  + Main.format_float6(List[i]["price"]) +"&nbsp;<strong>"  + Main.currency_base + "</strong>";
+                                                                NewElement +="<td>"  + Main.format_float6(List[i]["price"]) +"&nbsp;<strong>"  +finance.currency_titles[Main.currency_base] + "</strong>";
                                                                 NewElement += "&nbsp;</td>";//<small>("+usd_price+"&#36;</small>)
                                                                 NewElement +="<td >" + Main.format_float6(List[i]["currency_trade"]) + "</td>";
                                                                 NewElement +="<td>"  + Main.format_float6(List[i]["currency_base"]) + "</td></tr>";
@@ -439,7 +496,7 @@ var Main = {
 
                                                                 var NewElement = "<tr class='cursor' onclick='Main.order2this_sell(this,"+ List[i]["price"] +","+ List[i]["currency_trade"] +" )'>";                                                        
                                                                 NewElement +="<td>" + Main.format_float6(List[i]["price"]) +"&nbsp;<strong>" 
-                                                                                 + Main.currency_base + "</td>";//</strong>&nbsp;<small>("+usd_price+"&#36;</small>)
+                                                                                  +finance.currency_titles[Main.currency_base] + "</td>";//</strong>&nbsp;<small>("+usd_price+"&#36;</small>)
                                                                 NewElement +="<td>" +Main.format_float6( List[i]["currency_trade"]) + "</td>";
                                                                 NewElement +="<td>" +Main.format_float6(List[i]["currency_base"]) + "</td></tr>";
                                                                 $("#buy_orders_list").append( NewElement );
@@ -498,7 +555,7 @@ var Main = {
                                                                 var NewElement = "<tr id=\"my_order_"+List[i]["id"]+"\"><td>"+List[i]["id"]+"</td>";
                                                                 NewElement +="<td>" +List[i]["pub_date"] + "</td>";
                                                                 NewElement +="<td>" +List[i]["type"] + "</td>";
-                                                                NewElement +="<td>" +Main.format_float6(List[i]["price"]) +"&nbsp;<strong>" +Main.currency_base + "</strong></td>";
+                                                                NewElement +="<td>" +Main.format_float6(List[i]["price"]) +"&nbsp;<strong>" +finance.currency_titles[Main.currency_base] + "</strong></td>";
                                                                 NewElement +="<td>" +Main.format_float6(List[i]["amnt_base"]) + "</td>";
                                                                 NewElement +="<td>" +Main.format_float6(List[i]["amnt_trade"]) + "</td>";                                                    
                                                                 NewElement +="<td> <span onclick=\"Main.remove('" + List[i]["id"] 
@@ -560,7 +617,7 @@ var Main = {
                                                         NewElement +="<td style='color:red'>" +Data[i]["type"] + "</td>";      
                                                      }
                                                      
-                                                     NewElement +="<td>" +Main.format_float4(Data[i]["price"]) +"&nbsp;<strong>" +Main.currency_base + "</strong></td>";
+                                                     NewElement +="<td>" +Main.format_float4(Data[i]["price"]) +"&nbsp;<strong>" +finance.currency_titles[Main.currency_base ]+ "</strong></td>";
                                                      NewElement +="<td>" +Main.format_float4(Data[i]["amnt_base"]) + "</td>";
                                                      NewElement +="<td>" +Main.format_float4(Data[i]["amnt_trade"]) + "</td></tr>";                                                    
                                                      $("#trade_deals").append( NewElement );
