@@ -19,7 +19,7 @@ class Command(BaseCommand):
         ordering_stock = args[3]
         CurrencyInstance1 = Currency.objects.get( title = CurrencyTitle1)
         CurrencyInstance2 = Currency.objects.get( title = CurrencyTitle2)   
-        new_transit = User.objects.create_user( "TRANSIT_%s_%s" % ( CurrencyTitle1, CurrencyTitle2 ),
+        new_transit = User.objects.create_user( "T%s_%s" % ( CurrencyTitle1, CurrencyTitle2 ),
                                                 "admin@btc-trade.com.ua",
                                                 "test_test")        
         new_transit.is_active = False

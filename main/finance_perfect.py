@@ -14,8 +14,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from main.http_common import generate_key, my_cached_paging
-from main.models import TransIn,TransOut,Currency
-
+from main.models import TransIn,TransOut,Currency,OutRequest,Orders, add_trans
+from main.msgs import notify_email
 
 import hashlib
 import random
@@ -95,7 +95,7 @@ def perfect_start_pay(Req, Currency, Amnt):
      
 def perfect_deposit(Req, Currency, Amnt):
      amnt = Decimal(Amnt)
-     if amnt<10:
+     if amnt<1:
              raise TransError("pay_requirments")
      pay_invoice = perfect_money_sdk(Currency,  
                                     sdk.perfect_money_settings.PMERCHID,
@@ -115,7 +115,9 @@ def perfect_call_back_url(Req, Currency, OrderId):
 
         
 def perfect_call_back_url_fail(Req, OrderId):
-    return  json_false(Req)
+        rlog_req = OutRequest(raw_text = str(Req.REQUEST), from_ip = get_client_ip(Req) )
+        rlog_req.save()
+        return redirect("/finance")
 
     
 def process_perfect_in2(OrderId, Comission):   
@@ -131,7 +133,6 @@ def process_perfect_in2(OrderId, Comission):
 
                      order.status = "processed"
                      order.save()
-                     notify_email(order.user, "deposit_notify", DebCred ) 
                      return True
          
          
@@ -143,7 +144,7 @@ def process_perfect_in(OrderId, Comis, Key):
                             amnt=order.sum1,
                             user=order.user,
                             provider=TITLE,
-                            comission=Comission,
+                            comission=Comis,
                             user_accomplished_id=1,
                             status="created",
                             order=order
@@ -151,5 +152,8 @@ def process_perfect_in(OrderId, Comis, Key):
         DebCred.sign_record(Key)
         DebCred.save()
         process_perfect_in2(OrderId, Comis)
+        notify_email(order.user, "deposit_notify", DebCred ) 
+	DebCred.status='processed'
+	DebCred.save()
         return True
     

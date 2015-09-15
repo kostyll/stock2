@@ -12,7 +12,7 @@ class Command(BaseCommand):
     help = 'fix user currency'
     def handle(self, *args, **options):
         F = args[0]      
-        List =  list(User.objects.filter(is_active = True) )
+        List =  list(User.objects.all() )
         bulk_add  = []
         cur_instance = Currency.objects.get(title = F)
                

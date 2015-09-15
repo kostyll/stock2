@@ -13,7 +13,7 @@ from django.http import HttpResponse
 import json
 from xml.dom import minidom
 from sdk.perfectmoney import PerfectMoney
-
+import  sdk.perfect_money_settings 
 
 class perfect_money_sdk:
         
@@ -37,7 +37,7 @@ class perfect_money_sdk:
         self.__public_id = public_id
         self.__password = password
         self.__password2 = password2
-        self.__min_amnt = Decimal("10.00")
+        self.__min_amnt = Decimal("1.00")
         self.comis = Decimal("0.00")
         self.description = "buying btc"
         PUser =  User.objects.get(username = perfect_money_sdk.str_class_name() )        
@@ -53,10 +53,21 @@ class perfect_money_sdk:
     
     def generate_button(self, Amnt):
            acc = ""
+	   currency = ""
            if self.__currency.title == "USD":
-               acc="U%s"%self.__public_id
-           else:
-               acc="E%s"%self.__public_id
+               acc=sdk.perfect_money_settings.USD
+	       currency = "USD"
+           elif self.__currency.title == perfect_money_sdk.str_class_name()+"_eur":
+	       currency = "EUR"
+               acc=sdk.perfect_money_settings.EUR
+           elif self.__currency.title == "EUR":
+	       currency = "EUR"
+               acc=sdk.perfect_money_settings.EUR
+           elif self.__currency.title == perfect_money_sdk.str_class_name()+"_usd":
+	       currency = "USD"
+               acc=sdk.perfect_money_settings.USD
+
+
            Data =  "<form id='pay_p_form' action=\"https://perfectmoney.is/api/step1.asp\" method=\"POST\">\
 <p>\
     <input type=\"hidden\" id=\"p_public_key\" name=\"PAYEE_ACCOUNT\" value=\"%s\">\
@@ -74,7 +85,7 @@ class perfect_money_sdk:
     <input type=\"hidden\" id=\"p_order_id\" name=\"ORDER_NUM\" value=\"\">\
     <input id='perfect_submit_button' type=\"submit\" name=\"PAYMENT_METHOD\" value=\"%s\" >\
 </p>\
-</form>" % (acc, Amnt, self.__currency.title, u"Оплатить"  )
+</form>" % (acc, Amnt, currency, u"Оплатить"  )
            return Data
        
     def   balance(self):
@@ -101,6 +112,16 @@ class perfect_money_sdk:
 #""".strip()          
           
     def generate_pay_request(self, User, Amount):
+	currency = ""
+        if self.__currency.title == "USD":
+               currency = "USD"
+        elif self.__currency.title == perfect_money_sdk.str_class_name()+"_eur":
+               currency = "EUR"
+        elif self.__currency.title == "EUR":
+               currency = "EUR"
+        elif self.__currency.title == perfect_money_sdk.str_class_name()+"_usd":
+               currency = "USD"
+
         AmountStr = Decimal(Amount)    
         user_account = Accounts.objects.get(user  = User, currency = self.__currency)
         if AmountStr<0:
@@ -133,10 +154,10 @@ class perfect_money_sdk:
                 "type":"perfectmoney",
                 "ext_details":"none",
                 "description" :self.description,
-                "currency" :self.__currency.title,
+                "currency" :currency,
                 "server_url": ServerResultUrl,
                 "server_url_fail": self.generate_api_result_url_fail(order, User,  Amount ),
-                "amount": str(AmountStr)
+                "amount": "%.2f" % float(AmountStr)
                 }
 	
         Response =  HttpResponse( json.JSONEncoder().encode(Dict) )
@@ -144,7 +165,7 @@ class perfect_money_sdk:
         return Response
 
     def generate_result_url(self, order, User,  Amount ):
-            return settings.BASE_URL + "finance/common_confirm_page/" + str(order.id)
+            return settings.BASE_URL + "finance" #/" + str(order.id)
     
     def generate_api_result_url(self, order, User,  Amount ):
             return settings.BASE_URL + "finance/perfectmoney/hui_hui_hui/%s/%s" % ( self.__currency.title, str(order.id))
@@ -172,12 +193,9 @@ class perfect_money_sdk:
            perfectmoney = PerfectMoney(self.__public_id, self.__password)
              
             #def check(self, payee, payer, amount, units, batch_number, secret, timestamp, payment_id, v2_hash):
-           Payment = Params["payment"] 
-           signature = self.signature(Payment)
-           Signature =  Params["signature"]
            if not perfectmoney.check(Params["PAYEE_ACCOUNT"],
                                      Params["PAYER_ACCOUNT"],
-                                     Params["PAYMENT_AMOUNT"],
+                                     float(Params["PAYMENT_AMOUNT"]),
                                      Params["PAYMENT_UNITS"],
                                      Params["PAYMENT_BATCH_NUM"],
                                      self.__password2,

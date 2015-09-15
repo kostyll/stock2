@@ -178,6 +178,7 @@ class PerfectMoney:
             Validates SCI payment confirmation data from Perfectmoney server
             return: True/False
         """
+	secret = hashlib.md5(secret).hexdigest().upper()
         check = "%s:%s:%.2f:%s:%s:%s:%s:%s" % (
                                                 payment_id,
                                                 payee,

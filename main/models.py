@@ -860,12 +860,39 @@ def process_p24_in(OrderId, Description, Comis, Key):
                      DebCred.save()
                      return True
 
+def cancel_operation(modeladmin, request, queryset):
+    for i in queryset:
+            if i.user_accomplished is None and (i.status == "processing" or i.status=='created' ):
+               i.status = "canceled"
+            
+	       order = i.order
+               if order is None:
+                    continue 
+
+               order.status = "canceled"
+               add_trans( order.transit_2,
+                          order.sum1,
+                          order.currency2,
+                          order.transit_1,
+                          order,
+                          "order_cancel",
+                          None,
+                          False)
+
+               order.save()
+               i.user_accomplished = request.user
+               i.save()
+
+
+cancel_operation.short_description = u"Cancel вывод "
+
+
 
 class TransOutAdmin(admin.ModelAdmin):
-    list_display = ['ref','wallet','provider','user','pub_date', 'amnt']
+    list_display = ['status','ref','wallet','provider','user','pub_date', 'amnt']
     list_filter = ['user']
     search_fields = [ 'ref', 'user', 'wallet']
-    actions = []
+    actions = [cancel_operation]
 
     
         
@@ -927,6 +954,8 @@ class TransOut(models.Model):
    sign = models.CharField( max_length = 255, blank = True, null = True,
                                    editable = False)
 
+   confirm_key = models.CharField( max_length = 255, blank = True, null = True, 
+                                   editable = False)
 
 
    def fields4sign(self):
@@ -953,9 +982,9 @@ class TransOut(models.Model):
 
 
 
-   class Meta: 
-        verbose_name=u'Приход'        
-        verbose_name_plural = u'Приходы'
+   class Meta:
+        verbose_name=u'Вывод'
+        verbose_name_plural = u'Выводы'
         
    ordering = ('id',) 
       
@@ -1711,9 +1740,12 @@ class  CurrencyAdmin(admin.ModelAdmin):
             Comis = User.objects.get(id = settings.COMISSION_USER)
             Crypto = User.objects.get(id = settings.CRYPTO_USER)
 
-            obj.save()
-            
-            
+	    obj.save()
+	    if not change:    
+	 	   for i in User.objects.all():
+	 		d=Accounts(user = i, currency  = obj,  balance = "0.000" )
+			d.save()
+		
             try :
                 ComisAccount = Accounts.objects.get(user = Comis, currency  = obj )    
             except Accounts.DoesNotExist:
@@ -1743,7 +1775,6 @@ class  CurrencyAdmin(admin.ModelAdmin):
                                 ordering = 0                                                       
                              ) 
                 trade_pair.save()
-                    
                     
 
 
@@ -1842,8 +1873,9 @@ class Accounts(models.Model):
    reference = models.CharField( max_length = 255, 
                                  null = True,
                                  unique = True,
-                                 verbose_name = u" Внешний ключ идентификации или кошелек криптовалюты " )
-   
+				 blank = True,				 	
+        		         verbose_name = u" Внешний ключ идентификации или кошелек криптовалюты " )
+	   
    class Meta: 
       verbose_name=u'Счет'
       verbose_name_plural = u'Счета'

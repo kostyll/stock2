@@ -428,13 +428,13 @@ def setup_trades_pairs(Title, Dict = None ):
      
      ListCurrency = []
           
-     Current = None
+     Current = TradePairs.objects.get(url_title=Title)
      List = list(TradePairs.objects.filter(status = "processing").order_by("ordering"))
      
      Base = List[0].currency_from.long_title
      
    #  ListCurrency.append( {"is_title": True, "title" : Base } )
-     
+  
      for item in List:
      
           if item.currency_from.long_title != Base:
@@ -442,8 +442,6 @@ def setup_trades_pairs(Title, Dict = None ):
                 Base = item.currency_from.long_title
      
      
-          if item.url_title == Title:
-                  Current = item
           try:        
                 Price = VolatileConsts.objects.get(Name = item.url_title + "_top_price")        
                 item.top_price = Price.Value
@@ -453,9 +451,9 @@ def setup_trades_pairs(Title, Dict = None ):
           ListCurrency.append(item)
      
      
-     Dict["Currency1"] =  Current.currency_from.title  
+     Dict["Currency1"] =  Current.currency_from
      Dict["min_deal"] = main.api.format_numbers(Current.min_trade_base)
-     Dict["Currency"] = Current.currency_on.title   
+     Dict["Currency"] = Current.currency_on   
      Dict["CurrencyTrade"] = ListCurrency
      
      return  Dict

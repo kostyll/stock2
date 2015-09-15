@@ -203,6 +203,7 @@ def deposit_notify(user,  Obj):
                   settings.EMAIL_HOST_USER,
                   [ user.email ],
                   fail_silently = True)
+		return True
                 
         if isinstance(Obj, main.models.LiqPayTrans):
                 send_mail(u'Зачисление средств на ' + settings.BASE_HOST,
@@ -210,9 +211,9 @@ def deposit_notify(user,  Obj):
                   settings.EMAIL_HOST_USER,
                   [ user.email ],
                   fail_silently = True)
+		return True
                 
-        if isinstance(Obj, main.models.P24TransIn):
-                send_mail(u'Зачисление средств на ' + settings.BASE_HOST,
+        send_mail(u'Зачисление средств на ' + settings.BASE_HOST,
                   deposit_notify_msg_p24(user, Obj),
                   settings.EMAIL_HOST_USER,
                   [ user.email ],

@@ -32,7 +32,7 @@ from sdk.p24 import p24
 from main.my_cache_key import check_freq
 #from sdk.crypto import CryptoAccount
 
-#from sdk.crypto_settings import Settings as SDKCryptoCurrency
+from sdk.crypto_settings import Settings as SDKCryptoCurrency
 from main.models import Accounts, Currency, ActiveLink, TradePairs, Orders, Msg, StaticPage, HoldsWithdraw,CardP2PTransfers
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum
@@ -40,9 +40,9 @@ from datetime import date
 from main.finance_forms import FiatCurrencyTransferForm
 from crypton import my_messages
 
-def confirm_emoney_withdraw_email(Post, Key)
+def confirm_emoney_withdraw_email(Post, Key):
     return _(u"Для подтверждение операции вывода инструментов на кошелек\n\n\
-Карта: {card}\n\
+К: {card}\n\
 Сумма: {amnt}\n\
 Валюта: {currency}\n\n\n\
 Перейдите по ссылке {ref}\n\n\
@@ -760,7 +760,6 @@ def emoney_transfer_withdraw_secure(Req, Form, provider):
         Wallet = Form.cleaned_data["wallet"]
         Wallet = Wallet.replace(" ","")
         Transfer = TransOut(
-                                 debit_credit = "out",
                                  wallet = Wallet,
                                  currency = Form.currency_instance,
                                  amnt = Form.cleaned_data["amnt"],
@@ -779,14 +778,15 @@ def emoney_transfer_withdraw_secure(Req, Form, provider):
 
         AccountTo = Accounts.objects.get(user = Req.user, currency = Transfer.currency)
                 ## if not by reference, but by users
-        trade_pair_title = provider + "_" + currency_instance.title.lower()
+        trade_pair_title = provider + "_" + Form.currency_instance.title.lower()
         TradePair = TradePairs.objects.get(url_title = trade_pair_title  )
         order = Orders( user = Req.user,
                                 currency1 = Transfer.currency,
                                 currency2 = Transfer.currency, 
                                 sum1_history = Transfer.amnt,
                                 sum2_history = Transfer.amnt,
-                                sum1 = Transfer.amnt, 
+                                sum1 = Transfer.amnt,
+				price= Decimal("1"), 
                                 sum2 = Transfer.amnt,
                                 transit_1 = AccountTo,
                                 transit_2 = TradePair.transit_from ,
@@ -869,14 +869,14 @@ def p2p_transfer_withdraw_submit(Req):
         return tmpl_context(Req, t, Dict )
 
         
-def confirm_withdraw_emoney(Req, S, PrivateKey)
+def confirm_withdraw_emoney(Req, S, PrivateKey):
         Transfer = TransOut.objects.get(user = Req.user,
                                                 confirm_key = S,
                                                 status='created')
 
         
         IsCancel  = Req.REQUEST.get("do", None)
-        if (Transfer.status == "processing"  or Transfer.status == "auto"  or Transfer.status == "created") and IsCancel is not None:
+        if Transfer.status == "created" and IsCancel is not None:
                 Transfer.status = "order_cancel"
                 Transfer.save()
                 order = Transfer.order
@@ -1162,7 +1162,7 @@ def home(Req):
                 i.balance = format_numbers_strong(i.balance)
                 item["balance"] = i.balance
                 currency_id = i.currency.id
-                item["currency"] = i.currency.title 
+                item["currency"] = i.currency 
                 if OrdersBalances.has_key(currency_id) :
                     item["on_orders"] = format_numbers_strong(OrdersBalances[currency_id])
                 ResAcc.append(item)
@@ -1316,6 +1316,7 @@ def common_secure_confirm(Req):
         
     if not Use2fa:
         Form = PinForm(Req.REQUEST,  user = Req.user)
+
         if Form.is_valid():
              return   call_custom_function(Req, Form.fields["pin"].value)
         else:

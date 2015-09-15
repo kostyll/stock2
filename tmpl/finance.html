@@ -87,13 +87,13 @@
                         
                                         {% for account in page_accounts %}
                                                 <tr>
-                                                        <td><strong>{{account.currency}}</strong></td>
+                                                        <td><strong>{{account.currency.long_title}}</strong></td>
                                                         <td>{{account.balance}}&nbsp;<br/> {%if account.on_orders %} ( + на заявках: <strong>{{ account.on_orders }}</strong> ) {% endif %} </td>
                                                         <td>
                                                         <button class="btn btn-success pull-right" 
-                                                                onclick="finance.make_deposit('{{account.currency}}')">Пополнить</button>
+                                                                onclick="finance.make_deposit('{{account.currency.title}}', '{{account.currency.long_title}}')">Пополнить</button>
                                                         <button class="btn pull-right" 
-                                                                onclick="finance.withdraw('{{account.currency}}')">Вывести</button>                        
+                                                                onclick="finance.withdraw('{{account.currency.title}}', '{{account.currency.long_title}}')">Вывести</button>                        
                                                         </td> 
                                                 </tr>
                                         {% endfor %}

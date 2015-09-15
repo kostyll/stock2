@@ -9,6 +9,15 @@ var finance  = {
         {
                 "NVC":1,"BTC":1,"LTC":1,"HIRO":1,"DRK":1,"VTC":1, "PPC":1,"DOGE":1,"CLR":1,"RMS":1,'NMC':1
         },
+	emoney:{ 
+		"okpay_usd": "OKPay USD",
+		"okpay_eur": "OKPay EUR",
+		"okpay_rur": "OKPay RUR",
+		"perfect_money_usd": "Perfect Money USD",
+		"perfect_money_eur": "Perfect Money EUR",
+		"p24_transfer": "Privat24 UAH",
+		"ya_rur": "Yandex RUR",
+		  },
         order_id: "",
         min_deal: 0.00001,
         timer: null,
@@ -70,10 +79,12 @@ var finance  = {
         },
       
         
-        make_deposit: function(Currency){
+        make_deposit: function(Currency, Title){
                 $("#withdraw_form").css({"display":"none"});
                 window.scrollTo(0, 0);
+                $("#currency_depo_title").val(Title);
                 $("#currency_depo").val(Currency);
+		
                 finance.fill_providers_depo(Currency);
                 $("#deposit_form").slideDown("slow");
         },
@@ -86,10 +97,23 @@ var finance  = {
               <option value="bank_transfer">
                                    Банковский перевод
                </option>*/
+	fill_list: function(List){
+	    	$("#provider_depo").append( $('<option value="">Выбрать</option>') );
+		for(var i in List){
+			var item = List[i];
+			
+                        $("#provider_depo").append( $('<option value="'+i+'">'+item+'</option>') );
+		
+		}
+
+                $("#label_depo").html( "Cпособ пополения:" );
+                $("#label_amnt_depo").show();
+                $("#amnt_depo").show();
+                $("#provider_depo").show();
+
+	},
         fill_uah: function(){
                         $("#provider_depo").append( $('<option value="">Выбрать</option>') );
-//                         $("#provider_depo").append( $('<option value="liqpay_transfer">LiqPay Платежной Картой 2.75% для всех карт Visa,MasterCard </option>') );    
-//                         $("#provider_depo").append( $('<option value="liqpay_transfer">2.75% наличными в терминалах ПриватБанка </option>') );    
                         $("#provider_depo").append( $('<option value="p24_transfer">Через Приват24( 2% ) </option>') );                       
             
                         $("#label_depo").html( "Cпособ пополения:" );                       
@@ -102,9 +126,8 @@ var finance  = {
         },
         fill_usd: function(){
                         $("#provider_depo").append( $('<option value="">Выбрать</option>') );
-                        $("#provider_depo").append( $('<option value="perfect_usd">Perfect Money</option>') );    
+                        $("#provider_depo").append( $('<option value="perfect_money_usd">Perfect Money</option>') );    
                         $("#provider_depo").append( $('<option value="okpay_usd">OkPay</option>') );    
-//                         $("#provider_depo").append( $('<option value="payeer_usd">Payeer</option>') );  
                         $("#label_depo").html( "Cпособ пополения:" );                       
                         $("#label_amnt_depo").show();                      
                         $("#amnt_depo").show();                       
@@ -115,9 +138,8 @@ var finance  = {
         },
         fill_eur: function(){
                         $("#provider_depo").append( $('<option value="">Выбрать</option>') );
-                        $("#provider_depo").append( $('<option value="perfect_eur">Perfect Money</option>') );    
+                        $("#provider_depo").append( $('<option value="perfect_money_eur">Perfect Money</option>') );    
                         $("#provider_depo").append( $('<option value="okpay_eur">OkPay</option>') );    
-//                         $("#provider_depo").append( $('<option value="payeer_eur">Payeer</option>') );
                         $("#label_depo").html( "Cпособ пополения:" );                       
                         $("#label_amnt_depo").show();                      
                         $("#amnt_depo").show();                       
@@ -127,7 +149,6 @@ var finance  = {
                         $("#provider_depo").append( $('<option value="">Выбрать</option>') );
                         $("#provider_depo").append( $('<option value="ya_rur">Yandex</option>') );  
                         $("#provider_depo").append( $('<option value="okpay_rur">OkPay</option>') );    
-//                         $("#provider_depo").append( $('<option value="payeer_rur">Payeer</option>') );  
                         $("#label_depo").html( "Cпособ пополения:" );                       
                         $("#label_amnt_depo").show();                      
                         $("#amnt_depo").show();                       
@@ -151,9 +172,16 @@ var finance  = {
                      
                      if(Currency=="RUR")
                         finance.fill_rur();
-                        
+		     
 
                 }
+                if(finance.emoney[Currency]){
+		 	var obj={};
+
+			obj[Currency]=finance.emoney[Currency];	
+			finance.fill_list(obj)
+		}
+
                 
                 if(finance.crypto_currency[Currency]){
                         $("#provider_depo").hide();
@@ -193,37 +221,40 @@ var finance  = {
                 
                 var currency = $("#currency_depo").val();
                 var amnt =$("#amnt_depo").val(); 
-                  
+                
+	
+  
                 if(provider == "bank_transfer")
                        return finance.bank_transfer(obj, amnt, currency )
                        
                 if(provider == "liqpay_transfer")
-                       return finance.liqpay_transfer(obj, amnt,  "UAH" ) 
+                       return finance.liqpay_transfer(obj, amnt,  currency ) 
                        
                 if(provider == "p24_transfer")
-                       return finance.p24_transfer(obj, amnt,  "UAH" )   
+                       return finance.p24_transfer(obj, amnt,  currency )   
                        
-                if(provider == "perfect_usd")
-                       return finance.p_transfer(obj, amnt,  "USD" )
+                if(provider == "perfect_money_usd")
+                       return finance.p_transfer(obj, amnt,  currency )
                 
-                if(provider == "perfect_eur")
-                       return finance.p_transfer(obj, amnt,  "EUR" )
+                if(provider == "perfect_money_eur")
+                       return finance.p_transfer(obj, amnt,  currency )
                 
                 if(provider == "okpay_usd")
-                       return finance.okpay_transfer(obj, amnt,  "USD" )
+                       return finance.okpay_transfer(obj, amnt,  currency )
                 
                 if(provider == "okpay_eur")
-                       return finance.okpay_transfer(obj, amnt,  "EUR" )  
+                       return finance.okpay_transfer(obj, amnt,  currency )  
                 
                 if(provider == "okpay_rur")
-                       return finance.okpay_transfer(obj, amnt,  "RUR" )  
+                       return finance.okpay_transfer(obj, amnt,  currency )  
                        
                 if(provider == "ya_rur")
-                       return finance.ya_transfer(obj, amnt )
-                
+                       return finance.ya_transfer(obj, amnt, currency )
+	                       
+ 
                        
         },
-        ya_transfer: function(obj, Amnt){
+        ya_transfer: function(obj, Amnt, currency){
            
                 if(Amnt<10){
                         obj.value = "";
@@ -231,7 +262,7 @@ var finance  = {
                         return false;
                 }          
                 var Res = $.ajax({
-                                        url : "/finance/ya/deposit/RUR/"+Amnt,
+                                        url : "/finance/ya/deposit/"+currency+"/"+Amnt,
                                         type : 'GET',
                                         cache: false,
                                         error: function(data){
@@ -247,7 +278,7 @@ var finance  = {
                                                          return finance.o_flag;
                                                          //strange but not work without it
                                                     });
-                                                   $("#ya_submit_button").bind( "click", finance.okpay_start);
+                                                   $("#ya_submit_button").bind( "click", finance.ya_start);
                                                    
                                          }
                                      }); 
@@ -258,11 +289,6 @@ var finance  = {
                 var currency = $("#currency_depo").val();
                 var amnt = $("#amnt_depo").val(); 
                 
-                if( currency != "RUR"){
-                        $("#provider_depo").val("");
-                        my_alert("Неправильная валюта");       
-                        return false;
-                }
                 if(amnt<10){
                         $("#provider_depo").val("");
                         my_alert("Ограничение минимальной суммы пополнения через Yandex Money");       
@@ -293,11 +319,6 @@ var finance  = {
             
         },
         okpay_transfer: function(obj, Amnt, currency){
-                if(currency != "USD" && currency != "EUR" && currency != "RUR"){
-                        obj.value = "";
-                        my_alert("Неправильная валюта");       
-                        return false;
-                }
                 if(Amnt<10){
                         obj.value = "";
                         my_alert("Ограничение минимальной суммы пополнения через OkPay");       
@@ -330,11 +351,6 @@ var finance  = {
                 var currency = $("#currency_depo").val();
                 var amnt = $("#amnt_depo").val(); 
                 
-                if(currency != "USD" && currency != "EUR"&& currency != "RUR"){
-                        $("#provider_depo").val("");
-                        my_alert("Неправильная валюта");       
-                        return false;
-                }
                 if(amnt<10){
                         $("#provider_depo").val("");
                         my_alert("Ограничение минимальной суммы пополнения через OkPay");       
@@ -371,12 +387,7 @@ var finance  = {
         
         
         p_transfer: function(obj, Amnt, currency){
-                if(currency != "USD" && currency != "EUR"){
-                        obj.value = "";
-                        my_alert("Неправильная валюта");       
-                        return false;
-                }
-                if(Amnt<10){
+                if(Amnt<1){
                         obj.value = "";
                         my_alert("Ограничение минимальной суммы пополнения через PerfectMoney");       
                         return false;
@@ -408,12 +419,7 @@ var finance  = {
                 var currency = $("#currency_depo").val();
                 var amnt = $("#amnt_depo").val(); 
                 
-                if(currency != "USD" && currency != "EUR"){
-                        $("#provider_depo").val("");
-                        my_alert("Неправильная валюта");       
-                        return false;
-                }
-                if(amnt<10){
+                if(amnt<1){
                         $("#provider_depo").val("");
                         my_alert("Ограничение минимальной суммы пополнения через PerfectMoney");       
                         return false;
@@ -450,11 +456,6 @@ var finance  = {
                 var currency = $("#currency_depo").val();
                 var amnt = $("#amnt_depo").val(); 
                 
-                if(currency != "UAH"){
-                        $("#provider_depo").val("");
-                        my_alert("Неправильная валюта");       
-                        return false;
-                }
                 if(amnt<100){
                         $("#provider_depo").val("");
                         my_alert("Ограничение минимальной суммы пополнения через Приват24, больше 100 ГРН");       
@@ -495,11 +496,6 @@ var finance  = {
                 var currency = $("#currency_depo").val();
                 var amnt = $("#amnt_depo").val(); 
                 
-                if(currency != "UAH"){
-                        $("#provider_depo").val("");
-                        my_alert("Неправильная валюта");       
-                        return false;
-                }
                 if(amnt<100){
                         $("#provider_depo").val("");
                         my_alert("Ограничение минимальной суммы пополнения через liqpay, больше 100 ГРН");       
@@ -538,11 +534,6 @@ var finance  = {
                 
         },
         p24_transfer: function(obj, Amnt, Currency){
-                if(Currency != "UAH"){
-                        obj.value = "";
-                        my_alert("Неправильная валюта");       
-                        return false;
-                }
                 if(Amnt<100){
                         obj.value = "";
                         my_alert("Ограничение минимальной суммы пополнения через Приват24, больше 100 ГРН");       
@@ -570,11 +561,6 @@ var finance  = {
                 
         },
         liqpay_transfer: function(obj, Amnt, Currency){
-                if(Currency != "UAH"){
-                        obj.value = "";
-                        my_alert("Неправильная валюта");       
-                        return false;
-                }
                 if(Amnt<100){
                         obj.value = "";
                         my_alert("Ограничение минимальной суммы пополнения через liqpay, больше 100 ГРН");       
@@ -668,11 +654,12 @@ var finance  = {
                 
                 
         },        
-        withdraw:function(Currency){
+        withdraw:function(Currency, Title){
                 $("#deposit_form").css({"display":"none"});
                 window.scrollTo(0, 0);
                 $("#res_provider_withdraw").html( "" );
                 $("#currency_withdraw").val(Currency);
+                $("#currency_withdraw_title").val(Title);
                 $("#withdraw_form").slideDown("slow");
                 finance.withdraw_providers(Currency);                
         },
