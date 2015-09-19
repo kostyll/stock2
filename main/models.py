@@ -512,13 +512,13 @@ def add_trans2(From, Amnt, Currency, To, order, status = "created", Out_order_id
        if From.currency.id <> Currency:
                trans.status = "currency_core"
                trans.currency_id = Currency
-               trans.save(using = 'memory')
+               trans.save()
                raise TransError("currency_core")
 
        if To.currency.id <> Currency:
                trans.status = "currency_core"
                trans.currency_id = Currency
-               trans.save(using = 'memory')
+               trans.save()
                raise TransError("currency_core")
        trans.currency = To.currency
        trans.save()
@@ -530,7 +530,7 @@ def add_trans2(From, Amnt, Currency, To, order, status = "created", Out_order_id
        if Strict:
                 if NewBalance < 0:
                     trans.status = "incifition_funds"
-                    trans.save(using = 'memory')
+                    trans.save()
                     raise TransError("incifition_funds")
 
        ToBalance = To.balance
@@ -557,7 +557,7 @@ def add_trans2(From, Amnt, Currency, To, order, status = "created", Out_order_id
             To.balance  = ToBalance
             From.save()
             To.save()
-            trans.save(using = 'memory')
+            trans.save()
             raise TransError("core_error")
 
 ## add exception here

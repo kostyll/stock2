@@ -286,7 +286,6 @@ def refs(request):
     return http_tmpl_context(request, tmpl, Dict)     
  
 
-@auth_required
 def crypton_emoney_list(user, currency):
         cursor = connection.cursor() 
         Query = "SELECT debit_credit,wallet ,amnt, pub_date, status FROM main_emoney_in_out WHERE 1\
@@ -307,18 +306,19 @@ def crypton_emoney_list(user, currency):
         Query = cursor.execute(Query)
         List = dictfetchall(cursor, Query)
         for item in List :
-            Account = item["phone"]
-            Account = "*******"+Account[-4:]
+	     Account=""
+	     if item['wallet']!='':
+              	Account = item["wallet"]
+              	Account = "*******"+Account[-4:]
             
-            Cell = ( 
+             Cell = ( 
                      DbOut[ item["debit_credit"] ], 
                      Account,
                      item["amnt"],
                      item["pub_date"],
                      Status[item["status"]]  )
-            yield  {"transes": Cell}
+             yield  {"transes": Cell}
             
-@auth_required
 def crypton_uah_list(user):
         cursor = connection.cursor() 
         Query = "SELECT pub_date, phone, amnt, comission, user_id, status, debit_credit FROM main_uah_in_out WHERE 1\
@@ -363,20 +363,20 @@ def depmotion_home(Req):
 @auth_required
 def depmotion(request, CurrencyTitle):
     CurrencyList = Currency.objects.all(  )
-    #cur = Currency.objects.get(title=CurrencyTitle  )
-    cur = None
+    cur = Currency.objects.get(title=CurrencyTitle  )
     (TransList,TransTitle) = (None, None)
+    user_id = request.user.id
     if SDKCryptoCurrency.has_key(CurrencyTitle):
         ##TODO avoid this
-        TransList = list( crypton_currency_list(request.user.id, CurrencyTitle) )
+        TransList = list( crypton_currency_list(user_id, CurrencyTitle) )
         TransTitle = ({"value":_(u"Дебит/Кредит")},{"value":_(u"Адрес")}, {"value":_(u"Сумма")},{"value":_(u"Дата")},
                       {"value":_(u"Статус")},{"value":_(u"Подтверждения")}, {"value":_(u"Txid")}  )
-    if CurrencyTitle == "UAH":
-        TransList = list(crypton_uah_list(request.user.id))
+    elif CurrencyTitle == "UAH":
+        TransList = list(crypton_uah_list(user_id))
         TransTitle = ({"value":_(u"Дебит/Кредит")}, {"value":_(u"Счет")}, {"value":_(u"Сумма")},
                       {"value":_(u"Дата")}, {"value":_(u"Статус")}  )
     else:  
-       TransList = list(crypton_emoney_list(request.user.id, cur))
+       TransList = list(crypton_emoney_list(user_id, cur))
        TransTitle = ({"value":_(u"Дебит/Кредит")}, {"value":_(u"Сумма")},
                      {"value":_(u"Дата")}, {"value":_(u"Статус")}  )
        
