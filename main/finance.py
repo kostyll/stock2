@@ -286,6 +286,39 @@ def refs(request):
     return http_tmpl_context(request, tmpl, Dict)     
  
 
+@auth_required
+def crypton_emoney_list(user, currency):
+        cursor = connection.cursor() 
+        Query = "SELECT debit_credit,wallet ,amnt, pub_date, status FROM main_emoney_in_out WHERE 1\
+                 AND   user_id = %s AND currency_id='%i'  ORDER BY pub_date DESC " % ( str(user), currency.id )     
+             
+        Status = {"auto": _(u"в работе"),
+                  "processing": _(u"в работе"),
+                  "processing2": _(u"в работе"),
+                  "created": _(u"заявлена"),
+                  "order_cancel": _(u"отменена"),
+                  "canceled": _(u"отменена"),
+                  "core_error": _(u"Ошибка"),
+                  "processed": _(u'исполнен')}
+
+        DbOut = {"in": _(u"Дебет"),
+                 "out": _(u"Кредит")}
+        
+        Query = cursor.execute(Query)
+        List = dictfetchall(cursor, Query)
+        for item in List :
+            Account = item["phone"]
+            Account = "*******"+Account[-4:]
+            
+            Cell = ( 
+                     DbOut[ item["debit_credit"] ], 
+                     Account,
+                     item["amnt"],
+                     item["pub_date"],
+                     Status[item["status"]]  )
+            yield  {"transes": Cell}
+            
+@auth_required
 def crypton_uah_list(user):
         cursor = connection.cursor() 
         Query = "SELECT pub_date, phone, amnt, comission, user_id, status, debit_credit FROM main_uah_in_out WHERE 1\
@@ -330,19 +363,23 @@ def depmotion_home(Req):
 @auth_required
 def depmotion(request, CurrencyTitle):
     CurrencyList = Currency.objects.all(  )
-    
+    #cur = Currency.objects.get(title=CurrencyTitle  )
+    cur = None
     (TransList,TransTitle) = (None, None)
     if SDKCryptoCurrency.has_key(CurrencyTitle):
         ##TODO avoid this
         TransList = list( crypton_currency_list(request.user.id, CurrencyTitle) )
         TransTitle = ({"value":_(u"Дебит/Кредит")},{"value":_(u"Адрес")}, {"value":_(u"Сумма")},{"value":_(u"Дата")},
                       {"value":_(u"Статус")},{"value":_(u"Подтверждения")}, {"value":_(u"Txid")}  )
-    else:
+    if CurrencyTitle == "UAH":
         TransList = list(crypton_uah_list(request.user.id))
         TransTitle = ({"value":_(u"Дебит/Кредит")}, {"value":_(u"Счет")}, {"value":_(u"Сумма")},
                       {"value":_(u"Дата")}, {"value":_(u"Статус")}  )
-   
-   
+    else:  
+       TransList = list(crypton_emoney_list(request.user.id, cur))
+       TransTitle = ({"value":_(u"Дебит/Кредит")}, {"value":_(u"Сумма")},
+                     {"value":_(u"Дата")}, {"value":_(u"Статус")}  )
+       
     TransListPage = None
     paginator = Paginator(TransList, 200) # Show 25 contacts per page
 
@@ -1244,11 +1281,10 @@ def common_confirm_page(Req, Order):
     rlog_req = OutRequest(raw_text = str(Req.REQUEST), http_referer = Req.META.get("HTTP_REFERER",""), from_ip = get_client_ip(Req) )
     rlog_req.save()  
     
-    if Req.META.has_key("HTTP_REFERER")  and Req.META["HTTP_REFERER"].startswith("https://api.privatbank.ua") :
-        OrderData = Orders.objects.get(id= int(Order))
-        if OrderData.status == "created":
-                OrderData.status = "wait_secure"
-        OrderData.save()
+    OrderData = Orders.objects.get(id= int(Order))
+    if OrderData.status == "created":
+        OrderData.status = "wait_secure"
+    	OrderData.save()
         
     if not Req.user.is_authenticated():
              return denied(Req)  

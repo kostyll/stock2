@@ -286,7 +286,7 @@ var finance  = {
         },
         ya_transfer: function(obj, Amnt, currency){
            
-                if(Amnt<10){
+                if(Amnt<1){
                         obj.value = "";
                         my_alert("Ограничение минимальной суммы пополнения через Yandex Money");       
                         return false;
@@ -319,7 +319,7 @@ var finance  = {
                 var currency = $("#currency_depo").val();
                 var amnt = $("#amnt_depo").val(); 
                 
-                if(amnt<10){
+                if(amnt<1){
                         $("#provider_depo").val("");
                         my_alert("Ограничение минимальной суммы пополнения через Yandex Money");       
                         return false;
@@ -349,7 +349,7 @@ var finance  = {
             
         },
         okpay_transfer: function(obj, Amnt, currency){
-                if(Amnt<10){
+                if(Amnt<1){
                         obj.value = "";
                         my_alert("Ограничение минимальной суммы пополнения через OkPay");       
                         return false;
@@ -365,13 +365,14 @@ var finance  = {
                                         success : function(Data){
                                                    var comission = ""; //"<p class=\"help-block\">Комиссия за пополнение составляет 2% с карты ПриватБанка, 2% + 10 грн с карт других банков</p>";
                                                     $("#res_provider").html( comission + Data ); 
-                                                    $("#ya_submit_button").css("margin-right","11em");
-                                                    $("#ya_submit_button").attr("class","btn btn-success pull-right");
+                                                    $("#okpay_submit_button").css("margin-right","11em");
+                                                    $("#okpay_submit_button").attr("class","btn btn-success pull-right");
                                                     $("#pay_form").bind( "submit", function() {
+							 console.log(finance.o_flag);
                                                          return finance.o_flag;
                                                          //strange but not work without it
                                                     });
-                                                   $("#ya_submit_button").bind( "click", finance.okpay_start);
+                                                   $("#okpay_submit_button").bind( "click", finance.okpay_start);
                                                    
                                          }
                                      });   
@@ -380,8 +381,8 @@ var finance  = {
         okpay_start:function(){
                 var currency = $("#currency_depo").val();
                 var amnt = $("#amnt_depo").val(); 
-                
-                if(amnt<10){
+                console.log("okpay start"); 
+                if(amnt<1){
                         $("#provider_depo").val("");
                         my_alert("Ограничение минимальной суммы пополнения через OkPay");       
                         return false;

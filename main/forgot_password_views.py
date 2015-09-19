@@ -38,13 +38,13 @@ __author__ = 'bogdan'
 
 def reset_pwd_mail(User, SessionKey):
         Url = crypton.settings.BASE_URL + "reset_pwd/" + SessionKey
-        return _(u"Вы заказали обновление пароля на btc-trade.com.ua\n\
+        return _(u"Вы заказали обновление пароля на {name}\n\
 Данные для входа : \n\
 Имя пользователя: \"{username}\" \n \
 Перейдите пожайлуста по ссылке для завершения процедуры обновления: {url} \n\
 \n\n\n\
 С уважением служба поддержки BITCOIN TRADE COMPANY\n\
-                ").format(username=User.username,url=Url)
+                ").format(name=crypton.settings.PROJECT_NAME,username=User.username,url=Url)
 
 def forgot(Req):
     t = loader.get_template("simple_form_center.html")

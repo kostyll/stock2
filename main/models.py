@@ -889,7 +889,7 @@ cancel_operation.short_description = u"Cancel вывод "
 
 
 class TransOutAdmin(admin.ModelAdmin):
-    list_display = ['status','ref','wallet','provider','user','pub_date', 'amnt']
+    list_display = ['wallet','provider','amnt','currency','user','pub_date', 'status']
     list_filter = ['user']
     search_fields = [ 'ref', 'user', 'wallet']
     actions = [cancel_operation]
@@ -992,7 +992,7 @@ class TransOut(models.Model):
       return   str(o.id) + " " + str(o.amnt) + " " +  o.user.username                     
                      
 class TransInAdmin(admin.ModelAdmin):
-    list_display = ['ref','provider','user','pub_date', 'amnt']
+    list_display = ['ref','provider','amnt','currency','user','pub_date', 'status']
     list_filter = ['user']
     search_fields = [ 'ref', 'user']
     actions = []

@@ -14,9 +14,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from main.http_common import generate_key, my_cached_paging
-from main.models import TransIn,TransOut,Currency, Accounts, TradePairs, Orders
-
-
+from main.models import TransIn,TransOut,Currency, Accounts, TradePairs, Orders, OutRequest,add_trans
+import urllib2
+import urllib
+from main.msgs import notify_email
 import hashlib
 import random
 import datetime
@@ -141,13 +142,27 @@ def start_pay(Req, CurrencyTitle, Amnt):
         order.save()
         ResultUrl = generate_result_url(order, User,  Amnt )
         ServerResultUrl = generate_api_result_url(order, User,  Amnt )
-        
+        currency_norm =''
+	if CurrencyTitle == 'okpay_rur':
+		currency_norm='RUB'
+	if CurrencyTitle == 'okpay_usd':
+		currency_norm='USD'
+	if CurrencyTitle == 'okpay_eur':
+		currency_norm='EUR'
+	if CurrencyTitle == 'RUR':
+		currency_norm='RUB'
+	if CurrencyTitle == 'EUR':
+		currency_norm='EUR'
+	if CurrencyTitle == 'USD':
+		currency_norm='USD'
+	
+
         Dict = {
                 "order_id":   str(order.id),
                 "result_url" : ResultUrl,
                 "type":"okpay",
                 "ext_details":"none",
-                "currency" :currency.title,
+                "currency" :currency_norm,
                 "server_url": ServerResultUrl,
                 "amount": str(AmountStr)
                 }
@@ -160,10 +175,25 @@ def call_back_url(Req,  OrderId):
 #        ok_invoice
 #        ok_txn_status
         rlog_req = OutRequest(raw_text = str(Req.REQUEST), from_ip = get_client_ip(Req) )
+
+	Body = "ok_verify=true&{0}".format(Req.body)
+
+	Url = "https://www.okpay.com/ipn-verify.html"
+	headers = {'User-Agent' : 'Mozilla 5.10', 'Content-Type': 'text/xml'}
+        request = urllib2.Request(Url, Body, headers)
+        response = urllib2.urlopen(request)
+	d = response.read()
+	rlog_req.raw_text = rlog_req.raw_text + " response '{0}' ".format(d)
+	import logging
+	logging.error("okpay" + d)
+        if d!= u"VERIFIED" :#and d!= u"TEST":
+        	rlog_req.save()
+		return json_false(Req)        
+
         rlog_req.save()
 	FactAmnt = Decimal(Req.REQUEST["ok_txn_net"])
-        if  Req.REQUEST["ok_txn_status"] == "completed":
-		if process_in(Req.REQUEST["ok_invoice"], FactAmnt, Decimal("0.0") ,settings.COMMON_SALT)and process_in2(Req.REQUEST["ok_invoice"], FactAmnt):
+        if  Req.REQUEST[u"ok_txn_status"] == u"completed":
+		if process_in(Req.REQUEST["ok_invoice"], FactAmnt, Decimal("0.0") ,settings.COMMON_SALT):
 			return json_true(Req)
 		else:
 			return json_false(Req)
@@ -174,15 +204,19 @@ def call_back_url_fail(Req, OrderId):
     return  json_false(Req)
 
     
-def process_in2(OrderId, FactAmnt):   
+def process_in2(OrderId, Comis, FactAmnt):   
     order = Orders.objects.get(id = int(OrderId), status='processing2' )            
                      
     add_trans( order.transit_1, FactAmnt, order.currency1,
                order.transit_2, order, 
                                 "payin", None , False)
+    if Comis>0:
+        add_trans(order.transit_2 , Comis, order.currency1,
+                                  order.transit_1,  order,
+                                  "comission", None, False)
+
     order.status = "processed"
     order.save()
-    notify_email(order.user, "deposit_notify", DebCred ) 
     return True
          
          
@@ -194,13 +228,15 @@ def process_in(OrderId, FactAmnt ,Comis, Key):
                             amnt=FactAmnt,
                             user=order.user,
                             provider='okpay',
-                            comission=Comission,
+                            comission=Comis,
                             user_accomplished_id=1,
                             status="created",
                             order=order
                             )
         DebCred.sign_record(Key)
         DebCred.save()
-        process_in2(OrderId, Comis)
+	
+        if process_in2(OrderId,Comis,  FactAmnt):
+            notify_email(order.user, "deposit_notify", DebCred ) 
         return True
     

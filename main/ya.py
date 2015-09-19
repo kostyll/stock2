@@ -14,7 +14,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from main.http_common import generate_key, my_cached_paging
-from main.models import TransIn,TransOut,Currency, Accounts, TradePairs, Orders
+from main.models import TransIn,TransOut,Currency, Accounts, TradePairs, Orders, OutRequest, add_trans
 
 
 import hashlib
@@ -23,7 +23,7 @@ import datetime
 from decimal import Decimal, getcontext
 from main.http_common import http_tmpl_context, http_json, json_false, json_denied, json_true, denied, setup_custom_meta, tmpl_context, caching, get_client_ip
 from main.http_common import json_auth_required, format_numbers10, format_numbers_strong, format_numbers, format_numbers4, auth_required, g2a_required, json_false500, login_page_with_redirect
-
+from main.msgs import notify_email
 from main import views
 import sdk.ya_settings
 from main.my_cache_key import check_freq
@@ -97,6 +97,7 @@ def   generate_button(Amnt):
     <input type=\"hidden\" id=\"paymentType \" name=\"paymentType \" value=\"PC\">\
     <input type=\"hidden\" id=\"label\" name=\"label\" value=\"\">\
     <input type=\"hidden\"  name=\"quickpay-form\" value=\"shop\">\
+    <input type=\"hidden\"  name=\"targets\" value=\"pay in on account\">\
     <input type=\"hidden\"  name=\"short-dest\" value=\"BitCoin Money Trade\">\
     <input type=\"hidden\"  name=\"formcomment \" value=\"BitCoin Money Trade\">\
     <input id='ya_submit_button' type=\"submit\"  value=\"%s\" \
@@ -161,27 +162,43 @@ def call_back_url(Req):
      rlog_req = OutRequest(raw_text = str(Req.REQUEST), from_ip = get_client_ip(Req) )
      rlog_req.save()
      FactAmnt = Decimal(Req.REQUEST["amount"])
-     if process_in(Req.REQUEST["label"], FactAmnt, Decimal("0.0") ,settings.COMMON_SALT)and process_in2(Req.REQUEST["label"], FactAmnt):
+     body = Req.body
+     sha1_hash  = Req.REQUEST['sha1_hash']
+     if sha1_hash!= signature(Req.REQUEST, sdk.ya_settings.SECRET ):
+	return json_false(Req)
+
+     if process_in(Req.REQUEST["label"], FactAmnt, Decimal("0.0") ,settings.COMMON_SALT):
 	return json_true(Req)
      else:
 	return json_false(Req)
 			
-     return json_false(Req)
-
+def signature(req_dict, secret):
+	#notification_type&operation_id&amount&currency&datetime&sender&codepro&notification_secret&label
+	string = "{0}&{1}&{2}&{3}&{4}&{5}&{6}&{7}&{8}".format(req_dict['notification_type'],
+							      req_dict['operation_id'],
+							      req_dict['amount'],req_dict['currency'],
+							      req_dict['datetime'],req_dict['sender'],
+							      req_dict['codepro'],secret,req_dict['label'])
+	hash_object = hashlib.sha1(string)
+	return  hash_object.hexdigest()
         
 def call_back_url_fail(Req, OrderId):
     return  json_false(Req)
 
     
-def process_in2(OrderId, FactAmnt):   
+def process_in2(OrderId, FactAmnt, Comis):   
     order = Orders.objects.get(id = int(OrderId), status='processing2' )            
                      
+    order.status = "processed"
+    order.save()
     add_trans( order.transit_1, FactAmnt, order.currency1,
                order.transit_2, order, 
                                 "payin", None , False)
-    order.status = "processed"
-    order.save()
-    notify_email(order.user, "deposit_notify", DebCred ) 
+    if Comis>0:
+        add_trans(order.transit_2 , Comis, order.currency1,
+                                  order.transit_1,  order,
+                                  "comission", None, False)
+
     return True
          
          
@@ -192,13 +209,14 @@ def process_in(OrderId, FactAmnt ,Comis, Key):
         DebCred = TransIn(  currency=order.currency1,
                             amnt=FactAmnt,
                             user=order.user,
-                            provider='okpay',
-                            comission=Comission,
+                            provider='ya',
+                            comission=Comis,
                             user_accomplished_id=1,
                             status="created",
                             order=order
                             )
         DebCred.sign_record(Key)
         DebCred.save()
-        process_in2(OrderId, Comis)
+        process_in2(OrderId, FactAmnt ,Comis)
+	notify_email(order.user, "deposit_notify", DebCred ) 
         return True

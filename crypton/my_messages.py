@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+import crypton.settings
+PN = crypton.settings.PROJECT_NAME
 __author__ = 'bogdan'
 from django.utils.translation import ugettext as _
 
@@ -14,7 +15,7 @@ pin_confirm_operation_title = _("Введите персональный PIN, д
 pin_reset_form_title = _("Для получения нового PIN-а, введите текущий")
 help_page = _(u"Помощь")
 pin_page= _(u"Страница персонального PIN кода")
-pagetitle_main = _(u"btc-trade.com.ua")
+pagetitle_main = _(PN)
 pagetitle_home = _(u"самый простой и дешевый способ купить или продать биткоины в Украине")
 withdraw_cancel = _(u"Вывод отменен")
 withdraw_msg_cancel = _(u"Ваша заявка на вывод отменена, мы рады, что вы остаетесь с нами")
