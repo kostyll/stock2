@@ -99,9 +99,8 @@ width: 72%;
 .top_login_name {
     float: left;
     color: #fff;
-    margin-right: 5px;
     font-size: 12px;
-    width: 105px;
+    width: 90px;
 }
 
 .top_login_adjust {
@@ -109,7 +108,7 @@ width: 72%;
     color: #fff;
     margin-right: 5px;
     font-size: 12px;
-    width: 100px;
+    width: 120px;
 }
 
 .top_login_exit {
@@ -117,7 +116,7 @@ width: 72%;
     color: #fff;
     margin-right: 5px;
     font-size: 12px;
-    width: 70px;
+    width: 120px;
 }
 
 .top_login_items {
