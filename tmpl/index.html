@@ -45,117 +45,117 @@
 			</div>
                     </div>
 
-                    
-                    <div class="col-xs-6 col-sm-6 content_buy">
-                        <div class="content_block_header">
-                            <h1>Купить {{ Currency.long_title }}</h1>
-                        </div>
-                        <div class="content_buy_input">
-
-                            <div class="content_buy_forms">
-                                <div class="string">
-                                    <div class="col-xs-5 col-sm-5">
-                                        <p>Количество:</p>
-                                    </div>
-                                    <div class="col-xs-5 col-sm-5">
-                                        <input type="text" class="form-control" id="buy_count" placeholder="0">
-                                    </div>
-                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
-                                        <p><strong>{{ Currency.long_title }}</strong></p>
-                                    </div>
-                                </div>
-                                <div class="string">
-                                    <div class="col-xs-5 col-sm-5">
-                                        <p>Цена за ед.:</p>
-                                    </div>
-                                    <div class="col-xs-5 col-sm-5">
-                                        <input type="text" class="form-control" id="buy_price" placeholder="0">
-                                    </div>
-                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
-                                        <p><strong>{{ Currency1.long_title }}</strong></p>
-                                    </div>
-                                </div>
-                                <div class="string">                                    
-                                        <div class="col-xs-5 col-sm-5 content_buy_total">
-                                            <p>Всего:</p>
-                                        </div>
-                                        <div class="col-xs-5 col-sm-5 content_buy_comision">
-                                            <p><span class="text-info" id="buy_result">0</span> <strong>{{Currency1.long_title}}</strong><p>
-                                            <p id='buy_comission_form' style='display:none' ><span class="text-info" id="buy_comission"></span> <strong>{{Currency.long_title}}</strong>&nbsp;комиссия<p>                                            
-                                        </div>                                    
-                                </div>
-                            </div>
-
-                            <div class="col-xs-12 col-sm-12 content_buy_remark">
-                                <p>Нажмите посчитать, чтобы рассчитать сумму в соответствии с ордерами.</p>
-                            </div>
-
-                            <div class="col-xs-12 col-sm-12">
-                                <div class="col-xs-6 col-sm-6 button_count">
-                                    <button type="button" class="btn btn-count" onclick="Main.calc_order('buy')">ПОСЧИТАТЬ</button>
-                                </div>
-                                <div class="col-xs-6 col-sm-6 buttons_action">
-                                    <button type="button" class="btn btn-action" onclick="Main.make_order('{{Currency.title}}','{{Currency1.title}}')"  >КУПИТЬ</button>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="col-xs-6 col-sm-6 content_sell pull-right">
-                        <div class="content_block_header">
-                            <h1>Продать {{ Currency.long_title }}</h1>
-                        </div>
-                        <div class="content_buy_input">
-
-                            <div class="content_buy_forms">
-                                <div class="string">
-                                    <div class="col-xs-5 col-sm-5">
-                                        <p>Количество:</p>
-                                    </div>
-                                    <div class="col-xs-5 col-sm-5">
-                                        <input type="text" class="form-control" id="sell_count" placeholder="0">
-                                    </div>
-                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
-                                        <p><strong>{{Currency.long_title}}</strong></p>
-                                    </div>
-                                </div>
-                                <div class="string">
-                                    <div class="col-xs-5 col-sm-5">
-                                        <p>Цена за ед.:</p>
-                                    </div>
-                                    <div class="col-xs-5 col-sm-5">
-                                        <input type="text" class="form-control" id="sell_price" placeholder="0">
-                                    </div>
-                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
-                                        <p><strong>{{Currency1.long_title}}</strong></p>
-                                    </div>
-                                </div>
-                                <div class="string">                                    
-                                        <div class="col-xs-5 col-sm-5 content_buy_total">
-                                            <p>Всего:</p>
-                                        </div>
-                                        <div class="col-xs-5 col-sm-5 content_buy_comision">
-                                            <p> <span class="text-info" id="sell_result">0</span>  <strong>{{Currency1.long_title}}</strong><p>
-                                            <p id='sell_comission_form' style='display:none'> <span class="text-info" id="sell_comission"></span> <strong>{{Currency1.long_title}}</strong>&nbsp;комиссия<p>                      
-                                        </div>                                    
-                                </div>
-                            </div>
-
-                            <div class="col-xs-12 col-sm-12 content_buy_remark">
-                                <p>Нажмите посчитать, чтобы рассчитать сумму в соответствии с ордерами.</p>
-                            </div>
-
-                            <div class="col-xs-12 col-sm-12">
-                                <div class="col-xs-6 col-sm-6 button_count">
-                                    <button type="button" class="btn btn-count" onclick="Main.calc_order('sell')">ПОСЧИТАТЬ</button>
-                                </div>
-                                <div class="col-xs-6 col-sm-6 buttons_action">
-                                    <button type="button" class="btn btn-action" onclick="Main.make_order_sell('{{Currency.title}}','{{Currency1.title}}')">ПРОДАТЬ</button>
-                                </div>
-                            </div>
-                        </div>                   
-
-                    </div>
+                    <div class="row buy_sell">
+	                    <div class="col-xs-6 col-sm-6 content_buy">
+	                        <div class="content_block_header">
+	                            <h1>Купить {{ Currency.long_title }}</h1>
+	                        </div>
+	                        <div class="content_buy_input">
+	
+	                            <div class="content_buy_forms">
+	                                <div class="string">
+	                                    <div class="col-xs-5 col-sm-5">
+	                                        <p>Количество:</p>
+	                                    </div>
+	                                    <div class="col-xs-5 col-sm-5">
+	                                        <input type="text" class="form-control" id="buy_count" placeholder="0">
+	                                    </div>
+	                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
+	                                        <p><strong>{{ Currency.long_title }}</strong></p>
+	                                    </div>
+	                                </div>
+	                                <div class="string">
+	                                    <div class="col-xs-5 col-sm-5">
+	                                        <p>Цена за ед.:</p>
+	                                    </div>
+	                                    <div class="col-xs-5 col-sm-5">
+	                                        <input type="text" class="form-control" id="buy_price" placeholder="0">
+	                                    </div>
+	                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
+	                                        <p><strong>{{ Currency1.long_title }}</strong></p>
+	                                    </div>
+	                                </div>
+	                                <div class="string">                                    
+	                                        <div class="col-xs-5 col-sm-5 content_buy_total">
+	                                            <p>Всего:</p>
+	                                        </div>
+	                                        <div class="col-xs-5 col-sm-5 content_buy_comision">
+	                                            <p><span class="text-info" id="buy_result">0</span> <strong>{{Currency1.long_title}}</strong><p>
+	                                            <p id='buy_comission_form' style='display:none' ><span class="text-info" id="buy_comission"></span> <strong>{{Currency.long_title}}</strong>&nbsp;комиссия<p>                                            
+	                                        </div>                                    
+	                                </div>
+	                            </div>
+	
+	                            <div class="col-xs-12 col-sm-12 content_buy_remark">
+	                                <p>Нажмите посчитать, чтобы рассчитать сумму в соответствии с ордерами.</p>
+	                            </div>
+	
+	                            <div class="col-xs-12 col-sm-12">
+	                                <div class="col-xs-6 col-sm-6 button_count">
+	                                    <button type="button" class="btn btn-count" onclick="Main.calc_order('buy')">ПОСЧИТАТЬ</button>
+	                                </div>
+	                                <div class="col-xs-6 col-sm-6 buttons_action">
+	                                    <button type="button" class="btn btn-action" onclick="Main.make_order('{{Currency.title}}','{{Currency1.title}}')"  >КУПИТЬ</button>
+	                                </div>
+	                            </div>
+	
+	                        </div>
+	                    </div>
+	                    <div class="col-xs-6 col-sm-6 content_sell pull-right">
+	                        <div class="content_block_header">
+	                            <h1>Продать {{ Currency.long_title }}</h1>
+	                        </div>
+	                        <div class="content_buy_input">
+	
+	                            <div class="content_buy_forms">
+	                                <div class="string">
+	                                    <div class="col-xs-5 col-sm-5">
+	                                        <p>Количество:</p>
+	                                    </div>
+	                                    <div class="col-xs-5 col-sm-5">
+	                                        <input type="text" class="form-control" id="sell_count" placeholder="0">
+	                                    </div>
+	                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
+	                                        <p><strong>{{Currency.long_title}}</strong></p>
+	                                    </div>
+	                                </div>
+	                                <div class="string">
+	                                    <div class="col-xs-5 col-sm-5">
+	                                        <p>Цена за ед.:</p>
+	                                    </div>
+	                                    <div class="col-xs-5 col-sm-5">
+	                                        <input type="text" class="form-control" id="sell_price" placeholder="0">
+	                                    </div>
+	                                    <div class="col-xs-2 col-sm-2 content_buy_currency">
+	                                        <p><strong>{{Currency1.long_title}}</strong></p>
+	                                    </div>
+	                                </div>
+	                                <div class="string">                                    
+	                                        <div class="col-xs-5 col-sm-5 content_buy_total">
+	                                            <p>Всего:</p>
+	                                        </div>
+	                                        <div class="col-xs-5 col-sm-5 content_buy_comision">
+	                                            <p> <span class="text-info" id="sell_result">0</span>  <strong>{{Currency1.long_title}}</strong><p>
+	                                            <p id='sell_comission_form' style='display:none'> <span class="text-info" id="sell_comission"></span> <strong>{{Currency1.long_title}}</strong>&nbsp;комиссия<p>                      
+	                                        </div>                                    
+	                                </div>
+	                            </div>
+	
+	                            <div class="col-xs-12 col-sm-12 content_buy_remark">
+	                                <p>Нажмите посчитать, чтобы рассчитать сумму в соответствии с ордерами.</p>
+	                            </div>
+	
+	                            <div class="col-xs-12 col-sm-12">
+	                                <div class="col-xs-6 col-sm-6 button_count">
+	                                    <button type="button" class="btn btn-count" onclick="Main.calc_order('sell')">ПОСЧИТАТЬ</button>
+	                                </div>
+	                                <div class="col-xs-6 col-sm-6 buttons_action">
+	                                    <button type="button" class="btn btn-action" onclick="Main.make_order_sell('{{Currency.title}}','{{Currency1.title}}')">ПРОДАТЬ</button>
+	                                </div>
+	                            </div>
+	                        </div>                 
+	                    </div>
+	            </div><!--end of new row buy_sell-->
 
                     <div class="col-xs-6 col-sm-6 content_order">
                         <div class="content_block_header">
