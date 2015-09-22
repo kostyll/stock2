@@ -20,10 +20,10 @@ from django.shortcuts import redirect
 from main.user_forms import UsersRegis, UsersForgotMail
 from django.contrib.auth.models import User
 from main.models import Accounts, Currency, ActiveLink, TradePairs, Orders, Msg, StaticPage, HoldsWithdraw,CustomMeta, VolatileConsts
-from main.models import CustomSettings, UserCustomSettings, PinsImages, new_pin4user, Balances, Partnership, ApiKeys
+from main.models import CustomSettings, UserCustomSettings,NewsPage, PinsImages, new_pin4user, Balances, Partnership, ApiKeys
 
 from sdk.g2f import auth
-
+from django.db.models import Count
 
 from django.views.decorators.cache import cache_page
 
@@ -322,6 +322,46 @@ def page(Req, Name) :
         t = loader.get_template("page.html")   
         return http_tmpl_context(Req, t, Dict)    
 
+def news(Req):
+        t = loader.get_template("news_page.html")   
+        return http_tmpl_context(Req, t, {})    
+
+def news_api(Req):
+	total = NewsPage.objects.all().count()
+	 
+	Encoder = json.JSONEncoder()
+        to =  Req.GET.get('limit', 5)
+        offset = Req.GET.get('offset', 0)
+	items = []
+	for i in NewsPage.objects.all()[offset:to]:
+		text = i.text
+		words = text.split()
+		desc = " ".join(words[:50])
+		items.append({"title": i.title, "description":desc ,"url": "/news/" + i.eng_title})
+	RespJ =  json.JSONEncoder().encode({"total": total, "rows": items})
+
+        return HttpResponse(RespJ)
+	#https://bitmoney.trade/news_api?order=asc&limit=10&offset=0
+
+def news_one(Req, Name) :
+        Dict = {}    
+        Res = NewsPage.objects.get(eng_title = Name)
+        Dict["page"] = Res
+        Dict["keywords"]   = Res.meta_keyword
+        Dict["description"] = Res.meta_description
+        t = loader.get_template("page.html")   
+        return http_tmpl_context(Req, t, Dict)    
+
+
+
+
+
+# url(r'^news$', 'main.views.news', name='news'),               
+#    url(r'^news/([\w]+)$', 'main.views.news_one', name='news_one'),  
+#    url(r'^news_api$', 'main.views.news_api', name='news_api'),         
+
+
+
 def registration_ref(Req, Reference = None):
     if Req.user.is_authenticated():
                 return redirect("/stock")
@@ -516,7 +556,7 @@ def home(request):
     return index(request)   
 
         
-def stock(Req, Title = "btc_uah"):
+def stock(Req, Title = "btc_usd"):
     if  Title is None:
             Title = Req.session.get('stock_path', None)
             if Title is None:

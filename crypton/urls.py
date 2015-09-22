@@ -46,6 +46,10 @@ urlpatterns = patterns('',
     
     url(r'^msgs/hide/([\w]+)$', 'main.msgs.hide', name='hide'),
     url(r'^page/help$', 'main.views.page_help', name='page_help'),   
+
+    url(r'^news$', 'main.views.news', name='news'),   
+    url(r'^news/([\w]+)$', 'main.views.news_one', name='news_one'),   
+    url(r'^news_api$', 'main.views.news_api', name='news_api'),   
     
     url(r'^page/([\w]+)$', 'main.views.page', name='page'),   
     url(r'^page_discuss/([\w]+)$', 'main.views.page_discuss', name='page_discuss'),   
@@ -235,7 +239,7 @@ urlpatterns = patterns('',
     #url(r'^admin_tools/', include('admin_tools.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-    #url(r'^tinymce/', include('tinymce.urls')),    
+    url(r'^tinymce/', include('tinymce.urls')),    
     #url(r'^img/(?P<path>.*)$', 'django.views.static.serve',         
     # {'document_root': settings.MEDIA_ROOT}),
     #{'document_root': settings.STATIC_ROOT, 'show_indexes': True})

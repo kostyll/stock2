@@ -179,6 +179,10 @@ width: 72%;
 	cursor:pointer;
 
 }
+.cursor{
+	cursor:pointer;
+
+}
 
 
 /*---------------------------------------------------------CONTENT BLOCK----------------------------------------------------*/
@@ -312,7 +316,8 @@ width: 72%;
 
 .content_buy {
     background-color: #fff;
-    height: 360px;
+ /*   height: 400px;*/
+    padding-bottom:1em;
     margin-top: 15px;
     border-radius: 10px;
   -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.125);
@@ -322,7 +327,8 @@ width: 72%;
 
 .content_sell {
     background-color: #fff;
-    height: 360px;
+    /*height: 400px;*/
+    padding-bottom:1em;
     margin-top: 15px;
     border-radius: 10px;
   -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.125);
@@ -452,7 +458,7 @@ width: 72%;
 /*----------------YOU SELL------------------------*/
 .sidebar_you_sell {
     background-color: #fff;
-    height: 463px;
+ /*   height: 463px;*/
     margin-top: 15px;
     border-radius: 10px;
     -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.125);
@@ -705,3 +711,10 @@ div.cabinet_content_block  .centering .col-md-7{
     width:75%
     
 }*/
+#news_table div.card-view{
+	padding:1em
+}
+span.pagination-info{
+	display:none
+
+}

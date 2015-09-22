@@ -92,7 +92,7 @@ class p24:
 </form>" % (Amnt, self.__public_id)
            return Data
        
-    def   balance(self):
+    def   balance(self, verbose = True):
           Url = self.__api_url + "p24api/balance"
           Data = "<oper>cmt</oper><wait>10</wait><test>0</test><payment id=\"\" ><prop name=\"cardnum\" value=\"%s\" /><prop name=\"country\" value=\"UA\" /></payment>\"" % (self.__card)
           
@@ -111,6 +111,8 @@ class p24:
 
           response = urllib2.urlopen(request)
           xml = response.read()
+	  if verbose:	
+		print xml
           doc = minidom.parseString(xml)
           Sign = doc.getElementsByTagName("signature")[0].childNodes[0].nodeValue               
           Balance = doc.getElementsByTagName("balance")[0].childNodes[0].nodeValue

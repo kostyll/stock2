@@ -132,19 +132,24 @@ class HttpRequest:
                 session_value = None
                 
             if session_value:
+            	print("get session %s" % session_value) 
                 memstore = MemStore.get_instance()
                 try:
-                    
+                     
                     self.session = memstore.get(session_value, False)
-                   
+		    print self.session
                     if not self.session: 
                         s = Session.objects.get(pk=session_value)
                         information = s.get_decoded()
+			
+            		logging.debug("info %s" % information) 
                         if information.has_key('user_id'):
                             self.session = information
                             self.user = User.objects.get(id=information['user_id'])
                             self.session['user'] = self.user
                             memstore.set(session_value, self.session)
+			else:
+			    self.user = None
                     else:
                         self.user = self.session['user']
                             
@@ -241,21 +246,22 @@ class HttpResponseServerError(HttpResponse):
 # common thread for handlers
 class ThreadableMixin:
     def start_worker(self):
-        threading.Thread(target=self.worker).start()
+        #threading.Thread(target=self.worker).start()
+	self.worker()
 
     def worker(self):
         try:
             self._worker()
         except tornado.web.HTTPError, e:
-            logging.debug(str(e))
+            print(str(e))
             self.set_status(e.status_code)
 
         except Exception,e: 
-            logging.debug("_worker problem")
-            logging.debug(str(e))
-            logging.debug('-'*60)
+            print("_worker problem")
+            print(str(e))
+            print('-'*60)
             traceback.print_exc(file=sys.stdout)
-            logging.debug('-'*60)
+            print('-'*60)
             self.set_status(500)
             
         callable_object = lambda : ThreadableMixin.render_http_response(self)

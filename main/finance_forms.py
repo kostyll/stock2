@@ -277,7 +277,7 @@ class CurrencyTransferForm(MyFinanceForms):
     wallet = forms.CharField(max_length=120, label = _(u"Кошелек"))
     amnt = forms.DecimalField(required = True, widget = forms.TextInput(attrs={'placeholder':_(u'сумма')}),
                                 label = _(u"Сумма"),
-                                min_value = 0.001)
+                                min_value = 0.00099)
     currency = forms.CharField(max_length=10, widget = forms.HiddenInput() )
     Agree = forms.BooleanField(required=True,label = _(u"Я согласен с балансом и не имею претензий к сервису"), )
     error_css_class = 'error'
@@ -289,7 +289,7 @@ class CurrencyTransferForm(MyFinanceForms):
         self.cleaned_data = super(CurrencyTransferForm, self).clean()         
         self.check_funds()           
         self.check_holds()
-
+	self.check_funds_crypto()
         return self.cleaned_data
 
 class FiatCurrencyTransferForm(MyFinanceForms):

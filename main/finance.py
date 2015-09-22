@@ -572,6 +572,7 @@ def confirm_withdraw_currency(Req, S, PrivateKey):
         order = Orders( user = Transfer.user,
                         currency1 = Transfer.currency,
                         currency2 = Transfer.currency,
+			price = Transfer.amnt,
                         sum1_history = Transfer.amnt + Transfer.comission,
                         sum2_history = Transfer.amnt  ,
                         sum1 = Transfer.amnt + Transfer.comission,
