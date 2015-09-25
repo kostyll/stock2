@@ -171,6 +171,11 @@ width: 72%;
     background: url(/static/images/menu_hover.png) bottom repeat-x;
 }
 
+#menu_style ul.menu_ul li.menu_item ul.dropdown-menu a{
+    background-color: #51beed;
+    border-bottom: 2px solid #01406c;
+}
+    
 .menu_active {
     text-decoration: none;
     background: url(/static/images/menu_hover.png) bottom repeat-x;
