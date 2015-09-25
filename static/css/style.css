@@ -137,10 +137,10 @@ width: 72%;
 }
 
 
-#menu_style ul {
+#menu_style ul.menu_ul {
     display: table-row; 
 }
-#menu_style li {
+#menu_style ul.menu_ul li {
     width: auto; 
     display: table-cell;
     text-align: center; 
@@ -148,14 +148,14 @@ width: 72%;
     vertical-align: bottom; 
     border-left: 1px solid #01406c;
 }
-#menu_style li:first-child {
+#menu_style ul.menu_ul li:first-child {
     padding: 0; 
 }
-#menu_style li:last-child {
+#menu_style ul.menu_ul li:last-child {
     padding: 0; 
     border-right: 1px solid #01406c;
 }
-#menu_style a {
+#menu_style ul.menu_ul a {
     width: 1000px;
     height: 38px;
     display: table-cell; 
@@ -166,7 +166,7 @@ width: 72%;
     line-height: 2.5;
 }
 
-#menu_style ul li a:hover {
+#menu_style ul.menu_ul li a:hover {
     text-decoration: none;
     background: url(/static/images/menu_hover.png) bottom repeat-x;
 }
