@@ -155,7 +155,7 @@ width: 72%;
     padding: 0; 
     border-right: 1px solid #01406c;
 }
-#menu_style ul.menu_ul a {
+#menu_style ul.menu_ul a.menu_item {
     width: 1000px;
     height: 38px;
     display: table-cell; 
@@ -166,7 +166,7 @@ width: 72%;
     line-height: 2.5;
 }
 
-#menu_style ul.menu_ul li.menu_item a:hover {
+#menu_style ul.menu_ul li.menu_item a.menu_item:hover {
     text-decoration: none;
     background: url(/static/images/menu_hover.png) bottom repeat-x;
 }
