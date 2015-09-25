@@ -170,6 +170,13 @@ width: 72%;
     text-decoration: none;
     background: url(/static/images/menu_hover.png) bottom repeat-x;
 }
+#menu_style ul.menu_ul li.menu_item ul.dropdown-menu{
+	padding:0;
+}
+#menu_style ul.menu_ul li.menu_item ul.dropdown-menu a:hover {
+    text-decoration: none;
+    background: url(/static/images/menu_hover.png) bottom repeat-x;
+}
 
 #menu_style ul.menu_ul li.menu_item ul.dropdown-menu a{
     background-color: #51beed;
