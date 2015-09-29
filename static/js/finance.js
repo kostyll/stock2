@@ -17,9 +17,11 @@ var finance  = {
 		"perfect_money_eur": "Perfect Money EUR",
 		"p24_transfer": "Privat24 UAH",
 		"ya_rur": "Yandex RUR",
+		"sberbank_rur":"SberBank RUR"
 	},
 	currency_titles:{
 
+		"sberbank_rur":"SberBank RUR",
 		"ya_rur": "Yandex RUR",
 		"okpay_usd": "OKPay USD",
 		"okpay_eur": "OKPay EUR",
@@ -144,7 +146,7 @@ var finance  = {
 	},
         fill_uah: function(){
                         $("#provider_depo").append( $('<option value="">Выбрать</option>') );
-                        $("#provider_depo").append( $('<option value="p24_transfer">Через Приват24( 2% ) </option>') );                       
+                        $("#provider_depo").append( $('<option value="p24_transfer">Через Приват24</option>') );                       
             
                         $("#label_depo").html( "Cпособ пополения:" );                       
                         $("#label_amnt_depo").show();                      
@@ -178,6 +180,7 @@ var finance  = {
         fill_rur: function(){
                         $("#provider_depo").append( $('<option value="">Выбрать</option>') );
                         $("#provider_depo").append( $('<option value="ya_rur">Yandex</option>') );  
+                        $("#provider_depo").append( $('<option value="sberbank_rur">SberBank</option>') );  
                         $("#provider_depo").append( $('<option value="okpay_rur">OkPay</option>') );    
                         $("#label_depo").html( "Cпособ пополения:" );                       
                         $("#label_amnt_depo").show();                      
@@ -253,15 +256,18 @@ var finance  = {
                 var amnt =$("#amnt_depo").val(); 
                 
 	
-  
+ 
                 if(provider == "bank_transfer")
                        return finance.bank_transfer(obj, amnt, currency )
+
+                if(provider == "sberbank_rur")
+                       return finance.p2p_deposit(obj, amnt, currency )
                        
                 if(provider == "liqpay_transfer")
                        return finance.liqpay_transfer(obj, amnt,  currency ) 
                        
                 if(provider == "p24_transfer")
-                       return finance.p24_transfer(obj, amnt,  currency )   
+                       return finance.p2p_deposit(obj, amnt,  currency )   
                        
                 if(provider == "perfect_money_usd")
                        return finance.p_transfer(obj, amnt,  currency )
@@ -284,6 +290,26 @@ var finance  = {
  
                        
         },
+        p2p_deposit: function(obj, Amnt, Currency){
+                if(Amnt<1){
+                        obj.value = "";
+                        my_alert("Ограничение минимальной суммы пополнения через банковские переводы");       
+                        return ;
+                }          
+                var Res = $.ajax({
+                                        url : "/finance/p2p_deposit/"+Currency+"/" + Amnt,
+                                        type : 'GET',
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider").html( "permission denied" );      
+                                                obj.value = "";
+                                        },      
+                                        success : function(Data){
+                                                   $("#res_provider").html( Data );                                             
+                                         }
+                                     });
+                
+        },        
         ya_transfer: function(obj, Amnt, currency){
            
                 if(Amnt<1){
@@ -659,18 +685,13 @@ var finance  = {
                 
         },
         bank_transfer: function(obj, Amnt, Currency){
-                if(Currency != "UAH"){
+                if(Amnt<1){
                         obj.value = "";
-                        my_alert("Неправильная валюта");       
-                        return ;
-                }
-                if(Amnt<100){
-                        obj.value = "";
-                        my_alert("Ограничение минимальной суммы пополнения через банковские переводы, больше 100 ГРН");       
+                        my_alert("Ограничение минимальной суммы пополнения через банковские переводы");       
                         return ;
                 }          
                 var Res = $.ajax({
-                                        url : "/finance/bank_transfer/UAH/" + Amnt,
+                                        url : "/finance/bank_transfer/"+Currency+"/" + Amnt,
                                         type : 'GET',
                                         cache: false,
                                         error: function (data) {
@@ -716,6 +737,7 @@ var finance  = {
         fill_rur_withdraw: function(){
                         $("#provider_withdraw").append( $('<option value="">Выбрать</option>') );
                         $("#provider_withdraw").append( $('<option value="okpay">OkPay</option>') );  
+                        $("#provider_withdraw").append( $('<option value="sberbank">SberBank</option>') );  
                         $("#provider_withdraw").append( $('<option value="ya">Yandex Money</option>') );    
                         $("#label_provider_withdraw").html( "Cпособ вывода:" );                       
                         $("#provider_withdraw").show();

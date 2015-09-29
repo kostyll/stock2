@@ -29,6 +29,7 @@ from main.models import dictfetchall, OutRequest,PoolAccounts
 from main import views
 from sdk.liqpay import liqpay
 from sdk.p24 import p24
+from sdk.p2p_deposit import P2P_DEPOSIT_OPTS
 from main.my_cache_key import check_freq
 #from sdk.crypto import CryptoAccount
 
@@ -1108,28 +1109,41 @@ def confirm_withdraw_liqpay(Req, S):
     
 
 
+def p2p_deposit(Req, Cur, Amnt):
+     amnt = Decimal(Amnt)
+     if amnt<1:
+             raise TransError("pay_requirments")
+     Dict = {}
+     t = loader.get_template("p2p_transfer_req.html")   
+     CurrencyIn = Currency.objects.get(title = Cur)
+     Account =  Accounts.objects.get(user = Req.user, currency = CurrencyIn )     
+     Dict["account"] = P2P_DEPOSIT_OPTS[Cur]     
+     if Account.reference is None or len(Account.reference) == 0:
+                Account.reference = generate_key("bank_pp", 16)
+                Account.save()
+     Dict["description"] = _(u"Оплата информационных услуг в счет публичного договора #" + Account.reference)
+     Dict["amnt"] = str(Amnt)     
 
+     return tmpl_context(Req, t, Dict )
 
 ##at this moment only for UAH
-def bank_deposit(Req, Amnt):
-     if not Req.user.is_authenticated():
-             return denied(Req)  
+def bank_deposit(Req, Cur,  Amnt):
      
      amnt = Decimal(Amnt)
-     if amnt<100:
+     if amnt<1:
              raise TransError("pay_requirments")
      Dict = {}
      t = loader.get_template("bank_transfer_req.html")   
      Dict["okpo"] = settings.BANK_UAH_OKPO
      Dict["mfo"] =  settings.BANK_UAH_MFO
      Dict["account"] = settings.BANK_UAH_ACCOUNT   
-     CurrencyIn = Currency.objects.get(title = "UAH")
+     CurrencyIn = Currency.objects.get(title = Cur)
      Account =  Accounts.objects.get(user = Req.user, currency = CurrencyIn )     
      if Account.reference is None or len(Account.reference) == 0:
                 Account.reference = generate_key(settings.BANK_KEY_SALT)
                 Account.save()
      Dict["description"] = _(u"Оплата информационных услуг в счет публичного договора #%s" + Account.reference)
-     Dict["amnt"] = str(Amnt) + " UAH "    
+     Dict["amnt"] = str(Amnt)     
 
      return tmpl_context(Req, t, Dict )
 

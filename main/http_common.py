@@ -278,10 +278,13 @@ def generate_key_from(Val, Salt):
          m.update(Salt + Val)
          return  m.hexdigest()
 
-def generate_key(Salt = ""):
+
+
+def generate_key(Salt = "", length=64):
          m = hashlib.sha256()
          m.update(Salt + str( random.randrange(1, 1000000000000000000)))
-         return  m.hexdigest()
+         s = m.hexdigest()
+	 return s[:length]
 
 def tmpl_context(request, tmpl, Dict):
         
@@ -292,6 +295,7 @@ def tmpl_context(request, tmpl, Dict):
           Dict["username"] = request.user.username
           Dict =  setup_user_menu(request.user, Dict)
           
+     Dict["news_cats"] = main.models.Category.objects.all().order_by("ordering")	
      Dict["project_name"] = settings.PROJECT_NAME
      Dict["MEDIA_URL"] = settings.MEDIA_URL
      Dict["STATIC_URL"] = settings.STATIC_URL
@@ -330,7 +334,7 @@ def http_tmpl_context(request, tmpl, Dict):
           Dict = setup_user_menu( request.user, Dict)
           
      Dict["project_name"] = settings.PROJECT_NAME
-
+     Dict["news_cats"] = main.models.Category.objects.all().order_by("ordering")	
      Dict["pagetitle"] = my_messages.pagetitle_main
      Dict = setup_custom_meta(request, Dict) 
      Dict["MEDIA_URL"] = settings.MEDIA_URL

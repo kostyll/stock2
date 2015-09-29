@@ -98,6 +98,17 @@ def register_new_user_mail(User, LinkKey):
 С уважением служба поддержки BITCOIN TRADE COMPANY\
                 ").format(host=settings.BASE_HOST,url=Url, username=User.username ) 
 
+
+def ya_metric(Req):
+    Str="<html>\n\
+<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"></head>\n\
+<body>Verification: 474f8051b6db0c25</body>\n\
+</html>"
+	
+    Response =  HttpResponse( Str )
+    Response['Content-Type'] = 'text/plain'
+    return Response 
+
 def robots(Req):
          Str = "User-agent: * \n\
 Disallow: /index.html \n\
@@ -244,7 +255,14 @@ def login_f2a(request):
 def try_login(request):
     username = request.REQUEST.get('login')
     password = request.REQUEST.get('password')
-    user = authenticate(username = username, password = password)
+    usr = None	
+    #try:
+    usr = User.objects.get(email = username)	
+    #except User.DoesNotExist:
+     #   request.result_auth = "bad"
+     #   return HttpResponse("bad")
+
+    user = authenticate(username = usr.username, password = password)
     if user is not None:
         if user.is_active is True:
              
@@ -322,16 +340,42 @@ def page(Req, Name) :
         t = loader.get_template("page.html")   
         return http_tmpl_context(Req, t, Dict)    
 
+
+def news_cat(Req, i):
+        t = loader.get_template("news_page.html")   
+        return http_tmpl_context(Req, t, {"category":i})    
+
 def news(Req):
         t = loader.get_template("news_page.html")   
         return http_tmpl_context(Req, t, {})    
 
+
+def news_cat_api(Req, i):
+
+	total = NewsPage.objects.filter(cat_id=i).count()
+	 
+	Encoder = json.JSONEncoder()
+        to =  Req.GET.get('limit', 5)
+        offset = Req.GET.get('offset', 0)
+	
+	items = []
+	for i in NewsPage.objects.filter(cat_id = i)[offset:to]:
+		text = i.text
+		words = text.split()
+		desc = " ".join(words[:50])
+		items.append({"title": i.title, "description":desc ,"url": "/news/" + i.eng_title})
+	RespJ =  json.JSONEncoder().encode({"total": total, "rows": items})
+
+        return HttpResponse(RespJ)
+	#https://bitmoney.trade/news_api?order=asc&limit=10&offset=0
 def news_api(Req):
+
 	total = NewsPage.objects.all().count()
 	 
 	Encoder = json.JSONEncoder()
         to =  Req.GET.get('limit', 5)
         offset = Req.GET.get('offset', 0)
+	
 	items = []
 	for i in NewsPage.objects.all()[offset:to]:
 		text = i.text

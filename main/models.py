@@ -1320,7 +1320,7 @@ class LiqPayTransAdmin(admin.ModelAdmin):
                 return  True   
     
 class NewsPageAdmin(admin.ModelAdmin):
-    list_display = ["id", 'eng_title','title',"pub_date"]
+    list_display = ["id",'cat' ,'eng_title','title',"pub_date"]
 
     def formfield_for_dbfield(self, db_field, **kwargs):
 	if db_field.name == 'text':
@@ -1837,6 +1837,7 @@ class Balances(models.Model):
 class Category(models.Model):
         
    title = models.CharField(max_length = 255,verbose_name = u"Название")
+   ordering = models.IntegerField(verbose_name = u"Сортировка", default = 1)
    def __unicode__(o):
       return o.title
 

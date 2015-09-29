@@ -240,6 +240,28 @@ class CardP2PTransfersForm(MyFinanceForms):
    
 
 
+class BankP2PForm(MyFinanceForms):
+	
+    account = forms.CharField(required = True, widget = forms.TextInput(attrs={'placeholder':_(u'номер счета')}),
+                                label = _(u"Номер Счета"))
+    amnt = forms.DecimalField(required = True,
+                               widget = forms.TextInput(attrs={'placeholder':_(u'сумма')}),
+                                label = _(u"Сумма"), min_value = 500)
+    description = forms.CharField(required = True,
+                                label = _(u"Получатель"))
+    
+    error_css_class = 'error'
+    required_css_class = 'required'
+     
+    def clean(self):
+        self.cleaned_data = super(BankP2PForm, self).clean()
+        self.check_funds_ussual()
+        self.check_funds()    
+        self.check_holds()
+        return self.cleaned_data
+
+    
+
 
 
 class BankTransferForm(MyFinanceForms):
