@@ -1,0 +1,96 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+{% load i18n %}
+{% block content %}
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-9 main centering">
+
+                <h1 class="page-header" style="border-bottom:none" >Наши новости</h1>
+                <div class="col-md-9  border_radius" id="transactions_block" >
+{% if category %}
+<table id='news_table' data-url="/news_cat_api/{{category}}" data-show-header="false"  data-height="299"
+{% else %}
+
+<table id='news_table' data-url="/news_api" data-show-header="false"  data-height="299"
+
+{% endif %}
+	
+ data-card-view="true"  data-side-pagination="server" data-pagination="true"  >
+    <thead>
+    <tr>
+        <th data-field="title" data-formatter="nameFormatter">Name</th>
+        <th data-field="description" data-formatter="descFormatter">Description</th>
+        <th data-field="url" data-formatter="urlFormatter">Url</th>
+    </tr>
+    </thead>
+</table>
+              
+
+                </div>
+
+       </div>
+
+    </div>
+  </div>
+{%endblock%}
+~              
+
+
+
+
+{%block scripts%}
+<script>
+	function nameFormatter(value, row){
+
+		return "<strong class='pull-left'>"+value+"</strong>"
+	}
+	function urlFormatter(value, row){
+
+		return "<a class='pull-right' href='"+value+"'>Прочитать</a>"
+	}
+
+	function descFormatter(value, row){
+
+		return "<desc class='news_desc'>"+value+"</div>";
+	}
+    // client side
+   // function responseHandler(res) {
+     //   return res.repos;
+    //}
+	
+    // server side
+    $('#news_table').bootstrapTable({
+    });    
+
+    function responseHandler(res) {
+        return {
+            rows: res.repos,
+            total: res.repos.length
+        }
+    }
+    
+</script>
+
+
+
+
+
+
+
+
+
+
+
+{% endblock%}
+
+
+
+
+
+
+
+
+
+
