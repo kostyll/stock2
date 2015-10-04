@@ -231,7 +231,7 @@ urlpatterns = patterns('',
         name='confirm_withdraw_msg_auto' ),    
         
     url(r'^finance', 'main.finance.home', name='home' ),
-    url(r'helpdesk/', include('helpdesk.urls')),
+    #url(r'helpdesk/', include('helpdesk.urls')),
  
   
     #url(r'^crypton/', include('crypton.foo.urls')),
@@ -247,7 +247,7 @@ urlpatterns = patterns('',
     #url(r'^admin_tools/', include('admin_tools.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^tinymce/', include('tinymce.urls')),   
+    #url(r'^tinymce/', include('tinymce.urls')),   
     #url(r'^img/(?P<path>.*)$', 'django.views.static.serve',         
     # {'document_root': settings.MEDIA_ROOT}),
     #{'document_root': settings.STATIC_ROOT, 'show_indexes': True})
