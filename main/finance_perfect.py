@@ -25,9 +25,10 @@ from main.http_common import json_auth_required, format_numbers10, format_number
 from main.http_common import auth_required, g2a_required, json_false500, login_page_with_redirect, format_numbers4
 
 from main import views
-from sdk.perfect_money_sdk import perfect_money_sdk
-if  perfect_money_sdk.enabled:
-    import sdk.perfect_money_settings
+import sdk.perfect_money_sdk
+if sdk.perfect_money_sdk.enabled:
+   from sdk.perfect_money_sdk import perfect_money_sdk
+   import sdk.perfect_money_settings
 from main.my_cache_key import check_freq
 #from sdk.crypto import CryptoAccount
 from main.finance_forms import FiatCurrencyTransferForm

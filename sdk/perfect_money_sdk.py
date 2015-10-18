@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from crypton import settings
+enabled = False
 
 from base64 import b64encode
 import hashlib 
@@ -13,7 +14,7 @@ from django.http import HttpResponse
 import json
 from xml.dom import minidom
 from sdk.perfectmoney import PerfectMoney
-enabled = False
+
 if enabled:
     import sdk.perfect_money_settings
 
