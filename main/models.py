@@ -22,12 +22,9 @@ from django.db import transaction
 import base64
 from sdk.crypto import CryptoAccount
 import  main.http_common 
-<<<<<<< HEAD
 
-=======
 from tinymce.widgets import TinyMCE
 from django.core.urlresolvers import reverse
->>>>>>> 137e852afcc19395c1c41f4212fde52f31cbc0a7
 
 # Create your models here.
 DEBIT_CREDIT = (
@@ -244,7 +241,7 @@ def new_pin4user(obj, oper):
         obj.save()
 
         if obj.type_recover == "email":
-                        pins_reset_email(obj, Key)
+            pins_reset_email(obj, Key)
                         
         return obj.show_key
 
@@ -612,10 +609,10 @@ def add_trans(From, Amnt, Currency, To, order, status = "created", Out_order_id 
        NewBalance = mines_prec(FromBalance, Amnt, TransPrecession)
        
        if Strict:         
-                if NewBalance < 0:
-                                trans.status = "incifition_funds"
-                                trans.save()
-                                raise TransError("incifition_funds")
+           if NewBalance < 0:
+               trans.status = "incifition_funds"
+               trans.save()
+               raise TransError("incifition_funds")
                         
        ToBalance = To.balance
        ToNewBalance = plus_prec(ToBalance, Amnt, TransPrecession)
@@ -734,14 +731,19 @@ class StockStat(models.Model):
 class  OnlineUsersAdmin(admin.ModelAdmin):
     list_display = ['user','pub_date']
     
-    actions = ['hold24', 'hold48', 'hold36', 'hold_week', "ban_chat_1h","ban_chat_15m", "ban_chat_day", "ban_chat_3h","del_ban"]
+    actions = ['hold24', 'hold48', 'hold36', 'hold_week', "ban_chat_1h","ban_chat_15m", "ban_chat_day", "ban_chat_3h","del_ban","pin_reset"]
     
     def caching(self):
         return  get_cache('default')
     
+    def pin_reset(self, request, queryset):
+        for i in queryset:                
+            obj = PinsImages.objects.get(user = i)
+            new_pin4user(obj, request.user)
+    
     def ban_chat_1h(self, request, queryset):
-            cache = self.caching()
-            for i in queryset:
+        cache = self.caching()
+        for i in queryset:
                cache.set("banned_" + i.user.username, 3600)
                 
     def ban_chat_15m(self, request, queryset):
