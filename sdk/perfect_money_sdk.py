@@ -13,7 +13,9 @@ from django.http import HttpResponse
 import json
 from xml.dom import minidom
 from sdk.perfectmoney import PerfectMoney
-import  sdk.perfect_money_settings 
+enabled = False
+if enabled:
+    import sdk.perfect_money_settings
 
 class perfect_money_sdk:
         

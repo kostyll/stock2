@@ -7,8 +7,6 @@ from crypton import my_messages
 from django.core.mail import send_mail
 from django.utils.translation import ugettext_lazy as _
 from django.utils import formats
-
-
 from django.db import connection
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
@@ -21,12 +19,15 @@ import hashlib
 import random
 import datetime
 from decimal import Decimal, getcontext
-from main.http_common import http_tmpl_context, http_json, json_false, json_denied, json_true, denied, setup_custom_meta, tmpl_context, caching, get_client_ip
-from main.http_common import json_auth_required, format_numbers10, format_numbers_strong, format_numbers, format_numbers4, auth_required, g2a_required, json_false500, login_page_with_redirect
+from main.http_common import http_tmpl_context, http_json, json_false, json_denied, json_true, denied, setup_custom_meta
+from main.http_common  import  tmpl_context, caching, get_client_ip
+from main.http_common import json_auth_required, format_numbers10, format_numbers_strong, format_numbers
+from main.http_common import auth_required, g2a_required, json_false500, login_page_with_redirect, format_numbers4
 
 from main import views
 from sdk.perfect_money_sdk import perfect_money_sdk
-import sdk.perfect_money_settings
+if  perfect_money_sdk.enabled:
+    import sdk.perfect_money_settings
 from main.my_cache_key import check_freq
 #from sdk.crypto import CryptoAccount
 from main.finance_forms import FiatCurrencyTransferForm
