@@ -736,6 +736,7 @@ class  OnlineUsersAdmin(admin.ModelAdmin):
     def caching(self):
         return  get_cache('default')
     
+    # pin reset 
     def pin_reset(self, request, queryset):
         for i in queryset:                
             obj = PinsImages.objects.get(user = i)
