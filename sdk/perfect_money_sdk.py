@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from crypton import settings
-<<<<<<< HEAD
-=======
+
 enabled = False
->>>>>>> 137e852afcc19395c1c41f4212fde52f31cbc0a7
 
 from base64 import b64encode
 import hashlib 
@@ -17,13 +15,9 @@ from django.http import HttpResponse
 import json
 from xml.dom import minidom
 from sdk.perfectmoney import PerfectMoney
-<<<<<<< HEAD
-import  sdk.perfect_money_settings 
-=======
 
 if enabled:
     import sdk.perfect_money_settings
->>>>>>> 137e852afcc19395c1c41f4212fde52f31cbc0a7
 
 class perfect_money_sdk:
         
