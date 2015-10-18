@@ -1,0 +1,27 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+{% load i18n %}
+{% block content %}
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-9 main centering">
+          
+                <h1 class="page-header" >{% trans page.title %}</h1>
+                <div class="col-md-8  border_radius" id="transactions_block" >
+                             
+                             {% autoescape off %} {%trans page.text %} {% endautoescape %}
+                             
+                             <p>
+                             <a href="/page_discuss/{{page.id}}">{% trans "to discuss" %}</a>
+                             </p>
+                           
+                                
+                </div>          
+       
+       </div>
+       {% include "scripts.html"%}
+       
+    </div>
+  </div> 
+{%endblock%}

@@ -1,0 +1,52 @@
+<ul class="nav nav-sidebar">
+                <li  class="login_form_sidebar">
+                        <button  class="btn btn-warning" onclick='window.location.href="/logout"'>Выйти</button>
+                </li>
+                <li><a href="/profile/{{username}}">Профиль</a></li>
+                <li><a href="/finance">Финансы</a></li>
+                <li><a id="menu_notification" href="/notification">Уведомления <strong id="notify_count">({{new_notfication_count}})</strong></a></li>
+<!--                <li><a id="menu_msgs" href="/msgs">Сообщения <strong id="msg_count">({{new_msg_count}})</strong> </a></li>-->
+                {% for account in accounts%}
+                        <li><span class="text-info" id="balance_{{account.currency}}">0.0000000</span> <strong>{{account.currency}}</strong></li>            
+                {% endfor %}
+                
+              
+
+                
+                
+         
+                <a class="twitter-timeline" href="https://twitter.com/btc_trade_ua"
+                data-widget-id="469448113787125761">Tweets by @btc_trade_ua</a>
+                <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+                
+                <div class="fb-like-box" data-href="https://www.facebook.com/nvctradeua" 
+                data-width="300"
+                data-height="240"
+                data-colorscheme="light"
+                data-show-faces="true"
+                data-header="true"
+                data-stream="false"
+                data-show-border="true"></div>
+        
+
+                
+            <!--    
+                        <li  >
+                        <span><h4>Торги</h4> </span>
+                        
+                        </li>
+                        <li>
+                        <span class="btn btn-primary" href="#" >BTC/UAH</span><br/><br/>
+                        <span>Вверху находится список  валютных пар по которым
+                        могут производиться торги. 
+                        </span></li>
+                        <li>
+                        <span><h4>Как торговать</h4> </span></li>
+                        <li>
+                        <span>Вы составляете order  покупку/продажу на 
+                        любое количество по нужной <strong>Вам цене</strong>.
+                        Если Ваша цена устроит   любого другого участника биржи - будет произведена сделка.
+                        В противном случае - придеться ждать момента, когда появится соответсвующее предложение.
+                        </span>
+                        </li>-->
+</ul>

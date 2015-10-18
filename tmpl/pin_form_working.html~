@@ -1,0 +1,62 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+
+{% block content %}
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-9 main  centering">
+          <h1 class="page-header" style="text-align:center">{{title}} </h1>
+<!--           deals -->
+                <div class="col-md-7 deals border_radius padding20 registration centering" >
+                
+                        <div class="col-md-8 centering">
+                               <p class="help-block">
+                               {% autoescape off %} 
+                                                {{common_help_text}}
+                               {% endautoescape %}                
+                 
+                               </p>
+                        
+                                <form class="form-horizontal" action="{{action}}" id="simple_form" role="form" method="POST" >                   
+                                        {{ form }}
+                                        <div class="form-group">
+                                       
+                                        <div class="col-sm-offset-2 col-sm-10">
+                                                <button type="submit" class="btn btn-default">{{action_title}}</button>
+                                        </div>
+                                        </div>
+                                </form>                       
+                                
+                        </div>  
+                        
+                        
+                </div> 
+                       
+<!--                 deals -->
+        </div>
+        
+    </div>
+  </div> 
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+  {% include "scripts.html"%}
+   
+  {% if pin_load %}
+   <script>
+         
+          Pins.attach2pin("id_pin", "container_pin");
+
+   
+   </script>
+  {% endif %} 
+  {% if use_f2a %}
+   <script>
+                          
+   </script>
+  {% endif %} 
+
+
+{%endblock%}

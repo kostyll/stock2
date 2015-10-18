@@ -1,0 +1,285 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+
+{% block content %}
+<div class="container-fluid" 
+     style="font-size:15px">
+
+   <!-- Jumbotron -->
+      <div class="jumbotron my_jumbotron">
+        <h2>BTC TRADE UA  &mdash; украинская биржа криптовалют </h2>
+        <ul>
+        <li>
+                <strong>Bitcoin</strong> &mdash; цифровая, равноправная и децентрализованная платежная система</p>
+       </li>
+       <li>  
+        <strong>60'000  серверов</strong>,
+          обеспечивают проведение ваших платежей.</p>
+       </li>
+       <li>  
+         <strong>Вы</strong> можете отправить Биткойны через Интернет кому угодно без посредников и государственных барьеров.</p> 
+       </li>
+       <li>   
+         <strong>Платить</strong> и <strong>торговать</strong> при помощи Биткоинов - просто, легко и удобно, как и должно быть в 21-ом веке цифровых технологий. </p>
+        </li>
+        <li>
+         <strong>Мы</strong> стремимся создать простую, надежную и удобную площадку для Ваших операций<p/>
+         </li>
+         
+        </ul>
+     <!--   <p class="lead">
+        
+        </p>-->
+        <p><a class="btn btn-lg btn-success" href="/registration" role="button">Регистрация</a> или
+          <a class="btn btn-lg btn-success" href="/login_page" role="button">Войти</a>
+          
+        </p>
+      </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-lg-4 info">
+          <h3>Зачем придумали Биткоин?</h3>
+          <p>Для перевода денег, для оплаты товаров и для заработка на курсовой разнице.</p> 
+          <p>Это - электронные деньги, которые Вы можете поменять в любой момент на любую валюту в разных странах мира, 
+          где есть интернет. Поскольку сложность издания биткоинов постоянно растет – труда и денег вкладывается все больше, соответственно растет объективная стоимость.</p>
+          <p>Bitcoin всегда при вас и доступен только по паролю. Его не могут заморозить по решению суда или по воле банка, ее не может украсть хакер с вашего счета. </p>
+          <p>Нет лимита суммы, ограничивающего пересылку этих денег, нет заполнения сложных формуляров или специальных форм для перевода. </p>
+          <p>Есть простая инструкция и четкий алгоритм действий.</p>
+          
+          <div class="more"><a class="btn btn-primary" href="/page/faq" role="button">Узнать больше&raquo;</a></div>
+         
+ 
+        </div>
+        <div class="col-lg-4 info">
+                  <h3>Как с ним работать?</h3>
+
+         <p> Первое &mdash; зарегистрируйтесь на бирже. Создайте свой интернет-кошелек, заведите на него деньги.</p>
+
+          <p>Второе &mdash; выберите удачный момент и купите Bitcoin. На многих биржах вы сможете продать или обменять
+
+          BitCoin на другую криптовалюту или на привычные деньги, используемые в стране. Вы можете хранить деньги 
+
+        или пробовать зарабатывать на курсовой разнице.</p>
+       <!--  <p> На сегодняшний день эммитировано более 12млн биткоинов, в 
+
+        свободном обращении находится не более 30%, остальные используются как средство накопления.</p>-->
+
+<!--         <p>Если у вас есть свободные деньги и страсть к изучению всего нового, то стоит попробовать.-->
+         <p> Технология
+        <!--процессинга--> позволяет покупать и продавать Bitcoin в дробных частях, например, за 600грн вы можете купить 
+
+         0,1 BitCoin-а.</p>
+ 
+         <p>Если вы &mdash; консервативный человек, не любящий высокотехнологичные новинки, не участвующий в мировых 
+
+        трендах, то никакой необходимости срочно покупать Биткоины у вас нет. В ближайшие годы они не придут на 
+
+        смену долларам, евро или фунтам.</p>
+                
+          <div class="more"><a class="btn btn-primary" href="/page/help" role="button">Узнать больше&raquo;</a></div>
+                
+          
+          
+       </div>
+       
+        <div class="col-lg-4 info">
+       <h3>Безопасность</h3>
+
+ <p>Платежная сеть Биткоин насчитывает порядка 60 тыс. серверов. Это машины, которые поддерживают
+    саму работоспособность системы: проведение и хранение блоков транзакций, шифрование, защиту, 
+    отказоустойчивость сети, доступность во всем мире и т.д.</p>
+        
+        <p>Доступ к вашему счету контролируется при помощи 
+        приватного ключа. Без этого файла никто не сможет списать средства с вашего счета.</p>
+
+        <p>Чтобы не забыть или потерять ключи, вам достаточно записать ваши приватные ключи на 
+        флешку(файл wallet.dat) и хранить ее в надежном месте.</p>
+         <div class="more"><a class="btn btn-primary" href="/page/help" role="button">Узнать больше&raquo;</a></div>
+        </div>
+        
+      </div>
+ 
+       <div class="row" style="margin-bottom:3em">
+       <div style="display:none" id="bitcoin_price">
+       {  
+                                        chart: {
+                                        renderTo: 'bit_coin_graph_container', 
+                                        defaultSeriesType: 'line',                
+                                        marginRight: 25,  
+                                        marginBottom: 40,  
+                                        plotBackgroundColor: null, 
+                                        plotBorderWidth: null,
+                                        plotShadow: false                },
+                                        title: {         
+                                        text: 'Рыночная цена (USD)',
+                                        x: -20                },
+                                        subtitle: {               
+                                        text: 'Источник: blockchain.info',                   
+                                        x: -20     
+                                        },  
+                                        xAxis: {
+                                        type: 'datetime'                }, 
+                                        yAxis: {                labels: {        formatter: function() {            if(this.value === 0.00001){                return 0;            } else {                return Highcharts.numberFormat(this.value, 0, '', ',');            }           }        },                                            showFirstLabel: false,                    title: {                        text: 'Динамика курса BTC/USD'                    },                    plotLines: [{                        width: 1,                        color: '#808080'                    }]                },                tooltip: {                    formatter: function() {                        return '<b>'+ this.series.name +'</b> ' + Highcharts.numberFormat(this.y, 0, '', ',');                    }                },                                plotOptions: {                    series: {                        marker: {                            enabled: false                        }                    }
+                },                                credits: {                    enabled: false                },                legend: {                    layout: 'vertical',                    align: 'right',                    verticalAlign: 'top',                    x: -10,                    y: 100,                    borderWidth: 0                },                
+                series: [{                                        name: 'Динамика курса BTC/USD',                    
+                data: [],                    
+                showInLegend: false               
+                }]}
+       </div>
+        <div class="col-lg-5 col-md-offset-1"  >
+          <h3>Цена BitCoin: </h3>
+          <span id="bit_coin_graph_container"></span>
+           
+          
+        
+        
+        </div>
+        <div class="col-lg-5">
+       <div style="display:none" id="litecoin_price">     
+        {  
+                                        chart: {
+                                        renderTo: 'lite_coin_graph_container', 
+                                        defaultSeriesType: 'line',                
+                                        marginRight: 25,  
+                                        marginBottom: 40,  
+                                        plotBackgroundColor: null, 
+                                        plotBorderWidth: null,
+                                        plotShadow: false                },
+                                        title: {         
+                                        text: 'Рыночная цена (CNY)',
+                                        x: -20                },
+                                        subtitle: {               
+                                        text: 'Источник: OkCoin.com',                   
+                                        x: -20     
+                                        },  
+                                        xAxis: {
+                                        type: 'datetime'                }, 
+                                        yAxis: {               
+                                        labels: {   
+                                        formatter: function() {   
+                                        if(this.value === 0.00001){
+                                        return 0;   
+                                        } else { 
+                                        return Highcharts.numberFormat(this.value, 0, '', ',');  
+                                        }          
+                                        }        }, 
+                                        showFirstLabel: false,   title: {                  
+                                        text: 'Динамика курса LTC/CNY' 
+                                        },     
+                                        plotLines: [{     
+                                        width: 1,   
+                                        color: '#808080'  
+                                        }]                },
+                                        tooltip: {    
+                                        formatter: function() {  
+                                        return '<b>'+ this.series.name +'</b> ' + Highcharts.numberFormat(this.y, 0, '', ',');   
+                                        }                }, 
+                                        plotOptions: {      
+                                        series: { 
+                                        marker: {   
+                                        enabled: false     
+                                        }     
+                                        }       
+                                        },      
+                                        credits: {   
+                                                enabled: false    
+                                        },    
+                                        legend: {  
+                                        layout: 'vertical',   
+                                        align: 'right',   
+                                        verticalAlign: 'top', 
+                                        x: -10, 
+                                        y: 100,   
+                                        borderWidth: 0     
+                                        },          
+                                        series: [{                            
+                                        name: 'Динамика курса LTC/CNY',
+                                        data: 
+                                        [[1397232000000,2675.16],[1397318400000,2540.45],[1397404800000,2856.65],[1397491200000,3107.78],[1397577600000,3187.66],[1397664000000,3099.97],[1397750400000,2973],[1397836800000,3082.2],[1397923200000,3104],[1398009600000,3125.43],[1398096000000,3120.53],[1398182400000,3054.18],[1398268800000,3087.01],[1398355200000,2762.97],[1398441600000,2831.57],[1398528000000,2773.94],[1398614400000,2696.62],[1398700800000,2762.76],[1398787200000,2797.91],[1398873600000,2803.32],[1398960000000,2739],[1399046400000,2701],[1399132800000,2704.42],[1399219200000,2666],[1399305600000,2676],[1399392000000,2737.47],[1399478400000,2747.04],[1399564800000,2816.05],[1399651200000,2795.87],[1399737600000,2688],[1399824000000,2722.54],[1399910400000,2704.31],[1399996800000,2739.1],[1400083200000,2772.96],[1400169600000,2789.25],[1400256000000,2779.27],[1400342400000,2761.76],[1400428800000,2766.16],[1400515200000,2948.94],[1400601600000,3046.96],[1400688000000,3169.38],[1400774400000,3293.
+96],[1400860800000,3221.84],[1400947200000,3518],[1401033600000,3612],[1401120000000,3520.01],[1401206400000,3561],[1401292800000,3532],[1401379200000,3778],[1401465600000,3870.12],[1401552000000,4126.51],[1401638400000,3924.87],[1401724800000,4181.98],[1401811200000,4022.45],[1401897600000,4103],[1401984000000,4099.58],[1402070400000,4073.94],[1402156800000,4070.52],[1402243200000,4034.09],[1402329600000,4100.04],[1402416000000,4047.95],[1402502400000,3902.23],[1402588800000,3779.11],[1402675200000,3576.23],[1402761600000,3531.85],[1402848000000,3724.21],[1402934400000,3752],[1403020800000,3788],[1403107200000,3773.88],[1403193600000,3702.05],[1403280000000,3727.03],[1403366400000,3771.36],[1403452800000,3673.02]],
+                                        showInLegend: false                }]}
+      
+        
+        </div>
+          <h3>Цена LiteCoin: </h3>
+          
+          <span id="lite_coin_graph_container"></span>
+        
+          
+       </div>
+        
+      </div>
+ 
+
+ 
+ <!--           deals -->
+     
+         {% include "deals.html"%}
+<!--                 deals -->
+  
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    {% include "scripts.html"%}
+    <script type="text/javascript">
+
+      Main.trade_pair = "btc_uah";
+      Main.currency_base = "UAH";
+      Main.currency_on = "BTC";
+      Main.deals_list();
+      
+      $(document).ready(function() {
+                var jsjson = eval('(' + $("#bitcoin_price").html() + ')');
+                console.log(jsjson);
+//                 console.log($("#bitcoin_price").html());
+                $.ajax({
+                        dataType: 'json',
+                        url : '/img/blockchain.json',
+                        type : 'GET', 
+                        cache: false,
+                        error: function (data) {
+                                                console.log(data);
+                        }, 
+                        success :                
+                        function(data){
+                        
+        //                         {"values" : [{ "x" : 1377108905, "y" : 109.75},
+                                
+                                var ResArray = [];
+                                for(var i=0;i<data["values"].length;i++){
+                                        var item = data["values"][i];
+                                        ResArray.push([ item["x"]*1000, item["y"] ]);
+                                }
+                                
+                                jsjson["series"][0]["data"] = ResArray;    
+                                console.log(ResArray);
+                                var chart = new Highcharts.Chart(jsjson);
+                                function setSize(Mychart) {
+                                        Mychart.setSize(500,400,false);
+                                }
+                                setSize(chart); 
+                        }
+                });
+            
+                var jsjson1 = eval('(' + $("#litecoin_price").html() + ')');
+                console.log(jsjson);
+                console.log($("#litecoin_price").html());
+                var chart2 = new Highcharts.Chart(jsjson1);           
+                
+                setSize(chart2);
+               
+                       
+               });
+           
+
+               
+      
+    </script>
+    
+</div>
+
+
+
+{%endblock%}

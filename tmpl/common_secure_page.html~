@@ -1,0 +1,75 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+
+{% block content %}
+  {% include "custom_action_f2a.html" %}
+
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-9 main">
+          <h1 class="page-header"> Подтверждение операции: </h1>
+<!--           deals -->
+                <div class="col-md-8 deals border_radius padding20 registration" >
+		
+                        <div class="col-md-9" id="home">
+                                <input id="key" type="hidden"  value="{{key}}"/>
+                                <input id="key_type" type="hidden"  value="{{type}}" />
+
+
+                                {% if pin_load %}
+                                        <p class="help-block">
+                                                Введите пожайлуста ваш секретный PIN-код
+                                        </p>
+                                        <input id="id_pin"    type="hidden" name="pin"/>
+                                        <div id="container_pin">
+                                        
+                                        </div>
+                                        <span class="btn btn-success" onclick="finance.confirm_operation()">Подтвердить</span>
+                               {% endif %}
+                               {% if use_f2a %}
+                                        Введите код из приложения - авторизтора.
+                                        <span class="btn btn-success" onclick="a2f()">Попробовать еще раз</span>
+                               {% endif %}
+                                
+                        </div>  
+                        
+                        
+                </div> 
+                       
+<!--                 deals -->
+        </div>
+        
+    </div>
+  </div> 
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+  {% include "scripts.html"%}
+   
+  {% if pin_load %}
+   <script>
+          Pins.attach2pin("id_pin", "container_pin");
+   </script>
+  {% endif %} 
+  {% if use_f2a %}
+   <script>
+   
+   function a2f(){
+           var turning_off_ga2 = function(ga2_Session){
+                      finance.confirm_g2a_operation(ga2_Session);                     
+           };
+           Login.use_f2a = true;
+           Login.start_f2a_for_custom(turning_off_ga2);
+   }    
+   $( document ).ready(function() {
+        a2f();
+   });
+         
+   </script>
+ 
+  {% endif %} 
+
+
+{%endblock%}

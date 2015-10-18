@@ -1,0 +1,260 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+
+           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" lang="ru">
+
+  <head>
+
+    <meta charset="utf-8">
+
+<meta name="interkassa-verification" content="f278cc260d7f4d625288745fddc6b847" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <link rel="icon" href="https://btc-trade.com.ua/img/favicon.ico" type="image/x-icon">
+
+   <meta name="viewport" content="width=600px, initial-scale=0.5"> 
+
+    <meta name="keywords" content="bitcoin, купить bitcoin, покупка bitcoin, продажа bitcoin, купить btc-e код, продать btc-e код, продать Bitcoin, обменять bitcoin, обменник bitcoin, купить биткоин, продать биткоин, обменник биткоин, курс биткоина, bitcoin кошелек, Часто задаваемые вопрос службе поддержки btc" />
+
+    <meta name="description" content="bitcoin, купить bitcoin, покупка bitcoin, продажа bitcoin, купить btc-e код, продать btc-e код, продать Bitcoin, обменять bitcoin, обменник bitcoin, купить биткоин, продать биткоин, обменник биткоин, курс биткоина, bitcoin кошелек, btc,вопросы, ответы, торговля, биржа" />
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+
+
+
+    <title>btc-trade.com.ua - </title>
+
+
+
+    <!-- Bootstrap core CSS -->
+
+  
+
+              <link href="https://btc-trade.com.ua/img/css/bootstrap.min.css" rel="stylesheet">
+      <link href="https://btc-trade.com.ua/img/css/main.css?do=unew" rel="stylesheet">
+      <link href="https://btc-trade.com.ua/img/css/typography.css" rel="stylesheet">
+      <link href="https://btc-trade.com.ua/img/css/jquery.dialog2.css" rel="stylesheet">
+        
+      
+    <!-- Custom styles for this template -->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+  </head>
+
+
+
+  <body>
+
+  
+
+  
+  
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+          <div id="logo_btc" style="width: 50px;
+margin-right: 10px;
+float: left;
+margin-top: 6px;"><img src="/img/home/img/logo.png" alt="" width="50" height="50"></div>
+          <a class="brand" href="/index.html"
+          style="display: block;
+float: left;
+padding: 10px 20px 10px;
+margin-left: -20px;
+font-size: 20px;
+color:white;
+font-weight: 200;"
+          >BTC TRADE UA <br>
+          <span style="font-size:14px">украинская биржа криптовалют</span></a>
+          
+   
+      
+      
+      
+      
+        <!--<div class="navbar-header">
+        
+        
+          <a class="navbar-brand" href="/index.html">BTC TRADE UA &mdash; украинская биржа криптовалют</a>
+        </div>-->
+        
+        
+        
+        <div class="navbar-collapse collapse">
+          
+           
+
+        
+
+        </div>
+      </div>
+    </div>
+    <div style="height:20px;width:100%;display:block">
+    </div>
+
+
+ 
+
+        
+
+  <div class="container-fluid">
+
+      <div class="row">
+
+        <div class="col-md-9 main centering">
+
+          
+
+                <h1 class="page-header" >Технические работы</h1>
+
+                <div class="col-md-8  border_radius" id="transactions_block" >
+                <P>
+                    Увы, иногда серверу нужно отдыхать, но он сейчас разгребет пыль 
+                    и снова будет работать ;)                
+                </P>
+                                
+
+                </div>          
+
+       
+
+       </div>
+
+          <script src="https://btc-trade.com.ua/img/js/jquery.init.js"></script>
+   <script src="https://btc-trade.com.ua/img/js/jquery-1.11.1.min.js"></script>   
+   <script src="https://btc-trade.com.ua/img/js/bootstrap.min.js"></script>
+   <script src="https://btc-trade.com.ua/img/js/highstock.js?do=new75"></script>
+   <script src="https://btc-trade.com.ua/img/js/pins.js?do=new58"></script>
+   <script src="https://btc-trade.com.ua/img/js/profile.js?do=new58"></script>
+   <script src="https://btc-trade.com.ua/img/js/login.js?do=new58"></script>
+   <script src="https://btc-trade.com.ua/img/js/main.js?do=1ncuew54ou9Oy"></script>
+   <script src="https://btc-trade.com.ua/img/js/chat.js?do=new58u"></script>
+
+   <script type="text/javascript" src="https://btc-trade.com.ua/img/js/jquery.dialog2.js"></script>
+   <script type="text/javascript" src="https://btc-trade.com.ua/img/js/jquery.dialog2.helpers.js"></script>
+   <script type="text/javascript" src="https://btc-trade.com.ua/img/js/jquery.cookie.js"></script>
+         
+<!--   <script type="text/javascript" src="https://www.google.com/jsapi"></script>  -->
+   
+    
+
+
+       
+
+    </div>
+
+  </div> 
+
+
+
+
+
+        <div class="footer">
+
+                <div class="inner col-md-4">
+
+                <p>Copyright © BTC TRADE UA 2014 | All Rights Reserved.&nbsp;
+
+                <br/> По всем вопросам обращайтесь в email: support@btc-trade.com.ua   
+
+                <br/> skype: btc.trade.ua   
+
+                <br/> телефон: +380 (056) 788 22 88               
+
+                </p>
+
+                </div>
+
+                <div class="inner col-md-4">
+
+                        <a href="/public/balance">Публичная информация</a>
+
+                </div>
+
+                
+
+                <img class="pull-right col-md-3"  src="https://btc-trade.com.ua/img/sprite_footer.png"/>
+
+
+
+        </div>
+
+        
+
+        
+
+  
+
+    
+
+    
+
+  </body>
+
+  <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-7756879-15', 'btc-trade.com.ua');
+        ga('send', 'pageview');
+
+  </script>
+  <!-- Start SiteHeart code -->
+<script>
+(function(){
+
+var widget_id = 705699;
+_shcp =[{widget_id : widget_id}];
+var lang =(navigator.language || navigator.systemLanguage 
+|| navigator.userLanguage ||"en")
+.substr(0,2).toLowerCase();
+var url ="widget.siteheart.com/widget/sh/"+ widget_id +"/"+ lang +"/widget.js";
+var hcc = document.createElement("script");
+hcc.type ="text/javascript";
+hcc.async =true;
+hcc.src =("https:"== document.location.protocol ?"https":"http")
++"://"+ url;
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hcc, s.nextSibling);
+})();
+</script>
+
+<!-- End SiteHeart code -->
+
+    <!-- Bootstrap core JavaScript
+
+    ================================================== -->
+
+    <!-- Placed at the end of the document so the pages load faster -->
+
+ 
+
+
+
+    
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

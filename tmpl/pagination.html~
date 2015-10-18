@@ -1,0 +1,18 @@
+<div class="pagination">
+     <span class="step-links">
+              <a href="?page=1">Первая</a>
+                    {% if paging.has_previous %}
+                            <a href="?page={{ trans.previous_page_number }}">Предыдущая</a>
+                    {% endif %}
+
+                    <span class="current">
+                               Страница {{ trans.number }} из {{ trans.paginator.num_pages }}.
+                    </span>
+
+                    {% if trans.has_next %}
+                             <a href="?page={{ trans.next_page_number }}">Следующая</a>
+                    {% endif %}
+               <a href="?page={{ trans.paginator.num_pages }}">Последняя</a>
+                                                
+     </span>
+</div>

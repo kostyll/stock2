@@ -1,0 +1,72 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+
+{% block content %}
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-9 main">
+                 {% include "side_menu_finance.html" %}
+                <div class="col-md-9">
+                        <h1 class="page-header">История транзакций</h1>
+                </div>
+                <div class="col-md-9 border_radius" id="transactions_block" >
+                                <table class="table table-hover"  id='transactions'>
+                                <thead>
+                                                <tr>
+                                                        <th> # </th>
+                                                        <th> Тип </th>
+                                                        <th> Дата </th>
+                                                        <th> Сумма </th>
+                                                        <th> Oписание </th>
+                                                </tr>
+                                </thead>
+                                 {% for item in trans_list %}
+                                        <tr
+                                                        {%  if item.in %}
+                                                                class="success"
+                                                                {% else %}
+                                                                class="warning"
+                                                        {% endif %}
+                                        >
+                                                <td>{{item.id}}</td>
+                                                <td>
+                                                        {%  if item.in %}
+                                                                Дебет
+                                                                {% else %}
+                                                                Кредит
+                                                        {% endif %}
+                                                </td>
+                                                <td>
+                                                        <small>{{item.ts}}</small>
+                                                </td>
+                                                <td>
+                                                        <strong>
+                                                        <font {%  if item.in %} color="green" {%else%} color="red" {% endif %}>{{item.amnt}}</font>&nbsp;{{item.currency}}</strong>
+                                                </td>
+                                                <td>
+                                                       <small> {{item.description}}</small>
+                                                </td>
+                                                
+                                        </tr>
+                                {% endfor %}
+                                
+                                
+                                
+                                
+                                </table>   
+                                
+                                
+                              {% include "pagination.html"%}
+                
+                </div>         
+                
+              
+       </div>
+
+
+       
+        
+    </div>
+  </div> 
+{%endblock%}

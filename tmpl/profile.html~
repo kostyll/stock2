@@ -1,0 +1,175 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+
+{% block content %}
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-9 main">
+                {% include "side_menu_finance.html" %}
+   
+        
+                <div class="col-md-9">
+                        <h1 class="page-header">Профиль</h1>
+                </div>
+                <div class="col-md-9 border_radius" id="transactions_block" >
+                                
+                                <table class="table table-hover" id='profile'>
+                                    
+                                                <tr>
+                                                        <td>Пользователь:</td>
+                                                        <td>{{client.username}}</td>
+                                                </tr>
+                                                <tr>
+                                                        <td>Класс торговца:</td>
+                                                        <td>{{ class_value }}</td>
+                                                </tr>
+                                                <tr>
+                                                        <td>Идентифицирован:</td>
+                                                        <td>{{ identity_value }}</td>
+                                               </tr>
+                                                
+                                                <tr>
+                                                        <td>Дата регистрации</td>
+                                                        <td>{{client.date_joined}}</td>
+                                                </tr>
+                                                 {% if is_own_profile %}               
+                                                        <tr>
+                                                                <td>Email:</td>
+                                                                <td>
+                                                               {{client.email}}
+                                                                </td>
+                                                        </tr>
+                                                           <tr>
+                                                                <td>Включить двухфакторную авторизацию:</td>
+                                                                <td>
+                                                                  <input id="g2a_setting" onclick="profile.user_g2a('g2a', this)"
+                                                                       type="checkbox"  {% if g2a %} checked {% endif %}  value="yes" >
+                                                                 
+                                                                </td>
+                                                        </tr>
+                                                        
+                                                        <tr>
+                                                                <td>Пароль:</td>
+                                                                <td>
+                                                                <span class="btn btn-default" onclick="profile.reset_passwd()"  > Сбросить пароль </span>
+                                                                </td>
+                                                        </tr>
+                                                        <tr>
+                                                                <td>PIN:</td>
+                                                                <td>
+                                                                 <span 
+                                                                       class="btn btn-default" 
+                                                                       onclick="window.location.href='/profile/pin_change'"> Сбросить PIN </span>
+                                                                 
+                                                                </td>
+                                                        </tr>
+                                                        <tr>
+                                                                <td>Партнерская ссылки:</td>
+                                                                <td>
+                                                                 Страница регистрации:&nbsp;<a href="https://btc-trade.com.ua/registration/{{ partners_value }}">
+                                                                       https://btc-trade.com.ua/registration/{{ partners_value }}</a><br/>
+                                                                 Страница торгов BTC/UAH:&nbsp;<a href="https://btc-trade.com.ua/stock/btc_uah?ref={{ partners_value }}">
+                                                                       https://btc-trade.com.ua/stock/btc_uah?ref={{ partners_value }}</a><br/>
+                                                                 Страница тарифов:&nbsp;<a href="https://btc-trade.com.ua/page/fees?ref={{ partners_value }}">
+                                                                       https://btc-trade.com.ua/page/fees?ref={{ partners_value }}</a><br/>
+                                                                 Страница главная:&nbsp;<a href="https://btc-trade.com.ua/index.html?ref={{ partners_value }}">
+                                                                       https://btc-trade.com.ua/index.html?ref={{ partners_value }}</a><br/> 
+                                                                 
+                                                                </td>
+                                                        </tr>
+                                                          <tr>
+                                                                <td>Тариф сделок:</td>
+                                                                <td>
+                                                                {{ deal_comission_value }}%
+                                                                </td>
+                                                        </tr>
+                                                        
+                                                        <tr>
+                                                                <td>Public Key Api:</td>
+                                                                <td>
+                                                                    {{public_key_api}}
+                                                                </td>
+                                                        </tr>
+                                                        <tr>
+                                                                <td>Private Key Api:</td>
+                                                                <td>
+                                                                <span class="btn btn-default" 
+                                                                onclick="window.location.href='/profile/common_secure_page/private_key'"  > Показать </span>
+                                                                </td>
+                                                        </tr>
+                                                        <tr>
+                                                                <td>Уведомлять на email о новостях проекта :</td>
+                                                                <td>
+                                                                <input onclick="profile.user_setting('news_notify', this)"
+                                                                       type="checkbox"  {% if news_notify %} checked {% endif %}  value="yes" >
+                                                                </td>
+                                                        </tr>
+                                                        <tr>
+                                                                <td>Уведомлять на email об авторизации:</td>
+                                                                <td>
+                                                                <input onclick="profile.user_setting('auth_notify', this)"
+                                                                       type="checkbox"  {% if auth_notify %} checked {% endif %}  value="yes" >
+                                                                </td>
+                                                        </tr>
+                                                        <tr>
+                                                                <td>Уведомлять на email о выводе средств :</td>
+                                                                <td>
+                                                                <input onclick="profile.user_setting('withdraw_notify', this)"
+                                                                       type="checkbox"  {% if withdraw_notify %} checked {% endif %} value="yes" >
+                                                                </td>
+                                                        </tr>
+                                                        <tr>
+                                                                <td>Уведомлять на email о пополнение средств :</td>
+                                                                <td>
+                                                                <input onclick="profile.user_setting('deposit_notify', this)"
+                                                                       type="checkbox"  {% if deposit_notify %} checked {% endif %} value="yes" >
+                                                                </td>
+                                                        </tr>
+                                                      <!--  <tr>
+                                                                <td>Уведомлять на email о ваших заключенных сделках:</td>
+                                                                <td>
+                                                                <input onclick="profile.user_setting('deal_notify', this)"  
+                                                                       type="checkbox" {% if deal_notify %} checked {% endif %} value="yes" >
+                                                                </td>
+                                                        </tr>-->
+                                                        <tr>
+                                                                <td>Уведомлять на email о текущем курсе:</td>
+                                                                <td>
+                                                                <input onclick="profile.user_setting('rate_notify', this)"
+                                                                       type="checkbox" {% if rate_notify %} checked {% endif %} value="yes" >
+                                                                </td>
+                                                        </tr>
+                                                        
+                                                 {%else%}
+                                                
+                                                 <tr>
+                                                        <td colspan="2">
+                                                         <span class="btn btn-default" onclick="Main.create_msg('{{client.username}}')"  > Написать сообщение</span>
+                                                         </td>
+                                                </tr>
+                                                 
+                                              
+                                                              
+                                                 
+                                                 {%endif%}
+                        
+                                </table>
+                               
+                              
+                                {% include "msg_form.html" %}
+                                
+                                
+                                
+                                
+                </div>          
+       </div>
+       {% include "scripts.html"%}
+       {% include "g2a.html"%}
+       
+       {% include "custom_action_f2a.html" %}
+
+
+    </div>
+  </div> 
+{%endblock%}

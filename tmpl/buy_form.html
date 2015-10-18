@@ -1,0 +1,67 @@
+ <div class="col-md-6 border_radius"  >      
+                <h5 class="sub-header text-info">Купить {{ Currency }}</h5> 
+                   {% if is_user %}
+                        <h6 class="sub-header text-success">Ваши средства: <strong class="cursor" onclick="Main.calc_over(this )" id="your_balance_currency1">{{ balance_buy }}</strong> {{ Currency1 }}</h6>  
+                        <h6 class="sub-header info">Мин. цена: <strong id='buy_min_price'></strong> {{ Currency1 }}<span class="pull-right">мин. сделка:&nbsp;{{min_deal}}</span></h6> 
+                   {% endif %}
+                        <div id="buy_form" class="form-horizontal">
+                        <div class="form-group">
+                                <label for="buy_count" class="col-sm-5 control-label "  >
+                                      Кол-во&nbsp;:</label>
+                                <div class="col-sm-5 " >
+                                        <input type="text" class="form-control" id="buy_count" placeholder="0">
+                                </div>
+                                <div class="col-sm-2">
+                                        <p class="form-control-static"> <strong>{{ Currency }}</strong></p>
+                                </div>        
+                        </div>
+                        <div class="form-group  ">
+                                <label for="buy_price" class="col-sm-5 control-label "  >
+                                       Цена за ед.&nbsp;:</label>
+                                 <div class="col-sm-5 " >
+                                        <input type="text" class="form-control" onkeyup="Main.eq_to_usd(this, 'buy_price_usd_eq')"   value="" id="buy_price" placeholder="">
+                                        <span style="display:none" class="help-block" id="buy_price_usd_eq">0&nbsp;<strong>USD</strong>  </span>
+
+                                </div>
+                                <div class="col-sm-2">
+                                        <p class="form-control-static"> <strong>{{ Currency1 }}</strong></p>
+                                </div>
+                                
+                        </div>
+                        <div class="form-group ">
+                                <div class="col-sm-5 control-label" >Всего:  </div>
+                                <div class="col-sm-5">
+                                        <p class="form-control-static">   <span class="text-info" id="buy_result">0</span>&nbsp;<strong>{{ Currency1 }}</strong>
+                                                 <span style="display:none"  class="help-block" id="buy_result_usd_eq">0&nbsp;<strong>USD</strong> </span> 
+                                        </p>
+
+                                        
+                                </div>
+                        </div>
+                        <div class="form-group">
+                                <div class="col-sm-5 control-label" >Комиссия:  </div>
+                                <div class="col-sm-5">
+                                          <p class="form-control-static"> <span class="text-info" id="buy_comission">0</span>&nbsp;<strong>{{ Currency }}</strong>
+                                          </p>
+                                </div>
+                        </div>
+                        <div class="form-group   col-sm-10 help_block" >
+                                <span class="help-block" id="buy_help">Нажмите посчитать, чтобы рассчитать сумму в соответствии с ордерами.</span>
+                        </div>
+                        <div class="form-group   col-sm-12">
+                        
+                                
+                              {% if is_user %}  
+                                <button type="button"  class="btn btn-success pull-right" id="buy_button"  
+                                        onclick="Main.make_order('{{Currency}}','{{Currency1}}')" >Купить</button>   
+                              {%else %}
+                                <button type="button"  id="buy_button" class="btn btn-success pull-right" disabled 
+                                                onclick="Main.make_order('{{Currency}}','{{Currency1}}')" >Купить</button>                                  
+                              {% endif %}
+                             <button type="button" class="btn btn-default " onclick="Main.calc_order('buy')" >Посчитать</button>   
+                             
+                        </div>
+                  
+               
+                </div>    
+          </div>

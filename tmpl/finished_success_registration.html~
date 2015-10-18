@@ -1,0 +1,56 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+
+{% block content %}
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-9 main centering">
+          <h1 class="page-header" style="text-align:center">Активация профиля пользователя </h1>
+<!--           deals -->
+                <div class="col-md-8 deals border_radius padding20 registration centering" >
+                
+                        <div class="col-md-7 centering">
+                             Ваш профиль успешно активирован, теперь вы можете начать работать на бирже.
+                        </div>                          
+                </div>
+                <h1 class="page-header" style="text-align: center">Персональный PIN-код</h1>
+                <div class="col-md-8 col-md-offset-1 border_radius centering" style="text-align:center"  >
+                             <p>
+                             </p>
+                             <p></p>
+                             <p>Мы сгенерировали вам персональный PIN код, для того, что бы максимально 
+                             обезопасить ваши средства.</p>
+                             <p>
+                                PIN-код вам необходим для вывода средств с вашего счета, как 
+                                крипты, так  и гривны.
+                             </p>
+                             <p>
+                                 Сохраните PIN-код в надежном месте, желательно запишите на бумажный носитель.Временную копию пин-код мы выслали вам на ваш электронный ящик.
+                             </p>
+                             
+                             <p>
+                                
+                             
+                             <img src="/pin_image/{{pin}}"/>
+                             </p>
+                           
+                                
+                </div>   
+                
+<!--                 deals -->
+        </div>
+        
+    </div>
+  </div> 
+   
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    {% include "scripts.html"%}
+   
+
+
+
+
+{%endblock%}

@@ -1,0 +1,56 @@
+{% extends "base_main.html" %}
+
+{% load my_formats %}
+
+{% block content %}
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-9 main">
+                <div class="col-md-9">
+                        <h1 class="page-header">{{trans_page_title}}</h1>
+                </div>
+                <div class="col-md-9 border_radius" id="transactions_block" >
+                                <table class="table table-hover table-striped"  id='transactions'>
+                                <thead>
+                                                <tr>
+                                                  {% for item in TransTitle %}
+                                                        <td>{{item.value}}</td>
+                                                  
+                                                  {% endfor %}
+                                                </tr>
+                                </thead>
+                                 {% for item in TransList %}
+                                        <tr>
+                                               {% for cell in item.transes %}
+                                                        <td>{{cell}}</td>
+                                               {% endfor %}
+                                                
+                                        </tr>
+                                {% endfor %}
+                                </table>
+                                {% if paging %}
+                                <div class="pagination">
+                                        <span class="step-links">
+                                                {% if Trans.has_previous %}
+                                                <a href="?page={{ Trans.previous_page_number }}">Предыдущая</a>
+                                                {% endif %}
+
+                                                <span class="current">
+                                                Страница {{ Trans.number }} из {{ Trans.paginator.num_pages }}.
+                                                </span>
+
+                                                {% if Trans.has_next %}
+                                                <a href="?page={{ Trans.next_page_number }}">Следующая</a>
+                                                {% endif %}
+                                        </span>
+                                </div>
+                                {% endif %}
+                </div>          
+       </div>
+
+
+       
+        
+    </div>
+  </div> 
+{%endblock%}

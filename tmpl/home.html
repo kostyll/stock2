@@ -1,0 +1,489 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" href="https://btc-trade.com.ua/img/favicon.ico" type="image/x-icon">
+    <meta name="mailru-verification" content="770e0d9e4f5ff207" />
+<meta name="interkassa-verification" content="f278cc260d7f4d625288745fddc6b847" />
+    <meta name="viewport" content="width=990, initial-scale=0.3">
+    <meta name="keywords" content="bitcoin, купить bitcoin, покупка bitcoin, продажа bitcoin, купить btc-e код, продать btc-e код, продать Bitcoin, обменять bitcoin, обменник bitcoin, купить биткоин, продать биткоин, обменник биткоин, курс биткоина, bitcoin кошелек, {{keywords}}" />
+    <meta name="description" content="bitcoin, купить bitcoin, покупка bitcoin, продажа bitcoin, купить btc-e код, продать btc-e код, продать Bitcoin, обменять bitcoin, обменник bitcoin, купить биткоин, продать биткоин, обменник биткоин, курс биткоина, bitcoin кошелек, {{description}}" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>{{pagetitle}} - {{title}}</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="/img/home/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/img/home/css/style.css">
+    <script src="/img/home/js/bootstrap.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="/img/home/js/jquery-2.0.2.min.js"></script>
+
+</head>
+
+<body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <div id="logo_btc"><img src="/img/home/img/logo.png" alt="" width="50" height="50"/></div>
+          <a class="brand" href="#">BTC TRADE UA <br> <span style="font-size:14px">украинская биржа криптовалют</span></a>
+          <div class="nav-collapse collapse">
+            <div class="menu_block">
+            
+               <ul class="nav navbar-nav navbar-right" id="user_menu">
+<!--                 <li style="font-size: 11px;"><a href="/set_lang/ru">Язык: Русский</a></li>-->
+
+                 <li style="font-size: 11px;"><a href="#">Время:<span id="server_time"></span></a></li>
+                 <li><a href="/stock">Купить/Продать</a></li>
+                 {% if  not is_user %}
+                 <li><a href="/registration">Регистрация</a></li>              
+                 {% endif %}
+                 <li><a href="/page/fees">Тарифы</a></li> 
+                  <li><a href="/page/partnership">Партнерская программа</a></li> 
+                 <li><a href="/page/terms">Соглашение</a></li>
+                 <li><a href="/page/faq">FAQ</a></li>
+                 <li><a href="/page/help">Помощь</a></li>
+                 <li><a href="/finance">Личный кабинет</a></li>
+                </ul>
+            
+ <!--           
+            <ul class="nav">
+              <li class="active"><a href="#">Купить/продать</a></li>
+              <li><a href="#about">Регистрация</a></li>
+              <li><a href="#contact">Тарифы</a></li>
+              <li><a href="#contact">Соглашение</a></li>
+              <li><a href="#contact">FAQ</a></li>
+              <li><a href="#contact">Помощь</a></li>
+              <li><a href="#contact">Личный кабинет</a></li>
+            </ul>-->
+            
+            
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+    <div id="block1">
+        <div class="row">
+            <div class="span9" id="head_img"></div>
+            <div class="span9" id="main_name">Украинская Биржа Криптовалют</div>
+            <div class="span9" id="main_slog">Широкий выбор валютных пар. Низкая комиссия. Простое пополнение депозита <br> и выведение средств. Безопасность операций.</div>
+            <div class="span9" id="buttons">
+              <button class="btn_reg" type="button" onclick="window.location.href='/registration'">Регистрация</button>
+              <button class="btn_enter" type="button" onclick="window.location.href='/login_page'" >Войти</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="block2">
+    <div class="container">
+      <div class="row">
+        <div class="span9" id="block_title"><h1>Самый простой и выгодный способ купить <br> или продать Bitcoin в Украине</h1></div>
+        <div class="span9" id="icons"></div>
+        <div class="span4" id="bl2bl_title">Регистрация <br> 5 минут</div>
+        <div class="span4" id="bl2bl_title">Оплата платежной<br> картой 1 минута</div>
+        <div class="span4" id="bl2bl_title">Выгодный <br>курс </div>
+        <div class="span4" id="bl2bl_desc">Простая регистрация в системе не займет больше 5 минут вашего времени.</div>
+        <div class="span4" id="bl2bl_desc">Покупка Bitcoin с помощью платежных карт банков Украины не больше 1 минуты.</div>
+        <div class="span4" id="bl2bl_desc">Покупка Bitcoin за гривны по выгодному курсу у владельцев без посредников меньше чем за 30 секунд.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="block3">
+    <div class="container">
+      <div class="row">
+        <div class="span9" id="block_title_dark"><h2>Платить и торговать при помощи Bitcoin - просто, легко и удобно, <br> как и должно быть в 21-ом веке цифровых технологий.</h2></div>
+
+        <div class="span9" id="slide">
+          <div class="row">
+            <div class="span1" id="arrow_l"><span style="cursor:pointer" onclick="slider.back()" ><img src="/img/home/img/arrow_l.png" alt="" width="48" height="140"/></span></div>
+            <div class="span7" id="slide_img">
+                <!--
+                <div id="slide1">
+                    <img src="img/sl1.png" alt="" width="609" height="308"/>
+                    <p><br><br><span style="font-size:30px; color:#ef9226;">РАСПЛАТИТЬСЯ или ОБМЕНЯТЬ</span><br><span style="font-size:24px; font-weight:bold; color:#ef9226; line-height:35px;">Bitcoin</span> можно в любой стране мира</p>
+                </div>-->
+                <!--
+                <div id="slide2">
+                    <div id="net"><img src="/img/home/img/sl2.png" alt="" width="498" height="320"/></div>
+                    <div id="text2"><p><span style="font-size:70px; color:#ef9226;">30 000</span><br><span style="font-size:40px; color:#ef9226; line-height:35px;">компьютеров</span><br><br> обеспечивают проведение <br>платежей в <span style="font-size:24px; font-weight:bold; color:#ef9226; line-height:35px;">Bitcoin</span></p></div>
+                </div>-->
+                <!--<div id="slide3">
+                    <div id="net"><img src="img/sl3.png" alt="" width="437" height="304"/></div>
+                    <div id="text3"><p><span style="font-size:40px; color:#ef9226; line-height:40px;">ПРЯМЫЕ ПЛАТЕЖИ <br>ПОЛУЧАТЕЛЮ</span><br><br> отсутствие любых ограничений со стороны банка либо государства при расчетах <br> с использованием <br><span style="font-size:24px; font-weight:bold; color:#ef9226; line-height:35px;">Bitcoin</span></p></div>
+                </div>-->
+                <div id="slide4">
+                    <img id="slider_image" height="240" src="/img/home/img/sl4.png" alt="" />
+                    <p><br><br><br>
+                    <span style="font-size:30px; color:#ef9226;"  id="slide_title">БЕЗОПАСНОЕ ПОПОЛНЕНИЕ ДЕПОЗИТА</span>
+                    <br><span id="slide_text"> <br> Гарантом перечисления средств на BTC TRADE UA <br>является Ваш банк </span></p>
+                </div>
+
+
+            </div>
+            <div class="span1" id="arrow_r"><span  style="cursor:pointer"  onclick="slider.next()"><img src="/img/home/img/arrow_r.png" alt="" width="48" height="140"/></span></div>
+          </div>
+        </div>
+
+
+        <div class="span4" id="bl3_icon">
+          <div><span href="#" ><img 
+          id="slider_gl2"
+          onmouseover="slider.over(0)"
+          onmouseout="slider.out(0)"
+          onclick ="slider.set_current_image(0)"
+          src="/img/home/img/gl2.png" alt="" width="80" height="80"/></span></div>
+          <span href="#">Международные <br>платежи</span></div>
+        <div class="span4" id="bl3_icon">
+          <div><span href="#"><img
+          id="slider_comp2"
+          src="/img/home/img/comp1.png"  
+          onmouseover="slider.over(1)"
+          onmouseout="slider.out(1)"
+          onclick ="slider.set_current_image(1)"
+          alt="" width="80" height="80"/></span></div>
+          <span href="#">Равноправная сеть<br>серверов</span></div>
+        <div class="span4" id="bl3_icon">
+          <div><span href="#"><img
+          id="slider_hand2"
+          src="/img/home/img/hand1.png"
+          onmouseover="slider.over(2)" 
+          onmouseout="slider.out(2)"
+          onclick ="slider.set_current_image(2)"
+          alt="" width="80" height="80"/></span></div>
+          <span href="#">Отсутствие<br>посредников</span></div>
+        <div class="span4" id="bl3_icon">
+          <div><span href="#"><img
+                id="slider_save2"
+                src="/img/home/img/save1.png"  
+                onmouseover="slider.over(3)" 
+                onmouseout="slider.out(3)"
+                onclick ="slider.set_current_image(3)"
+                alt="" width="80" height="80"/></span></div>
+          <span href="#">Безопасность<br>операций</span></div>
+
+      </div>
+    </div>
+  </div>
+  
+<div style="display:none" id="bitcoin_price">
+       {  
+                                        chart: {
+                                        renderTo: 'graphic', 
+                                        defaultSeriesType: 'line',                
+                                        marginRight: 25,  
+                                        marginBottom: 40,  
+                                        plotBackgroundColor: null, 
+                                        plotBorderWidth: null,
+                                        plotShadow: false                },
+                                        title: {         
+                                        text: 'Рыночная цена (USD)',
+                                        x: -20                },
+                                        subtitle: {               
+                                        text: 'Источник: blockchain.info',                   
+                                        x: -20     
+                                        },  
+                                        xAxis: {
+                                        type: 'datetime'                }, 
+                                        yAxis: {                labels: {        formatter: function() {            if(this.value === 0.00001){                return 0;            } else {                return Highcharts.numberFormat(this.value, 0, '', ',');            }           }        },                                            showFirstLabel: false,                    title: {                        text: 'Динамика курса BTC/USD'                    },                    plotLines: [{                        width: 1,                        color: '#808080'                    }]                },                tooltip: {                    formatter: function() {                        return '<b>'+ this.series.name +'</b> ' + Highcharts.numberFormat(this.y, 0, '', ',');                    }                }, 
+                                        plotOptions: {
+                                        series: {
+                                        fillOpacity: 0.4,
+                                        marker: {  
+                                        enabled: false 
+                                        }                    }
+                                         },
+                                         credits: {     
+                                         enabled: false                },    
+                                         legend: {  
+                                         layout: 'vertical',                    align: 'right',                    verticalAlign: 'top',                    x: -10,                    y: 100,                    borderWidth: 0                },                
+                series: [{
+                
+                type:"area",
+                fillColor : {
+                        linearGradient : [0, 0, 0, 0],
+                        stops : [
+                                [0, 'rgb(142, 201, 25)']
+                        ]},
+                name: 'Динамика курса BTC/USD',                    
+                data: [],                    
+                showInLegend: false               
+                }]}
+       </div>
+  
+  
+  <div id="block4">
+    <div class="container">
+      <div class="row">
+        <div class="span9" id="block_title"><h1>Рыночная цена Bitcoin (BTC/USD)</h1></div>
+        <div class="span9" id="graphic"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="block5">
+    <div class="container">
+      <div class="row">
+        <div class="span9" id="block_title_dark">История сделок</div>
+
+                      <div id="deals_table">
+                       <div class="table-responsive">
+                        <table class="table" class="history" style="font-size:14px">
+                        <thead>
+                                <tr>
+                                <th>Дата</th>
+                                <th>Пользователь</th>
+                                <th>Тип</th>
+                                <th>Цена</th>
+                                <th>Сумма Гривна</th>
+                                <th>Сумма Bitcoin</th>
+                                </tr>
+                        </thead>
+                        <tbody id="trade_deals">
+                               <tr>
+                                <td>23 сентября 2014 г. 21:17:53</td>
+                                <td><a href="#">wind</a></td>
+                                <td>sell</td>
+                                <td>5900 UAH</td>
+                                <td>5900 UAH</td>
+                                <td>01</td>
+                               </tr>
+                               <tr>
+                                <td>23 сентября 2014 г. 21:17:53</td>
+                                <td><a href="#">wind</a></td>
+                                <td>sell</td>
+                                <td>5900 UAH</td>
+                                <td>5900 UAH</td>
+                                <td>01</td>
+                               </tr>
+                              <tr>
+                                <td>23 сентября 2014 г. 21:17:53</td>
+                                <td><a href="#">wind</a></td>
+                                <td>sell</td>
+                                <td>5900 UAH</td>
+                                <td>5900 UAH</td>
+                                <td>01</td>
+                               </tr>
+                          </tbody>
+                        </table>
+                       </div>
+                     </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="block6">
+    <div class="container">
+      <div class="row">
+        <div class="span9" id="block_title"><h1>Присоединяйся к нам</h1></div>
+        <div class="span9" id="main_slog">Следи за последними новостями и обновлениями биржи BTC TRADE UA <br> на наших страничках в социальных сетях.</div>
+        <div class="span9" id="soc">
+          <div><a href="https://www.facebook.com/nvctradeua" class="fb" ></a></div>
+          <div><a href="https://twitter.com/btc_trade_ua" class="tw"></a></div>
+          <div><a href="mailto:boriz.kozulin@gmail.com" class="mail"></a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="block7">
+      <div class="row">
+        <div class="span6" id="copyright">Copyright © BTC TRADE UA 2014 | All Rights Reserved. <br>  
+        По всем вопросам обращайтесь в email: support@btc-trade.com.ua <br> 
+        skype: btc.trade.ua <br> 
+        телефон: +380 (056) 788 22 88</div>
+        <div class="span4" style="margin: 25px 25px;">
+                 <a href="/public/balance">Публичная информация</a>
+        </div>
+        
+        
+        <div class="span6" id="payments"></div>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+
+  <!--     <div class="footer">
+                <div class="inner col-md-4">
+                <p>Copyright © BTC TRADE UA 2014 | All Rights Reserved.&nbsp;
+                <br/> По всем вопросам обращайтесь в email: support@btc-trade.com.ua   
+                <br/> skype: btc.trade.ua   
+                <br/> телефон: +380 (056) 788 22 88               
+                </p>
+                </div>
+                <div class="inner col-md-4">
+                        <a href="/public/balance">Публичная информация</a>
+                </div>
+                
+                <img class="pull-right col-md-3"  src="https://btc-trade.com.ua/img/sprite_footer.png"/>
+
+        </div>
+        -->
+        
+{% include "scripts.html"%}
+  
+    
+  </body>
+  
+    <script type="text/javascript">
+
+      Main.trade_pair = "btc_uah";
+      Main.currency_base = "UAH";
+      Main.currency_on = "BTC";
+     
+      
+      $(document).ready(function() {
+                Main.deals_list();
+                var jsjson = eval('(' + $("#bitcoin_price").html() + ')');
+                console.log(jsjson);
+//                 console.log($("#bitcoin_price").html());
+                $.ajax({
+                        dataType: 'json',
+                        url : '/img/blockchain.json',
+                        type : 'GET', 
+                        cache: false,
+                        error: function (data) {
+                                                console.log(data);
+                        }, 
+                        success :                
+                        function(data){
+                        
+        //                         {"values" : [{ "x" : 1377108905, "y" : 109.75},
+                                
+                                var ResArray = [];
+                                for(var i=0;i<data["values"].length;i++){
+                                        var item = data["values"][i];
+                                        ResArray.push([ item["x"]*1000, item["y"] ]);
+                                }
+                                
+                                jsjson["series"][0]["data"] = ResArray;    
+                                console.log(ResArray);
+                                var chart = new Highcharts.Chart(jsjson);
+                                function setSize(Mychart) {
+                                        Mychart.setSize(800,400,false);
+                                }
+                                setSize(chart); 
+                        }
+                });
+            
+                slider.init(30000);
+                
+               
+                       
+               });
+var slider = {
+  current:0,
+  current_index:0,
+  current_id:"",
+  direction:1,
+  gallery_count:0,
+  list:[{"path":"/img/home/img/sl1.png",
+         "icon1":"/img/home/img/gl1.png",
+         "icon2":"/img/home/img/gl2.png",
+          "title":"МЕЖДУНАРОДНЫЕ ПЛАТЕЖИ",
+          "id":"slider_gl2",
+         "text":"<br>Для Bitcoin-а не существует государственных баръеров <br> и границ"
+         },
+         
+        {"path":"/img/home/img/sl2.png", 
+         "icon1":"/img/home/img/comp1.png",
+         "icon2":"/img/home/img/comp2.png",
+         "id":"slider_comp2",
+          "title":"РАВНОПРАВНАЯ СЕТЬ УЧАСТНИКОВ",
+         "text":"<br>Процессинг ваших платежей осуществляет cеть<br/> из  30-ти тысяч компьютеров"
+        },
+        {"path":"/img/home/img/sl3.png",
+         "icon1":"/img/home/img/hand1.png",
+         "icon2":"/img/home/img/hand2.png",
+         "id":"slider_hand2",
+          "title":"НЕТ ПОСРЕДНИКОВ",
+         "text":"<br>Биткоин-ы нельзя заблокировать по решению суда<br/> или арестовать "
+        },
+        {"path":"/img/home/img/sl4.png",
+         "icon1":"/img/home/img/save1.png",
+         "icon2":"/img/home/img/save2.png",
+         "id":"slider_save2",
+         "title":"БЕЗОПАСНОЕ ПОПОЛНЕНИЕ ДЕПОЗИТА",
+         "text":"<br> Гарантом перечисления средств на BTC TRADE UA <br>является Ваш банк"
+        }],
+  
+  out:function(Index){
+        if(slider.current_index == Index )
+                return ;
+                
+        var info  = slider.list[Index]; 
+        $("#"+info["id"]).attr("src", info["icon1"]);     
+  },
+  over: function(Index){
+        if(slider.current_index == Index )
+                return ;
+                
+        var info  = slider.list[Index]; 
+        $("#"+info["id"]).attr("src", info["icon2"]);     
+  },
+  set_current_image:function(Index){
+      
+      var info  = slider.list[Index];      
+      var PrevInfo  = slider.list[   slider.current_index ];      
+      slider.current_index = Index;
+      
+      $("#"+PrevInfo["id"]).attr("src", PrevInfo["icon1"]);
+      $("#"+info["id"]).attr("src", info["icon2"]);     
+      $("#slide_text").html(info["text"]);
+      $("#slide_title").html(info["title"]);
+
+      
+      var image = $("#slider_image");
+      var newsrc = info["path"];    
+      image.fadeOut('fast', function () {
+                image.attr("src", newsrc);
+                image.fadeIn('slow');
+                
+                
+      });
+   
+   },
+  next:function(){ // in straight direction
+        var NewIndex = slider.current_index + 1;
+        if(NewIndex< slider.gallery_count ){
+              slider.set_current_image(NewIndex);                  
+              setTimeout(function(){ 
+                            slider.next() 
+                      }, slider.TimeOut);
+              
+        }
+        
+  },
+  back:function(){ //in back direction
+        var NewIndex = slider.current_index - 1;
+        if(NewIndex >= 0 ){
+              slider.set_current_image(NewIndex);
+              setTimeout(function(){ 
+                            slider.back() 
+                      }, slider.TimeOut);
+              
+        }        
+    
+  },
+  init:function(TimeOut){
+//           slider.list = array;
+          setTimeout(function(){ 
+                            slider.next() 
+                      }, TimeOut);
+          slider.set_current_image(0);
+          slider.TimeOut = TimeOut;
+          slider.gallery_count = 4;          
+  }
+  
+}           
+               
+      
+    </script>
+  
+  {%  include "external_script.html" %}
+
+</html>

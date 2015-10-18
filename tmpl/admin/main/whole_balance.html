@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+        {% block title %}Баланс работы системы{% endblock %}
+{% block content %}
+ <h1>Общий баланс :</h1>
+ 
+ <h3>Консистентность счетов( <strong>должно быть близкое к нулю</strong>):  </h3>
+ {% for item in currency_consist %}
+      <p>Свертка {{ item.currency }} : {{ item.sum }} </p> 
+ {% endfor %}
+ <h3>Балансы внутри системы:  </h3>
+ {% for item in currency_local_balance %}
+   <p> {{ item.currency }} : {{ item.sum }} </p> 
+ {% endfor %}
+ <h3>Балансы внешних систем:  </h3>
+ {% for item in currency_balance %}
+   <p>  {{ item.currency }} : {{ item.sum }} </p> 
+ {% endfor %}
+  <h3>Сальдо внешних систем и внутренних обязательств:  </h3>
+ {% for item in saldo %}
+   <p>  {{ item.currency }} : {{ item.sum }} </p> 
+ {% endfor %}
+ 
+{% endblock %}

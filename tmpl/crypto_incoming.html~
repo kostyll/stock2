@@ -1,0 +1,65 @@
+
+{% if crypto_trans|length > 0 %}
+
+                <div class="col-md-11 border_radius" id="transactions_block" >
+
+                <h4 class="page-header">Обнаружены следующии транзакции:</h4>
+                                <table class="table table-hover"  id='transactions'>
+                                <thead>
+                                                <tr>
+                                                        <th> TXid </th>
+                                                        <th> Тип  </th>                                                        
+                                                        <th> Адрес  </th>
+                                                        <th> Сумма </th>
+                                                        <th> Валюта  </th>
+                                                        <th> Статус </th> 
+                                                </tr>
+                                </thead>
+                                 {% for item in crypto_trans %}
+                                        <tr
+                                                        {%  if item.debit_credit == "in" %}
+                                                                class="success"
+                                                                {% else %}
+                                                                class="warning"
+                                                        {% endif %}
+                                        >
+                                                <td>{{item.id}}</td>
+                                                <td>
+                                                        {%  if item.in %}
+                                                                Дебет
+                                                                {% else %}
+                                                                Кредит
+                                                        {% endif %}
+                                                </td>
+                                                <td>
+                                                        <small>{{item.account}}</small>
+                                                </td>
+                                                <td>
+                                                        <strong>
+                                                        <font {%  if item.debit_credit == "in" %} color="green" {%else%} color="red" {% endif %}>{{item.amnt}}</font>&nbsp;{{item.currency}}</strong>
+                                                </td>
+                                               </tr><tr  {%  if item.in %}
+                                                                class="success"
+                                                                {% else %}
+                                                                class="warning"
+                                                        {% endif %}>       
+                                                        <th> Txid :</th>
+                                                        <td >
+                                                                <small> {{item.crypto_txid}}</small>
+                                                        </td>
+                                                        <th> Подписей :</th>
+                                                        <td >
+                                                                <small> {{item.confirms}}</small>
+                                                        </td>
+                                                
+                                                </tr>
+                                {% endfor %}
+                                
+                                
+                                
+                                
+                                </table>
+                </div>          
+       
+{% endif %}
+       
