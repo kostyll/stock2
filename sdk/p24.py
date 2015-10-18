@@ -111,11 +111,8 @@ class p24:
 
           response = urllib2.urlopen(request)
           xml = response.read()
-<<<<<<< HEAD
-=======
+
 	  if verbose:	
-		print xml
->>>>>>> 137e852afcc19395c1c41f4212fde52f31cbc0a7
           doc = minidom.parseString(xml)
           Sign = doc.getElementsByTagName("signature")[0].childNodes[0].nodeValue               
           Balance = doc.getElementsByTagName("balance")[0].childNodes[0].nodeValue
