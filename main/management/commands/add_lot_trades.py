@@ -10,6 +10,7 @@ from django.core.management import call_command
 class Command(BaseCommand):
   def handle(self, *args, **options):
 
+<<<<<<< HEAD
 	  
 	List = ["perfect_usd","perfect_eur","okpay_usd",'okpay_eur','okpay_rur','ya_rur','p24_transfer']
 	i=10
@@ -17,6 +18,16 @@ class Command(BaseCommand):
 	    for i2 in List:
 		if i2 == i1:
 			continue	
+=======
+	List = ["SBER"]  
+	ListFrom = ["perfect_money_usd","perfect_money_eur","okpay_usd",'okpay_eur','okpay_rur','ya_rur','p24_transfer']
+	i=20
+	for i1 in ListFrom:
+	    for i2 in List:
+		if i2 == i1:
+			continue
+		print "{0}=>{1} adding".format(i1,i2)
+>>>>>>> 137e852afcc19395c1c41f4212fde52f31cbc0a7
 		call_command('add_currency', i1, i2,'1',str(i))
 		i+=1
 

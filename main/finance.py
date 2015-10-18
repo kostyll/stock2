@@ -29,6 +29,7 @@ from main.models import dictfetchall, OutRequest,PoolAccounts
 from main import views
 from sdk.liqpay import liqpay
 from sdk.p24 import p24
+from sdk.p2p_deposit import P2P_DEPOSIT_OPTS
 from main.my_cache_key import check_freq
 #from sdk.crypto import CryptoAccount
 
@@ -307,8 +308,11 @@ def crypton_emoney_list(user, currency):
         Query = cursor.execute(Query)
         List = dictfetchall(cursor, Query)
         for item in List :
-            Account = item["phone"]
-            Account = "*******"+Account[-4:]
+
+            Account=""
+            if item['wallet']!='':
+                    Account = item["wallet"]
+                    Account = "*******"+Account[-4:]
             
             Cell = ( 
                      DbOut[ item["debit_credit"] ], 
@@ -317,6 +321,7 @@ def crypton_emoney_list(user, currency):
                      item["pub_date"],
                      Status[item["status"]]  )
             yield  {"transes": Cell}
+            
             
 @auth_required
 def crypton_uah_list(user):
@@ -363,20 +368,20 @@ def depmotion_home(Req):
 @auth_required
 def depmotion(request, CurrencyTitle):
     CurrencyList = Currency.objects.all(  )
-    #cur = Currency.objects.get(title=CurrencyTitle  )
-    cur = None
+    cur = Currency.objects.get(title=CurrencyTitle  )
     (TransList,TransTitle) = (None, None)
+    user_id = request.user.id
     if SDKCryptoCurrency.has_key(CurrencyTitle):
         ##TODO avoid this
-        TransList = list( crypton_currency_list(request.user.id, CurrencyTitle) )
+        TransList = list( crypton_currency_list(user_id, CurrencyTitle) )
         TransTitle = ({"value":_(u"Дебит/Кредит")},{"value":_(u"Адрес")}, {"value":_(u"Сумма")},{"value":_(u"Дата")},
                       {"value":_(u"Статус")},{"value":_(u"Подтверждения")}, {"value":_(u"Txid")}  )
-    if CurrencyTitle == "UAH":
-        TransList = list(crypton_uah_list(request.user.id))
+    elif CurrencyTitle == "UAH":
+        TransList = list(crypton_uah_list(user_id))
         TransTitle = ({"value":_(u"Дебит/Кредит")}, {"value":_(u"Счет")}, {"value":_(u"Сумма")},
                       {"value":_(u"Дата")}, {"value":_(u"Статус")}  )
     else:  
-       TransList = list(crypton_emoney_list(request.user.id, cur))
+       TransList = list(crypton_emoney_list(user_id, cur))
        TransTitle = ({"value":_(u"Дебит/Кредит")}, {"value":_(u"Сумма")},
                      {"value":_(u"Дата")}, {"value":_(u"Статус")}  )
        
@@ -572,6 +577,7 @@ def confirm_withdraw_currency(Req, S, PrivateKey):
         order = Orders( user = Transfer.user,
                         currency1 = Transfer.currency,
                         currency2 = Transfer.currency,
+			price = Transfer.amnt,
                         sum1_history = Transfer.amnt + Transfer.comission,
                         sum2_history = Transfer.amnt  ,
                         sum1 = Transfer.amnt + Transfer.comission,
@@ -1107,28 +1113,41 @@ def confirm_withdraw_liqpay(Req, S):
     
 
 
+def p2p_deposit(Req, Cur, Amnt):
+     amnt = Decimal(Amnt)
+     if amnt<1:
+             raise TransError("pay_requirments")
+     Dict = {}
+     t = loader.get_template("p2p_transfer_req.html")   
+     CurrencyIn = Currency.objects.get(title = Cur)
+     Account =  Accounts.objects.get(user = Req.user, currency = CurrencyIn )     
+     Dict["account"] = P2P_DEPOSIT_OPTS[Cur]     
+     if Account.reference is None or len(Account.reference) == 0:
+                Account.reference = generate_key("bank_pp", 16)
+                Account.save()
+     Dict["description"] = _(u"Оплата информационных услуг в счет публичного договора #" + Account.reference)
+     Dict["amnt"] = str(Amnt)     
 
+     return tmpl_context(Req, t, Dict )
 
 ##at this moment only for UAH
-def bank_deposit(Req, Amnt):
-     if not Req.user.is_authenticated():
-             return denied(Req)  
+def bank_deposit(Req, Cur,  Amnt):
      
      amnt = Decimal(Amnt)
-     if amnt<100:
+     if amnt<1:
              raise TransError("pay_requirments")
      Dict = {}
      t = loader.get_template("bank_transfer_req.html")   
      Dict["okpo"] = settings.BANK_UAH_OKPO
      Dict["mfo"] =  settings.BANK_UAH_MFO
      Dict["account"] = settings.BANK_UAH_ACCOUNT   
-     CurrencyIn = Currency.objects.get(title = "UAH")
+     CurrencyIn = Currency.objects.get(title = Cur)
      Account =  Accounts.objects.get(user = Req.user, currency = CurrencyIn )     
      if Account.reference is None or len(Account.reference) == 0:
                 Account.reference = generate_key(settings.BANK_KEY_SALT)
                 Account.save()
      Dict["description"] = _(u"Оплата информационных услуг в счет публичного договора #%s" + Account.reference)
-     Dict["amnt"] = str(Amnt) + " UAH "    
+     Dict["amnt"] = str(Amnt)     
 
      return tmpl_context(Req, t, Dict )
 

@@ -76,7 +76,7 @@
                 <div class="trade_pairs">
                 {% for Currency in CurrencyList %}
                         {% if Currency.title == current_trade %}
-                                <a class="btn btn-primary" href="#" id="stock_{{Currency.title}}" >{{Currency.title}}</a>
+                                <a class="btn btn-primary" href="#" id="stock_{{Currency.title}}" >{{Currency.long_title}}</a>
                          
                           {% else %}
                         

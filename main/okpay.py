@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+<<<<<<< HEAD
 
+=======
+enabled = False
+>>>>>>> 137e852afcc19395c1c41f4212fde52f31cbc0a7
 # Create your views here.
 from django.template import Context, loader
 from django.http import HttpResponse 
@@ -26,7 +30,12 @@ from main.http_common import http_tmpl_context, http_json, json_false, json_deni
 from main.http_common import json_auth_required, format_numbers10, format_numbers_strong, format_numbers, format_numbers4, auth_required, g2a_required, json_false500, login_page_with_redirect
 
 from main import views
+<<<<<<< HEAD
 import sdk.okpay_settings
+=======
+if enabled:
+    import sdk.okpay_settings
+>>>>>>> 137e852afcc19395c1c41f4212fde52f31cbc0a7
 from main.my_cache_key import check_freq
 #from sdk.crypto import CryptoAccount
 from main.finance_forms import FiatCurrencyTransferForm

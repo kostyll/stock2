@@ -1,0 +1,22 @@
+<div id="menu_style">
+                    <ul class='menu_ul'>
+                        <li class="menu_item menu_active"><a class='menu_item' href="/stock">ТОРГИ</a></li>
+                        <li class='menu_item dropdown'>
+
+                                <a class='menu_item'  data-target="#" aria-haspopup="true" aria-expanded="false"  
+                                                href="/news" data-toggle='dropdown' id="news">ИНФО</a>
+
+                        <ul class="dropdown-menu" aria-labelledby="news">
+                              <!--  <li><a class='menu_item' href='/news/'>News</a></li>-->
+                              {% for i in news_cats %}  	
+				<li><a class='menu_item' href='/news_cat/{{i.id}}'>{{i.title}}</a></li>
+			      {% endfor %}
+                        </ul>
+
+                        </li>
+                        <li class='menu_item'><a class='menu_item' href="/page/rules">ПРАВИЛА</a></li>
+                        <li class='menu_item'><a class='menu_item'  href="/page/faq">FAQ</a></li>
+                        <li class='menu_item'><a class='menu_item' href="/helpdesk">ПОДДЕРЖКА</a></li>
+                    </ul>
+</div>
+

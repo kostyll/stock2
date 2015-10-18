@@ -26,10 +26,10 @@ import time
 from datetime import timedelta
 from main.my_cache_key import my_lock,  LockBusyException, check_freq, my_release
 
-from tornaduv import UVLoop
+#from tornaduv import UVLoop
 import tornado.web
-import tornaduv
-import pyuv
+#import tornaduv
+#import pyuv
 import threading
 from crypton.http import MemStore
 
@@ -75,11 +75,11 @@ class TornadoServer(object):
     def __init__(self, *args):
         self.port = args[0]
         self.application = tornado.web.Application(args[1])
-        self.core_event_loop = pyuv.Loop.default_loop()
+        #self.core_event_loop = pyuv.Loop.default_loop()
         self.memstore =  MemStore.create_instance()
-        self.pool = ThreadPool(200)
-        tornado.ioloop.IOLoop.configure(UVLoop)
-        tornado.ioloop.IOLoop.current().initialize(self.core_event_loop)
+        self.pool = ThreadPool(20)
+        #tornado.ioloop.IOLoop.configure(UVLoop)
+        #tornado.ioloop.IOLoop.current().initialize(self.core_event_loop)
 
     # start eventloop, webserver and periodic reading
     def start(self):

@@ -10,7 +10,9 @@ from crypton import settings
     
 urlpatterns = patterns('',
     # Examples:
+    
     url(r'^project/banner/(\w+)$', 'main.banners.banner', name='banner'),
+    url(r'^yandex_474f8051b6db0c25.html', 'main.views.ya_metric', name='ya_metric'),
     url(r'^robots.txt$', 'main.views.robots', name='robots'),
     url(r'^time$', 'main.views.time', name='time'),
     url(r'^sitemap.xml$', 'main.views.sitemap', name='sitemap'),
@@ -46,6 +48,12 @@ urlpatterns = patterns('',
     
     url(r'^msgs/hide/([\w]+)$', 'main.msgs.hide', name='hide'),
     url(r'^page/help$', 'main.views.page_help', name='page_help'),   
+
+    url(r'^news_cat_api/([\d]+)$', 'main.views.news_cat_api', name='news_cat_api'),   
+    url(r'^news$', 'main.views.news', name='news'),   
+    url(r'^news_cat/([\d]+)$', 'main.views.news_cat', name='news_cat'),   
+    url(r'^news/([\w]+)$', 'main.views.news_one', name='news_one'),   
+    url(r'^news_api$', 'main.views.news_api', name='news_api'),   
     
     url(r'^page/([\w]+)$', 'main.views.page', name='page'),   
     url(r'^page_discuss/([\w]+)$', 'main.views.page_discuss', name='page_discuss'),   
@@ -72,7 +80,7 @@ urlpatterns = patterns('',
     url(r'^reset_link_no_found$', 'main.forgot_password_views.reset_link_no_found', name='reset_link_no_found'),
     url(r'^reset_success', 'main.forgot_password_views.reset_success', name='reset_success'),
 
-    
+ 
 
 
 
@@ -98,8 +106,11 @@ urlpatterns = patterns('',
     url(r'^api/balance', 'main.api.user_balance', name='user_balance'),
     url(r'^api/my_deals/([\w]+)', 'main.api.my_closed_orders', name='my_closed_orders'),
 
+    url(r'^finance/p2p_deposit/([\w]+)/([\w\.]+)',
+         'main.finance.p2p_deposit', 
+         name='p2p_deposit'),
 
-    url(r'^finance/bank_transfer/UAH/([\w\.]+)',
+    url(r'^finance/bank_transfer/([\w]+)/([\w\.]+)',
          'main.finance.bank_deposit', 
          name='bank_deposit'),
     
@@ -220,7 +231,8 @@ urlpatterns = patterns('',
         name='confirm_withdraw_msg_auto' ),    
         
     url(r'^finance', 'main.finance.home', name='home' ),
-   
+    #url(r'helpdesk/', include('helpdesk.urls')),
+ 
   
     #url(r'^crypton/', include('crypton.foo.urls')),
 
@@ -235,7 +247,7 @@ urlpatterns = patterns('',
     #url(r'^admin_tools/', include('admin_tools.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-    #url(r'^tinymce/', include('tinymce.urls')),    
+    #url(r'^tinymce/', include('tinymce.urls')),   
     #url(r'^img/(?P<path>.*)$', 'django.views.static.serve',         
     # {'document_root': settings.MEDIA_ROOT}),
     #{'document_root': settings.STATIC_ROOT, 'show_indexes': True})

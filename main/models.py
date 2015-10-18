@@ -22,7 +22,12 @@ from django.db import transaction
 import base64
 from sdk.crypto import CryptoAccount
 import  main.http_common 
+<<<<<<< HEAD
 
+=======
+from tinymce.widgets import TinyMCE
+from django.core.urlresolvers import reverse
+>>>>>>> 137e852afcc19395c1c41f4212fde52f31cbc0a7
 
 # Create your models here.
 DEBIT_CREDIT = (
@@ -512,13 +517,13 @@ def add_trans2(From, Amnt, Currency, To, order, status = "created", Out_order_id
        if From.currency.id <> Currency:
                trans.status = "currency_core"
                trans.currency_id = Currency
-               trans.save(using = 'memory')
+               trans.save()
                raise TransError("currency_core")
 
        if To.currency.id <> Currency:
                trans.status = "currency_core"
                trans.currency_id = Currency
-               trans.save(using = 'memory')
+               trans.save()
                raise TransError("currency_core")
        trans.currency = To.currency
        trans.save()
@@ -530,7 +535,7 @@ def add_trans2(From, Amnt, Currency, To, order, status = "created", Out_order_id
        if Strict:
                 if NewBalance < 0:
                     trans.status = "incifition_funds"
-                    trans.save(using = 'memory')
+                    trans.save()
                     raise TransError("incifition_funds")
 
        ToBalance = To.balance
@@ -557,7 +562,7 @@ def add_trans2(From, Amnt, Currency, To, order, status = "created", Out_order_id
             To.balance  = ToBalance
             From.save()
             To.save()
-            trans.save(using = 'memory')
+            trans.save()
             raise TransError("core_error")
 
 ## add exception here
@@ -1318,9 +1323,48 @@ class LiqPayTransAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):    
                 return  True   
     
+class NewsPageAdmin(admin.ModelAdmin):
+    list_display = ["id",'cat' ,'eng_title','title',"pub_date"]
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+	if db_field.name == 'text':
+            return db_field.formfield(widget=TinyMCE(
+                attrs={'cols': 200, 'rows': 30},
+                #mce_attrs={'external_link_list_url': reverse('tinymce.views.flatpages_link_list')},
+            ))
+	return super(NewsPageAdmin, self).formfield_for_dbfield(db_field, **kwargs)
+
+
 
     
+class NewsPage(models.Model):
+   eng_title = models.CharField(max_length = 255, verbose_name = u"Ключ на английском")
+   pub_date = models.DateTimeField( auto_now = True )
+   title = models.CharField(max_length = 255, verbose_name = u"Заглавие")
+   text = models.TextField( verbose_name = u"Текст")
+   meta_keyword = models.CharField(max_length = 255, blank = True, verbose_name = u"META описание")
+   meta_description = models.CharField(max_length = 255, blank = True, verbose_name = u"META ключевые слова")     
+   cat =  models.ForeignKey( "Category",  verbose_name = u"Категория" )
+   class Meta: 
+      verbose_name=u'Новость'
+      verbose_name_plural=u'Новости'
+   def __unicode__(o):
+	return o.title
+  
+class StaticPageAdmin(admin.ModelAdmin):
+    list_display = ["id", 'eng_title','title']
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+	if db_field.name == 'text':
+            return db_field.formfield(widget=TinyMCE(
+                attrs={'cols': 200, 'rows': 30},
+                #mce_attrs={'external_link_list_url': reverse('tinymce.views.flatpages_link_list')},
+            ))
+	return super(StaticPageAdmin, self).formfield_for_dbfield(db_field, **kwargs)
+
     
+
+ 
 class StaticPage(models.Model):
    eng_title = models.CharField(max_length = 255, verbose_name = u"Ключ на английском")
    title = models.CharField(max_length = 255, verbose_name = u"Заглавие")
@@ -1794,6 +1838,12 @@ class Balances(models.Model):
         def __unicode__(o):
                 return o.account + " " + str(o.balance)
 
+class Category(models.Model):
+        
+   title = models.CharField(max_length = 255,verbose_name = u"Название")
+   ordering = models.IntegerField(verbose_name = u"Сортировка", default = 1)
+   def __unicode__(o):
+      return o.title
 
 class Currency(models.Model):
         
@@ -1938,6 +1988,19 @@ def check_holds(order):
       except :
             pass
         
+class TransMemAdmin(admin.ModelAdmin):
+    list_display = ['id','out_order_id', 'user1','order_id','balance1', 'user2','balance2', 'currency', 'amnt', 'status','res_balance1','res_balance2','pub_date']
+    list_filter = ('status','currency')
+    
+    
+             
+        
+
+    def __init__(self, *args, **kwargs):
+        super(TransMemAdmin, self).__init__(*args, **kwargs)
+        self.list_display_links = (None, )
+  
+ 
         
 class TransMem(models.Model): 
         out_order_id = models.CharField(max_length = 255, verbose_name = "Внешний order", 
@@ -2104,9 +2167,9 @@ class CustomMailAdmin(admin.ModelAdmin):
      def save_model(self, request, obj, form, change):
             if obj.user is not None:
                     obj.To = obj.email
-            Connection =  subscribe_connection()        
+                
             text_content = strip_tags(obj.Text)                    
-            msg = EmailMultiAlternatives(obj.Subject, text_content, obj.From, [obj.To], connection = Connection)
+            msg = EmailMultiAlternatives(obj.Subject, text_content, obj.From, [obj.To])
             msg.attach_alternative(obj.Text, "text/html")
             msg.send()
             obj.save()
@@ -2249,6 +2312,9 @@ class DealsMemory(models.Model):
             return self.fields4sign()                        
 
             
+class OrdersMemAdmin(admin.ModelAdmin):
+  list_display = ['user', 'trade_pair', 'price', 'currency1','sum1_history','sum1','currency2','sum2_history','sum2', 'status', 'pub_date']
+  list_filter = ('user', 'currency1', 'currency2', 'status')
 
            
 class OrdersMem(models.Model):
@@ -2269,6 +2335,10 @@ class OrdersMem(models.Model):
     comission = models.DecimalField(max_digits = 20, default = '0.0005', blank = True, decimal_places = 10, verbose_name = u"Комиссия")
     sign = models.CharField(max_length = 255, verbose_name = u"Custom sign")
         
+    class Meta: 
+      verbose_name=u'Заявка'
+      verbose_name_plural = u'Заявки'
+      ordering = ('-id',)           
     
     def make2processed(self):
        self.status = "processed"
@@ -2406,8 +2476,8 @@ class Orders(models.Model):
       
    
    class Meta: 
-      verbose_name=u'Ордер'
-      verbose_name_plural = u'Ордеры'
+      verbose_name=u'Сделка'
+      verbose_name_plural = u'Сделки'
       ordering = ('-id',)           
 
    def __unicode__(o):
