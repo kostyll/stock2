@@ -1,125 +1,68 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" lang="ru">
+  <head>
     <meta charset="utf-8">
+<meta name="interkassa-verification" content="f278cc260d7f4d625288745fddc6b847" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
-    <meta name="description" content="">
-    <meta name="author" content="">
-	<meta name="google-site-verification" content="q1fN8Twu_nTWsCybtWjtn5XUA_5V3fTC9nbJApJ6LG4" />
-    <title></title>
+    <link rel="icon" href="https://btc-trade.com.ua/img/favicon.ico" type="image/x-icon">
+   <meta name="viewport" content="width=600px, initial-scale=0.5"> 
+    <meta name="keywords" content="bitcoin, купить bitcoin, покупка bitcoin, продажа bitcoin, купить btc-e код, продать btc-e код, продать Bitcoin, обменять bitcoin, обменник bitcoin, купить биткоин, продать биткоин, обменник биткоин, курс биткоина, bitcoin кошелек, {{keywords}}" />
+    <meta name="description" content="bitcoin, купить bitcoin, покупка bitcoin, продажа bitcoin, купить btc-e код, продать btc-e код, продать Bitcoin, обменять bitcoin, обменник bitcoin, купить биткоин, продать биткоин, обменник биткоин, курс биткоина, bitcoin кошелек, {{description}}" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 
-    <meta name="description" content="">
+    <title>{{pagetitle}} - {{title}}</title>
 
-    <!-- Bootstrap Core CSS -->
-    <link href="/static/css/bootstrap.css" rel="stylesheet">
+    <!-- Bootstrap core CSS -->
+  
+        {% include "style.html"%}
 
-    <!-- Custom CSS -->
-    <link href="/static/css/style.css" rel="stylesheet">
-    <link href="/static/css/non-responsive.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script> 
+  </head>
 
+  <body>
+  
+  
+        {%include "facebook_sdk.html"%}
 
-</head>
+  
+        {%include "header.html"%}
+ 
+        {% block content %}
+        
+        {%endblock%}
 
-<body>
-
-    <!--logo section -->
-    <section class="top">
-        <div class="container">
-            <div class="row">
-                <div class="col-xs-8 col-sm-8">
-                    <div class="top_logo">
-                        <a href="https://bitmoney.trade"><img src="/static/images/logo.png"></a>
-                    </div>
-                    <div class="top_stats">
-                        <div class="top_stats_block">
-                            Last Price: <strong id='stock_last_price'></strong>
-                        </div>
-                        <div class="top_stats_block">
-                            Low: <strong id='stock_min_price'></strong>
-                        </div>
-                        <div class="top_stats_block">
-                            High: <strong id='stock_max_price'></strong>
-                        </div>
-                        <div class="top_stats_block">
-                            Volume: <strong id='stock_volume'></strong>
-                        </div>
-                        <div class="top_stats_block">
-                            Server Time: <strong id='server_time'></strong>
-                        </div>
-                    </div>
-                   
-                   
+        <div class="footer">
+                <div class="inner col-md-4">
+                <p>Copyright © BTC TRADE UA 2014 | All Rights Reserved.&nbsp;
+                <br/> По всем вопросам обращайтесь в email: support@btc-trade.com.ua   
+                <br/> skype: btc.trade.ua   
+                <br/> телефон: +380 (056) 788 22 88               
+                </p>
                 </div>
-                {% include "user_block.html" %}
+                <div class="inner col-md-4">
+                        <a href="/public/balance">Публичная информация</a>
+                </div>
                 
-            </div>
+                <img class="pull-right col-md-3"  src="https://btc-trade.com.ua/img/sprite_footer.png"/>
+
         </div>
-
-    </section>
-    <!--end of top logo section -->
-
-    <!-- MAIN MENU-->
-    <section>
-        <div class="menu_back">
-            <div class="container">
-                {% include "top_menu.html" %}
-            </div>
-        </div>
-    </section>
-    <!-- END MAIN MENU-->
-
-    <!--CONTENT BLOCK-->
-    <section>
-      <div class="container">
-            <div class="row">
-                <div class="col-xs-10 col-sm-10 cabinet_content">
-                    <div class="cabinet_content_block">
-                            {% block content %} {% endblock %}
-                    </div>                
-   
-                </div>                    
-
-
-                <div class="col-xs-2 col-sm-2 cabinet_sidebar pull-right">
-
-                        {% block side_menu %} {% endblock %}
-
-                </div><!--END SIDEBAR-->
-
-
-            </div>
-        </div>
+        
+        
+  {% include "modal_dlg.html" %}  
     
-    </section>
-    <!--END CONTENT BLOCK-->
+    
+  </body>
+  {%  include "external_script.html" %}
+<!-- End SiteHeart code -->
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+ 
 
-    <!--FOOTER BLOCK-->
-    <section>
-        <div class="footer_top_border"></div>
-        <div class="container">
-            <div class="col-xs-6 col-sm-6 top_logo">
-                <img src="/static/images/logo.png">
-            </div>
-            <div class="col-xs-6 col-sm-6 footer_contacts">
-                Skype: bitmoney.trade <br />
-                Email: admin@bitmoney.trade
-            </div>        
-        </div>
-    </section>
-    <!--END FOOTER BLOCK-->
-   
-
-{% include "scripts.html" %}
-{% include "external_script.html" %}
-{% block scripts %}{% endblock %}
-{% include "modal_dlg.html" %}  
-
-</body>
-
-
-
+    
 </html>
+
+
+
+
+

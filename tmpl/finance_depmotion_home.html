@@ -2,88 +2,27 @@
 
 {% load my_formats %}
 
-
-{% block side_menu %}
-   <div class="sidebar_cabinet_block">
-                        <div class="content_block_header">
-                            <h1>Личный кабинет</h1>
-                        </div>
-                            <div class="sidebar_cabinet_options">
-                                <table class="table table-striped"> <!--НУЖНО сделать подсветку активного пункта яваскриптом --> 
-                                  <tbody>
-                                    <tr>
-                                        <td>
-                                            <a href="/finance">Финансы</a>                 
-  
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a href="/profile/{{username}}">Профиль</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a href="/finance/trans">Транзакции</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a href="/finance/deals/btc_uah">Сделки</a>
-                                        </td>
-                                    </tr>                                                                                                                          
-                                    <tr>
-                                        <td>
-                                        <a href="/finance/open_orders/btc_uah">Ваши заявки</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a id="menu_msgs" href="/msgs">Сообщения <strong id="msg_count">({{new_msg_count}})</strong> </a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                       <a href="/finance/depmotion">Ввод/Вывод средств</a>
-                                        </td>
-                                    </tr>
-                                 <!--   <tr>
-                                        <td>
-                                        История ордеров
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        API ключи
-                                        </td>
-                                    </tr>   -->                                                                                                                       
-                                                                                                                                                                   
-                                  </tbody>
-                                </table>
-                            </div> 
-                    </div>
-{% endblock %}
-
 {% block content %}
   <div class="container-fluid">
       <div class="row">
         <div class="col-md-9 main">
+          {% include "side_menu_finance.html" %}
           <div class="col-md-12">      
-                <h1 class="page-header">Ввод/Вывод средств с Ваших депозитов</h1>
+                <h1 class="page-header">Ввод/Вывод инструментов с Ваших депозитов</h1>
           </div>
          <div class="col-md-12">      
 
                 <div class="trade_pairs">
                 {% for Currency in CurrencyList %}
                         {% if Currency.title == current_trade %}
-                                <a class="btn btn-primary" href="#" id="stock_{{Currency.title}}" >{{Currency.long_title}}</a>
+                                <a class="btn btn-primary" href="#" id="stock_{{Currency.title}}" >{{Currency.title}}</a>
                          
                           {% else %}
                         
                            
                               <a class="btn btn-default" 
                                  href="/finance/depmotion/{{Currency.title}}" 
-                                 id="stock_{{Currency.title}}" >{{Currency.long_title}}</a>
+                                 id="stock_{{Currency.title}}" >{{Currency.title}}</a>
                                
                         {% endif %}
                         
@@ -97,6 +36,12 @@
         </div>
     </div>
   </div>
-    
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    {% include "scripts.html"%}
+   
+
+
 
 {%endblock%}

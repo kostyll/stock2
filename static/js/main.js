@@ -1,10 +1,537 @@
 "use strict";
 
-var server_name = "bitcoin trade company";
+
+
+var finance  = {
+        crypto_currency:
+        {
+                "NVC":1,"BTC":1,"LTC":1,"HIRO":1,"DRK":1,"VTC":1, "PPC":1,"DOGE":1,"CLR":1,"RMS":1
+        },
+        order_id: "",
+        min_deal: 0.00001,
+        timer: null,
+        liqpay_flag: false,
+        p24_flag:false,
+        ui_check_status:function(){
+                        
+                   $.ajax({
+                              dataType: 'json',
+                              url : "/api/order/status/" + finance.order_id,
+                              type : 'GET', 
+                              cache: false,
+                              error: function (data) {
+                                                console.log(data);
+                                                my_alert("Не могу создать ордер  ")
+                              }, 
+                              success : function(Data){
+                                               var status = Data["status"];
+                                               if(status == "processed"){
+                                                        $("#work_msg").html("<p>Средства удачно зачислены</p>");                                                        
+                                                        window.location.href="/finance/balance";
+                                                        clearTimeout(finance.timer);
+                                                        return ;
+                                               }
+                                               if(status == "created"){
+                                                        $("#work_msg").html("Cтатус платежа <font color=\"greed\" id=\"depo_status\">\
+                                                                                  в обработке </font>");                                                        
+                                                        return ;
+                                                       
+                                               }  
+                                               if(status == "processing"){
+                                                        $("#work_msg").html("Cтатус платежа <font color=\"greed\" id=\"depo_status\">\
+                                                                                  в обработке </font>");                                                        
+                                                        return ;
+                                                       
+                                               }  
+                                               if(status == "wait_secure"){
+                                                        $("#work_msg").html("<p>Ваша оплата была отправленна платежной системой на ручную обработку</p>\
+                                                                                  <p>После проверки, ваши средства будут немедленно зачисленны</p>");
+                                                        clearTimeout(finance.timer);
+                                                        return ;        
+                                               }
+                                               if(status == "order_cancel"){
+                                                        clearTimeout(finance.timer);
+                                                        $("#work_msg").html("Ваша оплата была забракована платежной системой")
+                                                        return ;
+                                               }
+                                               $("#work_msg").html("Что-то пошло не так, обратитесь в службу поддержки");
+                                               clearTimeout(finance.timer);
+                                               return ;                                              
+                                                
+                                         }
+                              });      
+                
+                
+                
+        },
+        make_deposit: function(Currency){
+                $("#withdraw_form").css({"display":"none"});
+                window.scrollTo(0, 0);
+                $("#currency_depo").val(Currency);
+                finance.fill_providers_depo(Currency);
+                $("#deposit_form").slideDown("slow");
+        },
+        /*     <option value="">
+                            Выбрать
+              </option>
+             <option  value="liqpay_transfer">
+                        LiqPay
+             </option>
+              <option value="bank_transfer">
+                                   Банковский перевод
+               </option>*/
+        fill_providers_depo:function(Currency){
+                $("#provider_depo").html("");
+                $("#res_provider").html("")
+
+                if(Currency == "UAH"){
+                        $("#provider_depo").append( $('<option value="">Выбрать</option>') );
+                        $("#provider_depo").append( $('<option value="liqpay_transfer">LiqPay Платежной Картой 2.75% для всех карт Visa,MasterCard </option>') );    
+                        $("#provider_depo").append( $('<option value="liqpay_transfer">2.75% наличными в терминалах ПриватБанка </option>') );    
+                        $("#provider_depo").append( $('<option value="p24_transfer">Через Приват24( 2% ) </option>') );                       
+            
+                        $("#label_depo").html( "Cпособ пополения:" );                       
+                        $("#label_amnt_depo").show();                      
+                        $("#amnt_depo").show();                       
+                        $("#provider_depo").show();
+                        
+
+                }
+                
+                if(finance.crypto_currency[Currency]){
+                        $("#provider_depo").hide();
+                        $("#label_depo").html( "Кошелек пополения:" );                       
+                        $("#label_amnt_depo").hide();                      
+                        $("#amnt_depo").hide();                       
+
+                        $.ajax({
+                                        url : "/finance/crypto_currency/"+Currency,
+                                        type : 'GET',
+                                        dataType: "json",
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider").html( "permission denied" );  
+                                                my_alert("Проблемы в работе с кошельком обратитесь в support@btc-trade.com.ua");       
+                                                $("#provider_depo").val("");
+                                                return  false;
+                                        },      
+                                        success : function(Data){
+                                                   if(Data["account"]){    
+                                                       $("#res_provider").html(
+                                                               '<div class="col-sm-6"><strong>'+ 
+                                                               Data["account"]+ '</strong></div>')
+                                                           
+                                                   }
+                                         }
+                                     });         
+                        
+
+                }                         
+        },
+        change_depo:function(obj){
+                var provider = obj.value;
+                
+                if(provider == "")
+                        return ;
+                
+                var currency = $("#currency_depo").val();
+                var amnt =$("#amnt_depo").val(); 
+                  
+                
+                if(provider == "bank_transfer")
+                       return finance.bank_transfer(obj, amnt, currency )
+                       
+                if(provider == "liqpay_transfer")
+                       return finance.liqpay_transfer(obj, amnt,  currency )                                     
+                if(provider == "p24_transfer")
+                       return finance.p24_transfer(obj, amnt,  currency )       
+                       
+        },
+        p24_start:function(){
+                var currency = $("#currency_depo").val();
+                var amnt = $("#amnt_depo").val(); 
+                
+                if(currency != "UAH"){
+                        $("#provider_depo").val("");
+                        my_alert("Неправильная валюта");       
+                        return false;
+                }
+                if(amnt<100){
+                        $("#provider_depo").val("");
+                        my_alert("Ограничение минимальной суммы пополнения через Приват24, больше 100 ГРН");       
+                        return false;
+                }          
+                
+                var Res = $.ajax({
+                                        url : "/finance/p24/start/"+amnt,
+                                        type : 'GET',
+                                        dataType: "json",
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider").html( "permission denied" );      
+                                                $("#provider_depo").val("");
+                                                return  false;
+                                        },      
+                                        success : function(Data){
+                                                   if(Data["order_id"]){    
+                                                        $("#p24_public_key").val(Data["public_key"]);         
+                                                        $("#p24_order_id").val(Data["order_id"]);         
+                                                        $("#p24_ext_details").val(Data["ext_details"]);         
+                                                        $("#p24_amt").val(Data["amount"]);                                                                 
+                                                        $("#p24_ccy").val(Data["currency"]);         
+                                                        $("#p24_description").val(Data["description"]);         
+                                                        $("#p24_return_url").val(Data["result_url"]);         
+                                                        $("#p24_server_url").val(Data["server_url"]);         
+                                                        $("#p24_type").val(Data["type"]);         
+                                                        $("#p24_signature").val(Data["signature"]);         
+                                                        finance.p24_flag = true;
+                                                        $("#pay_p24_form").submit();                                            
+                                                   }
+                                         }
+                                     });        
+                
+                
+        },
+        liqpay_start:function(){
+                var currency = $("#currency_depo").val();
+                var amnt = $("#amnt_depo").val(); 
+                
+                if(currency != "UAH"){
+                        $("#provider_depo").val("");
+                        my_alert("Неправильная валюта");       
+                        return false;
+                }
+                if(amnt<100){
+                        $("#provider_depo").val("");
+                        my_alert("Ограничение минимальной суммы пополнения через liqpay, больше 100 ГРН");       
+                        return false;
+                }          
+                
+                var Res = $.ajax({
+                                        url : "/finance/liqpay/start/"+amnt,
+                                        type : 'GET',
+                                        dataType: "json",
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider").html( "permission denied" );      
+                                                $("#provider_depo").val("");
+                                                return  false;
+                                        },      
+                                        success : function(Data){
+                                                   if(Data["order_id"]){    
+                                                        $("#liqpay_public_key").val(Data["public_key"]);         
+                                                        $("#liqpay_order_id").val(Data["order_id"]);         
+                                                        $("#liqpay_amount").val(Data["amount"]);         
+                                                        $("#liqpay_currency").val(Data["currency"]);         
+                                                        $("#liqpay_description").val(Data["description"]);         
+                                                        $("#liqpay_result_url").val(Data["result_url"]);         
+                                                        $("#liqpay_server_url").val(Data["server_url"]);         
+                                                        $("#liqpay_type").val(Data["type"]);         
+                                                        $("#liqpay_signature").val(Data["signature"]);         
+                                                        $("#liqpay_language").val(Data["language"]);         
+                                                        $("#liqpay_sandbox").val("1");                                                                
+
+                                                        finance.liqpay_flag = true;
+                                                        $("#pay_liqpay_form").submit();                                            
+                                                   }
+                                         }
+                                     });               
+                
+        },
+        p24_transfer: function(obj, Amnt, Currency){
+                if(Currency != "UAH"){
+                        obj.value = "";
+                        my_alert("Неправильная валюта");       
+                        return false;
+                }
+                if(Amnt<100){
+                        obj.value = "";
+                        my_alert("Ограничение минимальной суммы пополнения через Приват24, больше 100 ГРН");       
+                        return false;
+                }          
+                var Res = $.ajax({
+                                        url : "/finance/p24/deposit/"+Amnt,
+                                        type : 'GET',
+                                        cache: false,
+                                        error: function(data){
+                                                $("#res_provider").html( "permission denied" );      
+                                                obj.value = "";
+                                        },      
+                                        success : function(Data){
+                                                   var comission = "<p class=\"help-block\">Комиссия за пополнение составляет 2% с карты ПриватБанка, 2% + 10 грн с карт других банков</p>";
+                                                    $("#res_provider").html( comission + Data );                                                  
+                                                    $("#pay_p24_form").bind( "submit", function() {
+                                                         return finance.p24_flag;
+                                                         //strange but not work without it
+                                                    });
+                                                   $("#p24_submit_button").bind( "click", finance.p24_start);
+                                                   
+                                         }
+                                     });   
+                
+        },
+        liqpay_transfer: function(obj, Amnt, Currency){
+                if(Currency != "UAH"){
+                        obj.value = "";
+                        my_alert("Неправильная валюта");       
+                        return false;
+                }
+                if(Amnt<100){
+                        obj.value = "";
+                        my_alert("Ограничение минимальной суммы пополнения через liqpay, больше 100 ГРН");       
+                        return false;
+                }          
+                var Res = $.ajax({
+                                        url : "/finance/liqpay/deposit/"+Amnt,
+                                        type : 'GET',
+                                        cache: false,
+                                        error: function(data){
+                                                $("#res_provider").html( "permission denied" );      
+                                                obj.value = "";
+                                        },      
+                                        success : function(Data){
+                                                   var comission = "<p class=\"help-block\">Комиссия за пополнение составляет 2.75% с карт Visa, MasterCard</p>";
+                                                   comission += "<p class=\"help-block\">1% наличными в терминалах ПриватБанка</p>"
+                                                   $("#res_provider").html( comission + Data );                                                  
+                                                    $("#pay_liqpay_form").bind( "submit", function() {
+                                                         return finance.liqpay_flag;
+                                                         //strange but not work without it
+                                                    });
+                                                   $("#liqpay_submit_button").bind( "click", finance.liqpay_start);
+                                                   
+                                         }
+                                     });               
+                
+        },
+        confirm_operation:function(){
+                     var KeyType =   $("#key_type").val();
+                     var Key =   $("#key").val();
+                     var Pin =  $("#id_pin").val();
+                     var params={ "key_type": KeyType, "pin": Pin};
+                      $.ajax({
+                                                url : "/finance/common_secure_confirm?key="+Key,
+                                                type : 'POST', 
+                                                data: params,
+                                                error : function(Data){
+                                                        my_alert("Авторизация не прошла");
+                                                        
+                                                },
+                                                success : function(Data){
+                                                         $("#home").html((Data));
+                                                }
+                             });  
+                
+                
+        },
+        confirm_g2a_operation:function(Session){
+                     var KeyType =   $("#key_type").val()
+                     var Key =   $("#key").val()
+                     var params={"key_type": KeyType,"g2a_session": Session};
+                      $.ajax({
+                                                url : "/finance/common_secure_confirm?key="+Key,
+                                                type : 'POST', 
+                                                data: params,
+                                                error : function(Data){
+                                                        my_alert("Авторизация не прошла");
+                                                        
+                                                },
+                                                success : function(Data){
+                                                         $("#home").html((Data));
+                                                }
+                                        });  
+                
+                
+        },
+        bank_transfer: function(obj, Amnt, Currency){
+                if(Currency != "UAH"){
+                        obj.value = "";
+                        my_alert("Неправильная валюта");       
+                        return ;
+                }
+                if(Amnt<100){
+                        obj.value = "";
+                        my_alert("Ограничение минимальной суммы пополнения через банковские переводы, больше 100 ГРН");       
+                        return ;
+                }          
+                var Res = $.ajax({
+                                        url : "/finance/bank_transfer/UAH/" + Amnt,
+                                        type : 'GET',
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider").html( "permission denied" );      
+                                                obj.value = "";
+                                        },      
+                                        success : function(Data){
+                                                   $("#res_provider").html( Data );                                             
+                                         }
+                                     });
+                
+                
+                
+        },        
+        withdraw:function(Currency){
+                $("#deposit_form").css({"display":"none"});
+                window.scrollTo(0, 0);
+                $("#res_provider_withdraw").html( "" );
+                $("#currency_withdraw").val(Currency);
+                $("#withdraw_form").slideDown("slow");
+                finance.withdraw_providers(Currency);                
+        },
+        withdraw_providers: function(Currency){
+                $("#provider_withdraw").html("");                
+                if(Currency == "UAH"){
+                        
+                        $("#provider_withdraw").show();
+                        $("#label_provider_withdraw").show();
+                        
+                        $("#provider_withdraw").append( $('<option value="">Выбрать</option>') );
+                  //      $("#provider_withdraw").append( $('<option value="bank_transfer">Банковский перевод</option>') );
+                        //$("#provider_withdraw").append( $('<option value="liqpay_transfer">На счет LiqPay</option>') );    
+                        $("#provider_withdraw").append( $('<option value="card_transfer">На платежную карту (Visa,MasterCard)</option>') );    
+
+                }
+                if(finance.crypto_currency[Currency]){
+                     
+                        $("#provider_withdraw").hide();
+                        $("#label_provider_withdraw").hide();
+                        var Res = $.ajax({
+                                        url : "/finance/crypto_transfer_withdraw/"+Currency,
+                                        type : 'GET',
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider_withdraw").html( data );      
+                                                
+                                        },      
+                                        success : function(Data){
+                                                
+                                                   $("#res_provider_withdraw").html( Data ); 
+//                                                    console.log(Login.use_f2a);
+//                                                    if(!Login.use_f2a){
+//                                                         $("#ajax_form").submit(function(event){
+//                                                                 console.log("submit form " + $("#ajax_form_g2a_session" ).val());
+//                                                                 if(  $("#ajax_form_g2a_session" ).val() ) {
+//                                                                       return;
+//                                                                 }
+//                                                                 var turning_off_ga2 = function(ga2_Session){
+//                                                                               var newdiv1 = $("<input type='hidden' id='ajax_form_g2a_session' value='"+ga2_Session+"' name='g2a_session' />");
+//                                                                               $("#ajax_form").prepend( newdiv1 );
+//                                                                               $("#ajax_form").submit();
+//                                                                 };
+//                                                                 event.preventDefault();
+//                                                                 
+//                                                                 Login.start_f2a_for_custom(turning_off_ga2);
+//                                                         });
+                                                        
+                          
+                                                 
+//                                                   Pins.attach2pin("id_pin", "container_pin");
+//                                                     }
+                                                   
+                                        }
+                                     });
+                        
+                        
+                        
+                        
+                }
+                
+                
+        },
+        change_withdraw:function(obj){
+                var provider = obj.value;
+                if(provider == "")
+                        return ;
+                
+                var currency = $("#currency_withdraw").val();                  
+                if(provider == "bank_transfer")
+                       return finance.bank_transfer_withdraw(obj,  currency )
+                       
+                if(provider == "liqpay_transfer")
+                       return finance.liqpay_transfer_withdraw(obj,   currency )     
+                
+                if(provider == "card_transfer")
+                       return finance.p2p_transfer_withdraw(obj,   currency )     
+                       
+                       
+                       
+                       
+                
+                
+        },
+        p2p_transfer_withdraw:function(obj,  Currency){
+                if(Currency != "UAH"){
+                        obj.value = "";
+                        my_alert("Неправильная валюта");       
+                        return ;
+                }
+                var Amnt = 100;       
+                var Res = $.ajax({
+                                        url : "/finance/p2p_transfer_withdraw/"+Currency+"/" + Amnt,
+                                        type : 'GET',
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider_withdraw").html( data );      
+                                                obj.value = "";
+                                        },      
+                                        success : function(Data){
+                                                   $("#res_provider_withdraw").html( Data ); 
+
+                                         }
+                                     });
+                
+                
+        },
+        bank_transfer_withdraw:function(obj,  Currency){
+                if(Currency != "UAH"){
+                        obj.value = "";
+                        my_alert("Неправильная валюта");       
+                        return ;
+                }
+                var Amnt =10;       
+                var Res = $.ajax({
+                                        url : "/finance/bank_transfer_withdraw/"+Currency+"/" + Amnt,
+                                        type : 'GET',
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider_withdraw").html( data );      
+                                                obj.value = "";
+                                        },      
+                                        success : function(Data){
+                                                   $("#res_provider_withdraw").html( Data ); 
+
+                                         }
+                                     });
+                
+                
+        },
+        liqpay_transfer_withdraw:function(obj, Currency){
+                if(Currency != "UAH"){
+                        obj.value = "";
+                        my_alert("Неправильная валюта");       
+                        return ;
+                }
+                var Amnt = 10;
+                var Res = $.ajax({
+                                        url : "/finance/liqpay_transfer_withdraw/"+Currency+"/" + Amnt,
+                                        type : 'GET',
+                                        cache: false,
+                                        error: function (data) {
+                                                $("#res_provider_withdraw").html( data );      
+                                                obj.value = "";
+                                        },      
+                                        success : function(Data){
+                                                   $("#res_provider_withdraw").html( Data ); 
+
+                                         }
+                                     });
+                
+        }     
+             
+};
 
 
 var Main = {
-        trade_pair:null,
+        trade_pair:"",
         currency_base:"",
         currency_on:"",
         usd_uah_rate: null,
@@ -13,86 +540,13 @@ var Main = {
         timer_sell_list: null,
         timer_buy_list: null,
         comission:0.0005, //0.1 percent
-	emoney1:null,
-	emoney2:null,
-        start_last_price: function(){
-                Main.last_price(function(){
-                                setTimeout(Main.start_last_price, 5000)}
-                                );
-        
-        },
-        start_stock_stat:function(){
-               Main.stock_stat(function(){
-                               setTimeout(Main.start_stock_stat, 25000)}
-               );
-                
-        },
-        
-	
-
-	setup_emoney_change: function(){
-                var Emoney  = finance.emoney;
-                var trade = $("#emoney_trade");
-                for(var i in  Emoney){
-
-                        var title = Emoney[i];
-			var cl='';
-			if(i==Main.currency_on) 
-				cl='class="success"';
-			var cl1='';
-			if(i==Main.currency_base) 
-				cl1='class="success"';
-			
-                        trade.append("<tr><td "+cl+" onclick='Main.setup_emoney1(this)' data-id='"+i+"'>"+title+"</td><td "+cl1+" onclick='Main.setup_emoney2(this)' data-id='"+i+"'>"+title+"</td></tr>")
-                }
-		trade.append("<tr><td colspan='2'> <span onclick='Main.go2stock()' class='btn btn-success pull-right '>Go to Stock</span></td></tr>")	
-
-
-
-
-        },
-        setup_emoney1: function(obj){
-		var emoney=$(obj).data("id");
-		if(emoney == Main.emoney2)
-			return		
-		
-		Main.emoney1=emoney;
-		$("#emoney_trade tr>td:nth-child(1)").removeClass("info");
-		$(obj).addClass("info");
-
-	},
-        setup_emoney2: function(obj){	
-		var emoney=$(obj).data("id");
-		if(emoney == Main.emoney1)
-			return		
-		Main.emoney2=emoney;
-		$("#emoney_trade tr>td:nth-child(2)").removeClass("info");
-		$(obj).addClass("info");
-		
-        },
-	go2stock: function(){
-	   if(Main.emoney1==null) {
-		alert("Please choose the currency of trade");
-		return;		
-	  }
-
-	   if(Main.emoney2==null){
-		alert("Please choose the currency to change to");
-	        return;
-	   }
-		
-	
-	   window.location.href="/stock/"+Main.emoney1+"_"+Main.emoney2;
-
-	},
         start_stock: function(){
-	       Main.setup_emoney_change();
                Main.start_deals_timer();
                Main.start_my_orders();
                Main.start_sell_list();
                Main.start_buy_list();
                Main.start_user_menu();
-               //Main.start_market_prices();
+               Main.start_market_prices();
                
                if(Main.currency_base == "UAH"){
                         $("#buy_result_usd_eq").show();
@@ -106,12 +560,6 @@ var Main = {
                Main.draw_highcharts();
                
                 
-        },
-        show_all_trade:function(){
-                $("div.currency_pairs button.btn").removeClass("hidden");
-          
-            
-            
         },
         start_time:function(){
                 Main.server_time(function(){
@@ -140,7 +588,7 @@ var Main = {
                               cache: false,
                               error: function (data) {
                                                 console.log(data);
-                                                callback();
+                        callback();
                               }, 
                               success : function(Data){
                                                 Login.use_f2a = Data["use_f2a"];
@@ -149,67 +597,11 @@ var Main = {
                                                 Main.usd_uah_rate = Data["usd_uah_rate"];
                                                 $("#server_time").html( Data["time"] );
                                                 $("#client_comis").html( Data["deal_comission"] );
-                                                callback();
+                        callback();
                                                 
                                  }          
                               });     
                 
-        },
-        stock_stat: function(callback){
-                  if (!Main.trade_pair){
-                     
-                      Main.trade_pair='btc_usd';
-                      Main.currency_base = "USD";
-                      Main.currency_on = "BTC";
-                                            
-                  }
-                     
-                   $.ajax({
-                              dataType: 'json',
-                              url : "/api/day_stat/" + Main.trade_pair,
-                              type : 'GET', 
-                              cache: false,
-                              error: function (data) {
-                                                console.log(data);
-                                                callback();
-                              }, 
-                              success : function(Data){
-                                          $("#stock_min_price").html(Data["min"]+"&nbsp;"+finance.currency_titles[Main.currency_base]);
-                                          $("#stock_max_price").html(Data["max"] +"&nbsp;"+finance.currency_titles[Main.currency_base]);
-                                          var Volume = Data["volume_trade"]+"&nbsp;" +finance.currency_titles[ Main.currency_on] + "&nbsp;/&nbsp;" + Data["volume_base"] + "&nbsp;" +finance.currency_titles[Main.currency_base];
-                                          $("#stock_volume").html(Volume);
-                                          callback();
-                               }
-                              
-                           });              
-                
-                
-                
-        },
-        last_price: function(callback){
-                  if (!Main.trade_pair){
-                     
-                      Main.trade_pair='btc_usd';
-                      Main.currency_base = "USD";
-                      Main.currency_on = "BTC";
-                                            
-                  }
-                     
-                   $.ajax({
-                              dataType: 'json',
-                              url : "/api/last_price/" + Main.trade_pair,
-                              type : 'GET', 
-                              cache: false,
-                              error: function (data) {
-                                                console.log(data);
-                                                callback();
-                              }, 
-                              success : function(Data){
-                                          $("#stock_last_price").html(Data["price"]+"&nbsp;"+finance.currency_titles[Main.currency_base]);
-                                          callback();
-                              }
-                   });              
-
         },
         own_deals:function(callback){
                 
@@ -234,7 +626,7 @@ var Main = {
                                                      }else{
                                                         NewElement +="<td style='color:red'>" +Data[i]["type"] + "</td>";      
                                                      }
-                                                     NewElement +="<td>" +Data[i]["price"]+ "&nbsp;<strong>" +finance.currency_titles[Main.currency_base] + "</strong></td>";
+                                                     NewElement +="<td>" +Data[i]["price"]+ "&nbsp;<strong>" +Main.currency_base + "</strong></td>";
                                                      NewElement +="<td>" +Data[i]["amnt_base"] + "</td>";
                                                      NewElement +="<td>" +Data[i]["amnt_trade"] + "</td></tr>";                                                    
                                                      $("#trade_deals").append( NewElement );
@@ -410,8 +802,8 @@ var Main = {
                                                              
                                                                 var usd_price =  Main.format_float4(List[i]["price"]/Main.usd_uah_rate);
                                                                 var NewElement = "<tr class='cursor' onclick='Main.order2this_buy(this,"+ List[i]["price"] +","+ List[i]["currency_trade"] +" )'>";                                                        
-                                                                NewElement +="<td>"  + Main.format_float6(List[i]["price"]) +"&nbsp;<strong>"  +finance.currency_titles[Main.currency_base] + "</strong>";
-                                                                NewElement += "&nbsp;</td>";//<small>("+usd_price+"&#36;</small>)
+                                                                NewElement +="<td>"  + Main.format_float6(List[i]["price"]) +"&nbsp;<strong>"  + Main.currency_base + "</strong>";
+                                                                NewElement += "&nbsp;<small>("+usd_price+"&#36;</small>)</td>";
                                                                 NewElement +="<td >" + Main.format_float6(List[i]["currency_trade"]) + "</td>";
                                                                 NewElement +="<td>"  + Main.format_float6(List[i]["currency_base"]) + "</td></tr>";
                                                                 $("#sell_orders_list").append( NewElement );
@@ -496,7 +888,7 @@ var Main = {
 
                                                                 var NewElement = "<tr class='cursor' onclick='Main.order2this_sell(this,"+ List[i]["price"] +","+ List[i]["currency_trade"] +" )'>";                                                        
                                                                 NewElement +="<td>" + Main.format_float6(List[i]["price"]) +"&nbsp;<strong>" 
-                                                                                  +finance.currency_titles[Main.currency_base] + "</td>";//</strong>&nbsp;<small>("+usd_price+"&#36;</small>)
+                                                                                 + Main.currency_base + "</strong>&nbsp;<small>("+usd_price+"&#36;</small>)</td>";
                                                                 NewElement +="<td>" +Main.format_float6( List[i]["currency_trade"]) + "</td>";
                                                                 NewElement +="<td>" +Main.format_float6(List[i]["currency_base"]) + "</td></tr>";
                                                                 $("#buy_orders_list").append( NewElement );
@@ -555,7 +947,7 @@ var Main = {
                                                                 var NewElement = "<tr id=\"my_order_"+List[i]["id"]+"\"><td>"+List[i]["id"]+"</td>";
                                                                 NewElement +="<td>" +List[i]["pub_date"] + "</td>";
                                                                 NewElement +="<td>" +List[i]["type"] + "</td>";
-                                                                NewElement +="<td>" +Main.format_float6(List[i]["price"]) +"&nbsp;<strong>" +finance.currency_titles[Main.currency_base] + "</strong></td>";
+                                                                NewElement +="<td>" +Main.format_float6(List[i]["price"]) +"&nbsp;<strong>" +Main.currency_base + "</strong></td>";
                                                                 NewElement +="<td>" +Main.format_float6(List[i]["amnt_base"]) + "</td>";
                                                                 NewElement +="<td>" +Main.format_float6(List[i]["amnt_trade"]) + "</td>";                                                    
                                                                 NewElement +="<td> <span onclick=\"Main.remove('" + List[i]["id"] 
@@ -617,7 +1009,7 @@ var Main = {
                                                         NewElement +="<td style='color:red'>" +Data[i]["type"] + "</td>";      
                                                      }
                                                      
-                                                     NewElement +="<td>" +Main.format_float4(Data[i]["price"]) +"&nbsp;<strong>" +finance.currency_titles[Main.currency_base ]+ "</strong></td>";
+                                                     NewElement +="<td>" +Main.format_float4(Data[i]["price"]) +"&nbsp;<strong>" +Main.currency_base + "</strong></td>";
                                                      NewElement +="<td>" +Main.format_float4(Data[i]["amnt_base"]) + "</td>";
                                                      NewElement +="<td>" +Main.format_float4(Data[i]["amnt_trade"]) + "</td></tr>";                                                    
                                                      $("#trade_deals").append( NewElement );
@@ -724,7 +1116,7 @@ var Main = {
 
                                         
                                 } 
-//                                 my_alert("Не могу создать ордер, проверьте пожайлуста данный и попробуйте снова");
+                                my_alert("Не могу создать ордер, проверьте пожайлуста данный и попробуйте снова");
 
                                 
                         }
@@ -738,14 +1130,13 @@ var Main = {
                       var Buy_price_id =  "#" + Form +"_price";
                       var result_id =   "#" + Form +"_result";
                       var comission_id =  "#" +  Form +"_comission";
-                      var comission_form = "#" + Form + "_comission_form"; 
                       var Count = $(Buy_count_id).val();
                       var PriceEach = $(Buy_price_id).val();
                       if(Count<Main.min_deal){
                               if( Form =="buy"){
-                                        my_alert("К сожелению сумма сделки меньше минимальной возможной");
+                                        $("#buy_help").html("К сожелению сумма сделки меньше минимальной возможной");
                               }else{
-                                        my_alert("К сожелению сумма сделки меньше минимальной возможной");
+                                        $("#sell_help").html("К сожелению сумма сделки меньше минимальной возможной");
                                       
                               }
                               return
@@ -761,19 +1152,19 @@ var Main = {
                       if( Form =="buy"){
                             var ComissionSumTorg = Count * Main.comission ;                
                             $(comission_id).html( Main.format_float8( ComissionSumTorg ) ) ;     
-                            $(comission_form).show();
-//                             $("#buy_help").html("Вы получаете  " +
-//                                                 Main.format_float8( Count - ComissionSumTorg  ) + " " +
-//                                                 Main.currency_on
-//                                                )
+
+                            $("#buy_help").html("Вы получаете  " +
+                                                Main.format_float8( Count - ComissionSumTorg  ) + " " +
+                                                Main.currency_on
+                                               )
                       }else{
                             var ComissionSumTorg = WholeSum * Main.comission ;                
                             $(comission_id).html( Main.format_float8( ComissionSumTorg ) ) ;     
-                            $(comission_form).show(); 
-//                             $("#sell_help").html("Вы получаете  " +
-//                                                 Main.format_float8(WholeSum - ComissionSumTorg  ) + " " +
-//                                                 Main.currency_base
-//                                                )
+
+                            $("#sell_help").html("Вы получаете  " +
+                                                Main.format_float8(WholeSum - ComissionSumTorg  ) + " " +
+                                                Main.currency_base
+                                               )
                       }
                 
         },
@@ -886,11 +1277,23 @@ var Main = {
                 var Width =  screen.width;
                 
                 var WidthAdapting ={
+                 /*1280: 770,
+                 1600: 972,
+                 1360: 840,  //my resolution
+         1440: 870,                  
+                 1920: 1174,
+                 1680: 1013*/
                 };
                 
                 var working_width = WidthAdapting[Width];
                 console.log("screen with" + Width)
-                working_width = 812 ;//  Width*0.6391;
+        /*if(Width < 700){
+                        
+                        working_width = 580;
+                        
+                }else{
+                        if(!working_width){*/
+                working_width = Width*0.6391;
                 //         }
                 // }
                 $("#chart_trade").css({width:working_width});
@@ -922,7 +1325,7 @@ var Main = {
                 // Add the background image to the container
                 Highcharts.wrap(Highcharts.Chart.prototype, 'getContainer', function (proceed) {
                 proceed.call(this);
-           //     this.container.style.background = 'url(https:///img/sand.png)';
+                this.container.style.background = 'url(https://btc-trade.com.ua/img/sand.png)';
                 });
 
 
@@ -1372,7 +1775,7 @@ function highchart_candle(Data){
         
             
                     title: {
-                        text: ''//'Торги'
+                        text: 'Торги'
                     },
 
                     yAxis: [{

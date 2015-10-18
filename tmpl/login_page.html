@@ -3,11 +3,12 @@
 {% load my_formats %}
 
 {% block content %}
+<div class="container-fluid main">
 
    <!-- Jumbotron -->
       
-                <h2>Авторизация {{project_name}}  </h2>
-                <div class="col-md-8 form-horizontal padding20 border_radius" >
+                <h2>Авторизация BTC TRADE UA  &mdash; украинская биржа bitcoin-торговли </h2>
+                <div class="col-md-4 form-horizontal padding20 border_radius" >
                 <input type="hidden" value="{{post_url}}"    id="post_url" >
                 
                 <p></p>            
@@ -26,9 +27,22 @@
                 </div>
 
         
+        
 
+      <!-- Example row of columns -->
+
+ 
+<!--           deals -->
+     
+<!--                 deals -->
+  
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    {% include "scripts.html"%}
    
     
+</div>
 
 {% include "g2a_modal_dlg.html"%}
 

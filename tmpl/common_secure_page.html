@@ -10,9 +10,9 @@
         <div class="col-md-9 main">
           <h1 class="page-header"> Подтверждение операции: </h1>
 <!--           deals -->
-                <div class="col-md-8 deals border_radius padding20 registration" >
+                <div class="col-md-7 deals border_radius padding20 registration" >
 		
-                        <div class="col-md-9" id="home">
+                        <div class="col-md-8" id="home">
                                 <input id="key" type="hidden"  value="{{key}}"/>
                                 <input id="key_type" type="hidden"  value="{{type}}" />
 
@@ -46,13 +46,8 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
+  {% include "scripts.html"%}
    
-{%endblock%}
-
-
-{% block scripts %}
-
-
   {% if pin_load %}
    <script>
           Pins.attach2pin("id_pin", "container_pin");
@@ -77,5 +72,4 @@
   {% endif %} 
 
 
-{% endblock %}
-
+{%endblock%}

@@ -2,72 +2,12 @@
 
 {% load my_formats %}
 
-
-{% block side_menu %}
-   <div class="sidebar_cabinet_block">
-                        <div class="content_block_header">
-                            <h1>Личный кабинет</h1>
-                        </div>
-                            <div class="sidebar_cabinet_options">
-                                <table class="table table-striped"> <!--НУЖНО сделать подсветку активного пункта яваскриптом --> 
-                                  <tbody>
-                                    <tr>
-                                        <td>
-                                            <a href="/finance">Финансы</a>                 
-  
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a href="/profile/{{username}}">Профиль</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a href="/finance/trans">Транзакции</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a href="/finance/deals/btc_uah">Сделки</a>
-                                        </td>
-                                    </tr>                                                                                                                          
-                                    <tr>
-                                        <td>
-                                        <a href="/finance/open_orders/btc_uah">Ваши заявки</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a id="menu_msgs" href="/msgs">Сообщения <strong id="msg_count">({{new_msg_count}})</strong> </a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                       <a href="/finance/depmotion">Ввод/Вывод средств</a>
-                                        </td>
-                                    </tr>
-                                 <!--   <tr>
-                                        <td>
-                                        История ордеров
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        API ключи
-                                        </td>
-                                    </tr>   -->                                                                                                                       
-                                                                                                                                                                   
-                                  </tbody>
-                                </table>
-                            </div> 
-                    </div>
-{% endblock %}
 {% block content %}
   <div class="container-fluid">
       <div class="row">
-                <div class="col-md-9 main" style="min-height:800px">
+                <div class="col-md-9 main" style="min-height:1399px">
                 
+                      {% include "side_menu_finance.html" %}
                        <div class="col-md-9 ">
                                 <h1 class="page-header">Финансы:</h1>
                        </div>
@@ -87,13 +27,13 @@
                         
                                         {% for account in page_accounts %}
                                                 <tr>
-                                                        <td><strong>{{account.currency.long_title}}</strong></td>
+                                                        <td><strong>{{account.currency}}</strong></td>
                                                         <td>{{account.balance}}&nbsp;<br/> {%if account.on_orders %} ( + на заявках: <strong>{{ account.on_orders }}</strong> ) {% endif %} </td>
                                                         <td>
                                                         <button class="btn btn-success pull-right" 
-                                                                onclick="finance.make_deposit('{{account.currency.title}}', '{{account.currency.long_title}}')">Пополнить</button>
+                                                                onclick="finance.make_deposit('{{account.currency}}')">Пополнить</button>
                                                         <button class="btn pull-right" 
-                                                                onclick="finance.withdraw('{{account.currency.title}}', '{{account.currency.long_title}}')">Вывести</button>                        
+                                                                onclick="finance.withdraw('{{account.currency}}')">Вывести</button>                        
                                                         </td> 
                                                 </tr>
                                         {% endfor %}
@@ -106,6 +46,7 @@
        </div>
     
   
+    {% include "scripts.html"%}
     {% include "custom_action_f2a.html" %}
 
         

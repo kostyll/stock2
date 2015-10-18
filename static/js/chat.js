@@ -1,6 +1,6 @@
 var Chat  = {
 //      host: "https://btc-trade.com.ua/chat",
-     host_ws: "wss://bitmoney.trade/chat",
+     host_ws: "wss://btc-trade.com.ua/chat",
      id: "",
      container:"",
      session:"",

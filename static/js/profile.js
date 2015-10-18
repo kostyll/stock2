@@ -1,4 +1,4 @@
-var server_name = "bitcoin trade company";
+
 var profile  = {
         user_setting:function(type, obj){
                  var value = "";
@@ -15,7 +15,7 @@ var profile  = {
                                                 },
                                                 success : function(Data){
                                                         if(!Data["status"]){
-                                                                my_alert("Что-то пошло не так, сообщите на support@"+server_name);
+                                                                my_alert("Что-то пошло не так, сообщите на support@btc-trade.com.ua  ");
                                                                 obj.checked = false;
                                                         }else{
                                                                 obj.checked = true;
@@ -38,7 +38,7 @@ var profile  = {
                                                 },
                                                 success : function(Data){
                                                         if(!Data["status"]){
-                                                                my_alert("Что-то пошло не так, сообщите на support@"+server_name);
+                                                                my_alert("Что-то пошло не так, сообщите на support@btc-trade.com.ua  ");
                                                                 obj.checked = true;
                                                         }else{
                                                                 obj.checked = false;
@@ -87,7 +87,7 @@ var profile  = {
                         type : 'GET', 
                         dataType:'json',                        
                         error: function (data) {
-                               my_alert("Что-то пошло не так, сообщите на support@"+server_name);
+                               my_alert("Что-то пошло не так, сообщите на support@btc-trade.com.ua  ");
                                obj.checked = false;
                         }, 
                         success : function(Data){
@@ -136,11 +136,11 @@ var profile  = {
         reset_passwd:function(){
                  
                  $.ajax({
-                        url : "/forgot_action",
+                        url : "/profile/reset",
                         type : 'GET', 
                         dataType:'json',                        
                         error: function (data) {
-                               my_alert("Что-то пошло не так, сообщите на support@"+server_name);
+                               my_alert("Что-то пошло не так, сообщите на support@btc-trade.com.ua  ");
                         }, 
                         success : function(Data){
                                 if(Data["status"]){

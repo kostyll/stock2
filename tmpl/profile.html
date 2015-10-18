@@ -6,6 +6,7 @@
   <div class="container-fluid">
       <div class="row">
         <div class="col-md-9 main">
+                {% include "side_menu_finance.html" %}
    
         
                 <div class="col-md-9">
@@ -23,10 +24,10 @@
                                                         <td>Класс торговца:</td>
                                                         <td>{{ class_value }}</td>
                                                 </tr>
-<!--                                                <tr>
+                                                <tr>
                                                         <td>Идентифицирован:</td>
                                                         <td>{{ identity_value }}</td>
-                                               </tr>-->
+                                               </tr>
                                                 
                                                 <tr>
                                                         <td>Дата регистрации</td>
@@ -47,6 +48,13 @@
                                                                  
                                                                 </td>
                                                         </tr>
+                                                        
+                                                        <tr>
+                                                                <td>Пароль:</td>
+                                                                <td>
+                                                                <span class="btn btn-default" onclick="profile.reset_passwd()"  > Сбросить пароль </span>
+                                                                </td>
+                                                        </tr>
                                                         <tr>
                                                                 <td>PIN:</td>
                                                                 <td>
@@ -57,16 +65,16 @@
                                                                 </td>
                                                         </tr>
                                                         <tr>
-                                                                <td>Ссылки:</td>
+                                                                <td>Партнерские ссылки:</td>
                                                                 <td>
-                                                                 Страница регистрации:&nbsp;<a href="{{STATIC_SERVER}}registration/{{ partners_value }}">
-                                                                       {{STATIC_SERVER}}registration/{{ partners_value }}</a><br/>
-                                                                 Страница торгов BTC/UAH:&nbsp;<a href="{{STATIC_SERVER}}stock/btc_uah?ref={{ partners_value }}">
-                                                                       {{STATIC_SERVER}}stock/btc_uah?ref={{ partners_value }}</a><br/>
-                                                                 Страница тарифов:&nbsp;<a href="{{STATIC_SERVER}}page/fees?ref={{ partners_value }}">
-                                                                       {{STATIC_SERVER}}page/fees?ref={{ partners_value }}</a><br/>
-                                                                 Страница главная:&nbsp;<a href="{{STATIC_SERVER}}index.html?ref={{ partners_value }}">
-                                                                       {{STATIC_SERVER}}index.html?ref={{ partners_value }}</a><br/> 
+                                                                 Страница регистрации:&nbsp;<a href="https://btc-trade.com.ua/registration/{{ partners_value }}">
+                                                                       https://btc-trade.com.ua/registration/{{ partners_value }}</a><br/>
+                                                                 Страница торгов BTC/UAH:&nbsp;<a href="https://btc-trade.com.ua/stock/btc_uah?ref={{ partners_value }}">
+                                                                       https://btc-trade.com.ua/stock/btc_uah?ref={{ partners_value }}</a><br/>
+                                                                 Страница тарифов:&nbsp;<a href="https://btc-trade.com.ua/page/fees?ref={{ partners_value }}">
+                                                                       https://btc-trade.com.ua/page/fees?ref={{ partners_value }}</a><br/>
+                                                                 Страница главная:&nbsp;<a href="https://btc-trade.com.ua/index.html?ref={{ partners_value }}">
+                                                                       https://btc-trade.com.ua/index.html?ref={{ partners_value }}</a><br/> 
                                                                  
                                                                 </td>
                                                         </tr>
@@ -156,6 +164,7 @@
                                 
                 </div>          
        </div>
+       {% include "scripts.html"%}
        {% include "g2a.html"%}
        
        {% include "custom_action_f2a.html" %}
@@ -164,64 +173,3 @@
     </div>
   </div> 
 {%endblock%}
-
-{% block side_menu %}
-   <div class="sidebar_cabinet_block">
-                        <div class="content_block_header">
-                            <h1>Личный кабинет</h1>
-                        </div>
-                            <div class="sidebar_cabinet_options">
-                                <table class="table table-striped"> <!--НУЖНО сделать подсветку активного пункта яваскриптом --> 
-                                  <tbody>
-                                    <tr>
-                                        <td>
-                                            <a href="/finance">Финансы</a>                 
-  
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a href="/profile/{{username}}">Профиль</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a href="/finance/trans">Транзакции</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a href="/finance/deals/btc_uah">Сделки</a>
-                                        </td>
-                                    </tr>                                                                                                                          
-                                    <tr>
-                                        <td>
-                                        <a href="/finance/open_orders/btc_uah">Ваши заявки</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a id="menu_msgs" href="/msgs">Сообщения <strong id="msg_count">({{new_msg_count}})</strong> </a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                       <a href="/finance/depmotion">Ввод/Вывод средств</a>
-                                        </td>
-                                    </tr>
-                                 <!--   <tr>
-                                        <td>
-                                        История ордеров
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        API ключи
-                                        </td>
-                                    </tr>   -->                                                                                                                       
-                                                                                                                                                                   
-                                  </tbody>
-                                </table>
-                            </div> 
-                    </div>
-{% endblock %}

@@ -2,73 +2,11 @@
 
 {% load my_formats %}
 
-
-{% block side_menu %}
-   <div class="sidebar_cabinet_block">
-                        <div class="content_block_header">
-                            <h1>Личный кабинет</h1>
-                        </div>
-                            <div class="sidebar_cabinet_options">
-                                <table class="table table-striped"> <!--НУЖНО сделать подсветку активного пункта яваскриптом --> 
-                                  <tbody>
-                                    <tr>
-                                        <td>
-                                            <a href="/finance">Финансы</a>                 
-  
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a href="/profile/{{username}}">Профиль</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a href="/finance/trans">Транзакции</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a href="/finance/deals/btc_uah">Сделки</a>
-                                        </td>
-                                    </tr>                                                                                                                          
-                                    <tr>
-                                        <td>
-                                        <a href="/finance/open_orders/btc_uah">Ваши заявки</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <a id="menu_msgs" href="/msgs">Сообщения <strong id="msg_count">({{new_msg_count}})</strong> </a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                       <a href="/finance/depmotion">Ввод/Вывод средств</a>
-                                        </td>
-                                    </tr>
-                                 <!--   <tr>
-                                        <td>
-                                        История ордеров
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        API ключи
-                                        </td>
-                                    </tr>   -->                                                                                                                       
-                                                                                                                                                                   
-                                  </tbody>
-                                </table>
-                            </div> 
-                    </div>
-{% endblock %}
-
-
 {% block content %}
   <div class="container-fluid">
       <div class="row">
         <div class="col-md-9 main">
+          {% include "side_menu_finance.html" %}
            <div class="col-md-12">      
                 <h1 class="page-header">Ваши  заявки на покупку/продажу</h1>
           </div>
@@ -102,15 +40,7 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-
-
-
-
-{%endblock%}
-
-{% block scripts %}
-
-
+    {% include "scripts.html"%}
      <script type="text/javascript">
       Main.trade_pair = "{{trade_pair}}";
       Main.currency_base = "{{Currency1}}";
@@ -118,4 +48,7 @@
       setTimeout(Main.my_orders,500);
     </script>
 
-{% endblock %}
+
+
+
+{%endblock%}
