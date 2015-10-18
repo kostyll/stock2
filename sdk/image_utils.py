@@ -13,7 +13,7 @@ from random import randint, choice
 import  random
 import math
 import random
-'1f2bde3ac'
+
 class WigglyBlocks(object):
     """Randomly select and shift blocks of the image"""
     def __init__(self, blockSize=16, sigma=0.01, iterations=300):
