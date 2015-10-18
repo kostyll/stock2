@@ -15,6 +15,9 @@
 		'git submodule sync',
 		'git submodule update',
 		'git submodule status',
+		'sh stop_tornado.sh',
+		'sh start_tornado.sh',
+		'./restart_api.sh'
 		
 	);
 	// Run the commands for output
