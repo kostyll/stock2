@@ -284,13 +284,13 @@ class CommonRequestHandler(tornado.web.RequestHandler, ThreadableMixin):
 
     @tornado.web.asynchronous
     def get(self):
-        self.my_request = HttpRequest(request=self, name=self.url_name)
+        self.my_request = HttpRequest(request=self.request, name=self.url_name)
         self.start_worker()
 
     @tornado.web.asynchronous
     def post(self):
         # may context doesn't need all params that we have, and there is some sense to change it to specific object
-        self.my_request = HttpRequest(request=self, name=self.url_name)
+        self.my_request = HttpRequest(request=self.request, name=self.url_name)
         self.start_worker()
 
 
@@ -311,7 +311,7 @@ class CommonRequestHandlerOneParamNonThread(tornado.web.RequestHandler):
     def post(self, param1):
         # may context doesn't need all params that we have, and there is some sense to change it to specific object
         self.param1 = param1
-        self.my_request = HttpRequest(request=self, name=self.url_name)
+        self.my_request = HttpRequest(request=self.request, name=self.url_name)
         self._worker()
         self.render_http_response()
 
@@ -320,7 +320,7 @@ class CommonRequestHandlerOneParamNonThread(tornado.web.RequestHandler):
     def get(self, param1):
         # may context doesn't need all params that we have, and there is some sense to change it to specific object
         self.param1 = param1
-        self.my_request = HttpRequest(request=self, name=self.url_name)
+        self.my_request = HttpRequest(request=self.request, name=self.url_name)
         self._worker()
         self.render_http_response()
         # render response to the client
@@ -357,14 +357,14 @@ class CommonRequestHandlerOneParam(tornado.web.RequestHandler, ThreadableMixin):
     def post(self, param1):
         # may context doesn't need all params that we have, and there is some sense to change it to specific object
         self.param1 = param1
-        self.my_request = HttpRequest(request=self, name=self.url_name)
+        self.my_request = HttpRequest(request=self.request, name=self.url_name)
         self.start_worker()
 
     @tornado.web.asynchronous
     def get(self, param1):
         # may context doesn't need all params that we have, and there is some sense to change it to specific object
         self.param1 = param1
-        self.my_request = HttpRequest(request=self, name=self.url_name)
+        self.my_request = HttpRequest(request=self.request, name=self.url_name)
         self.start_worker()
 
 
@@ -376,12 +376,12 @@ class CommonRequestHandlerTwoParam(CommonRequestHandler):
 
     def post(self, param1, param2):
         # may context doesn't need all params that we have, and there is some sense to change it to specific object
-        response = self.callable(HttpRequest(request=self, name=self.url_name), param1, param2)
+        response = self.callable(HttpRequest(request=self.request, name=self.url_name), param1, param2)
         self.render_http_response(response)
 
     def get(self, param1, param2):
         # may context doesn't need all params that we have, and there is some sense to change it to specific object
-        response = self.callable(HttpRequest(request=self, name=self.url_name), param1, param2)
+        response = self.callable(HttpRequest(request=self.request, name=self.url_name), param1, param2)
         self.render_http_response(response)
 
 
