@@ -126,10 +126,7 @@ def cache_control(Req):
 def my_async(func2decorate):
     def wrapper(*args, **kwards):
         callable_object = lambda: func2decorate(*args, **kwards)
-        main_object = TornadoServer.get_instance()
-        request = WorkRequest(callable_object)
-        main_object.pool.putRequest(request)
-
+        threading.Thread(target=callable_object).start()
         return True
 
     return wrapper
