@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="805faed2-dc7b-4608-a513-72dadb357eff" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tmpl/deals.html" afterPath="$PROJECT_DIR$/tmpl/deals.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tmpl/header.html" afterPath="$PROJECT_DIR$/tmpl/header.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tmpl/index.html" afterPath="$PROJECT_DIR$/tmpl/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tmpl/my_open_orders.html" afterPath="$PROJECT_DIR$/tmpl/my_open_orders.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="stock2.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -39,10 +36,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="header.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="header.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tmpl/header.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.35940802" vertical-offset="0" max-vertical-offset="1615">
+            <state vertical-scroll-proportion="-6.5384617" vertical-offset="0" max-vertical-offset="1615">
               <caret line="13" column="12" selection-start-line="13" selection-start-column="12" selection-end-line="13" selection-end-column="12" />
               <folding />
             </state>
@@ -131,16 +128,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="profile.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tmpl/profile.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="54.384617" vertical-offset="2604" max-vertical-offset="3077">
-              <caret line="70" column="71" selection-start-line="70" selection-start-column="71" selection-end-line="70" selection-end-column="71" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="p2p_transfer_req.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tmpl/p2p_transfer_req.html">
           <provider selected="true" editor-type-id="text-editor">
@@ -174,8 +161,18 @@
       <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="9564" max-vertical-offset="10149">
-              <caret line="608" column="4" selection-start-line="608" selection-start-column="0" selection-end-line="609" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="9513" max-vertical-offset="10149">
+              <caret line="583" column="1" selection-start-line="583" selection-start-column="1" selection-end-line="586" selection-end-column="42" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.10759494" vertical-offset="0" max-vertical-offset="474">
+              <caret line="3" column="5" selection-start-line="3" selection-start-column="5" selection-end-line="3" selection-end-column="5" />
               <folding />
             </state>
           </provider>
@@ -217,7 +214,7 @@
         <entry file="file://$PROJECT_DIR$/crypton/urls.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4607">
-              <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+              <caret line="13" column="42" selection-start-line="13" selection-start-column="37" selection-end-line="13" selection-end-column="42" />
               <folding />
             </state>
           </provider>
@@ -256,7 +253,6 @@
         <option value="$PROJECT_DIR$/static/js/main.js" />
         <option value="$PROJECT_DIR$/tmpl/home2.html" />
         <option value="$PROJECT_DIR$/tmpl/side_menu.html" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/tmpl/scripts.html" />
         <option value="$PROJECT_DIR$/tmpl/style.html" />
         <option value="$PROJECT_DIR$/tmpl/base_main.html" />
@@ -271,6 +267,7 @@
         <option value="$PROJECT_DIR$/tmpl/index.html" />
         <option value="$PROJECT_DIR$/tmpl/my_open_orders.html" />
         <option value="$PROJECT_DIR$/tmpl/header.html" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -330,20 +327,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="tmpl" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="stock2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="stock2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="crypton" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -735,14 +718,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.04" vertical-offset="0" max-vertical-offset="153">
-          <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tmpl/cabinet.html">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-8.5" vertical-offset="1836" max-vertical-offset="3672">
@@ -795,22 +770,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-61.46154" vertical-offset="0" max-vertical-offset="3128">
           <caret line="94" column="39" selection-start-line="94" selection-start-column="39" selection-end-line="94" selection-end-column="39" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tmpl/orders.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="3.9230769" vertical-offset="408" max-vertical-offset="935">
-          <caret line="18" column="39" selection-start-line="6" selection-start-column="16" selection-end-line="18" selection-end-column="39" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tmpl/profile.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="54.384617" vertical-offset="2604" max-vertical-offset="3077">
-          <caret line="70" column="71" selection-start-line="70" selection-start-column="71" selection-end-line="70" selection-end-column="71" />
           <folding />
         </state>
       </provider>
@@ -879,22 +838,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/crypton/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4607">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="9564" max-vertical-offset="10149">
-          <caret line="608" column="4" selection-start-line="608" selection-start-column="0" selection-end-line="609" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tmpl/home2.html">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="16.961538" vertical-offset="4487" max-vertical-offset="4947">
@@ -949,8 +892,48 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tmpl/header.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.35940802" vertical-offset="0" max-vertical-offset="1615">
+        <state vertical-scroll-proportion="-6.5384617" vertical-offset="0" max-vertical-offset="1615">
           <caret line="13" column="12" selection-start-line="13" selection-start-column="12" selection-end-line="13" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmpl/profile.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.9894292" vertical-offset="2604" max-vertical-offset="3077">
+          <caret line="70" column="71" selection-start-line="70" selection-start-column="71" selection-end-line="70" selection-end-column="71" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmpl/orders.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="3.9230769" vertical-offset="408" max-vertical-offset="935">
+          <caret line="18" column="39" selection-start-line="6" selection-start-column="16" selection-end-line="18" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/crypton/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4607">
+          <caret line="13" column="42" selection-start-line="13" selection-start-column="37" selection-end-line="13" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="9513" max-vertical-offset="10149">
+          <caret line="583" column="1" selection-start-line="583" selection-start-column="1" selection-end-line="586" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.10759494" vertical-offset="0" max-vertical-offset="474">
+          <caret line="3" column="5" selection-start-line="3" selection-start-column="5" selection-end-line="3" selection-end-column="5" />
           <folding />
         </state>
       </provider>
