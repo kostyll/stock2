@@ -27,9 +27,6 @@ import time
 from datetime import timedelta
 from main.my_cache_key import my_lock, my_release, LockBusyException, check_freq
 
-
-
-                
 def get_account(user, currency):
        return Accounts.objects.get(user_id = user, currency_id = currency)
 
@@ -42,7 +39,7 @@ def create_order(User, Amnt1, Amnt2, Currency1, Currency2, TradePair, Status = "
               transit2 = TradePair.transit_on
               transit1 = TradePair.transit_from  
         
-        
+
         order = Orders(user=User,
                        currency1=Currency1,
                        currency2=Currency2,
@@ -60,7 +57,7 @@ def create_order(User, Amnt1, Amnt2, Currency1, Currency2, TradePair, Status = "
                          
 def deposit_funds(Order):        
         return _("Deposit funds  %(sum)s %(currency)s according with order #%(order_id)i " % {
-                                                                              'sum' :     Order.sum1_history,
+                                                                              'sum':     Order.sum1_history,
                                                                               'currency': Order.currency1.title, 
                                                                               'order_id': Order.id } )
 

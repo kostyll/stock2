@@ -62,8 +62,6 @@ def check_btc_balance():
               s = Decimal("0.0")
         else:
            (s, ) = s
-	
-
         cursor.execute("SELECT sum(amnt) FROM main_cryptotransfers WHERE status in ('processing') AND currency_id=2 AND pub_date>='2015-05-08' " );
 
         s1 = cursor.fetchone()*1

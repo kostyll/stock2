@@ -15,6 +15,7 @@
 		'git submodule sync',
 		'git submodule update',
 		'git submodule status',
+		'python ./manage.py syncdb',
 		'sh stop_tornado.sh',
 		'sh start_tornado.sh',
 		'./restart_api.sh'

@@ -7,8 +7,10 @@ from crypton import settings
 from crypton import my_messages
 import main.msgs
 
-from main.http_common import http_tmpl_context, http_json, json_false, json_denied, json_true, denied, setup_user_menu, generate_key_from
-from main.http_common import generate_key, caching, get_memory_var, json_false500, json_auth_required, format_numbers_strong, format_numbers4
+from main.http_common import http_tmpl_context, http_json, json_false, json_denied, json_true, denied
+from main.http_common import setup_user_menu, generate_key_from
+from main.http_common import generate_key, caching, get_memory_var, json_false500, json_auth_required
+from main.http_common import    format_numbers_strong, format_numbers4
 
 from django.shortcuts import redirect
 from main.user_forms import UsersForgotLinkPswd, UsersForgotMail
