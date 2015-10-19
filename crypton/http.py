@@ -136,7 +136,7 @@ class HttpRequest:
             try:
 
                 self.session = memstore.get(session_value, False)
-                print self.session
+                print "sessin from django %s" % self.session
                 if not self.session:
                     s = Session.objects.get(pk=session_value)
                     information = s.get_decoded()
