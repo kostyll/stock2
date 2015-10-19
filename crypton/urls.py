@@ -10,7 +10,8 @@ from crypton import settings
     
 urlpatterns = patterns('',
     # Examples:
-    
+
+    url(r'^index.html$', 'main.views.index', name='index'),
     url(r'^project/banner/(\w+)$', 'main.banners.banner', name='banner'),
     url(r'^yandex_474f8051b6db0c25.html', 'main.views.ya_metric', name='ya_metric'),
     url(r'^robots.txt$', 'main.views.robots', name='robots'),

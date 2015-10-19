@@ -588,8 +588,6 @@ def index(Req):
     
 def home(request):
     ###two cases of 
-    return stock(request)   
-
     if request.session.get('auth_user_computered', False):
          Path = request.session.get('auth_user_path', None )
          if Path is not  None:
