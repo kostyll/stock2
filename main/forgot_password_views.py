@@ -10,7 +10,7 @@ import main.msgs
 from main.http_common import http_tmpl_context, http_json, json_false, json_denied, json_true, denied
 from main.http_common import setup_user_menu, generate_key_from
 from main.http_common import generate_key, caching, get_memory_var, json_false500, json_auth_required
-from main.http_common import    format_numbers_strong, format_numbers4
+from main.http_common import format_numbers_strong, format_numbers4
 
 from django.shortcuts import redirect
 from main.user_forms import UsersForgotLinkPswd, UsersForgotMail
@@ -20,7 +20,6 @@ from main.models import ResetPwdLink
 
 from sdk.g2f import auth
 
-
 from django.views.decorators.cache import cache_page
 
 from datetime import datetime
@@ -28,25 +27,24 @@ import hashlib
 import random
 import json
 from decimal import Decimal, getcontext
-from main.models import dictfetchall,store_registration
+from main.models import dictfetchall, store_registration
 import main.api
 import crypton.settings
-
 
 
 __author__ = 'bogdan'
 
 
-
 def reset_pwd_mail(User, SessionKey):
-        Url = crypton.settings.BASE_URL + "reset_pwd/" + SessionKey
-        return _(u"Вы заказали обновление пароля на {name}\n\
+    Url = crypton.settings.BASE_URL + "reset_pwd/" + SessionKey
+    return _(u"Вы заказали обновление пароля на {name}\n\
 Данные для входа : \n\
 Имя пользователя: \"{username}\" \n \
 Перейдите пожайлуста по ссылке для завершения процедуры обновления: {url} \n\
 \n\n\n\
 С уважением служба поддержки BITCOIN TRADE COMPANY\n\
-                ").format(name=crypton.settings.PROJECT_NAME,username=User.username,url=Url)
+                ").format(name=crypton.settings.PROJECT_NAME, username=User.username, url=Url)
+
 
 def forgot(Req):
     t = loader.get_template("simple_form_center.html")
@@ -59,28 +57,27 @@ def forgot(Req):
     Dict["action_title"] = settings.reset_password_title
     return http_tmpl_context(Req, t, Dict)
 
+
 def forgot_action(request):
     Form = UsersForgotMail(request.POST)
     Dict = {}
     if Form.is_valid():
-# Save a new Article object from the form's data.
+        # Save a new Article object from the form's data.
 
         SessionLink = generate_key("hold")[10:30]
-        reset_link = ResetPwdLink(user = Form.user, key = SessionLink)
+        reset_link = ResetPwdLink(user=Form.user, key=SessionLink)
         reset_link.save()
-        #if settings.DEBUG is False:
+        # if settings.DEBUG is False:
         Email = Form.cleaned_data["email"]
 
-
-
         main.msgs.send_mail(_(u'Обновление пароля на бирже ' + settings.BASE_HOST),
-                                   reset_pwd_mail(Form.user, SessionLink),
-                                   settings.EMAIL_HOST_USER,
-                                   [ Email ],
-                                     fail_silently = False)
+                            reset_pwd_mail(Form.user, SessionLink),
+                            settings.EMAIL_HOST_USER,
+                            [Email],
+                            fail_silently=False)
 
         return redirect("/forgot_success")
-    else :
+    else:
         t = loader.get_template("simple_form_center.html")
         Dict["title"] = settings.secondary_main_forgot
         Dict["form"] = Form.as_p()
@@ -89,17 +86,19 @@ def forgot_action(request):
         Dict["action_title"] = settings.reset_password_title
         return http_tmpl_context(request, t, Dict)
 
+
 def forgot_success(Req):
-        t = loader.get_template("simple_msg_center.html")
-        Dict = {}
-        Dict["title"] = my_messages.secondary_main_forgot
-        Dict["simple_msg"] = my_messages.forgot_sending_email_msg
-        return http_tmpl_context(Req, t, Dict)
+    t = loader.get_template("simple_msg_center.html")
+    Dict = {}
+    Dict["title"] = my_messages.secondary_main_forgot
+    Dict["simple_msg"] = my_messages.forgot_sending_email_msg
+    return http_tmpl_context(Req, t, Dict)
+
 
 def reset_pwd(request, Key):
     Form = UsersForgotLinkPswd()
     try:
-        link = ResetPwdLink.objects.get(key = Key, status = "created")
+        link = ResetPwdLink.objects.get(key=Key, status="created")
         Dict = {}
         Dict["title"] = my_messages.secondary_main_forgot_link
         Dict["form"] = Form.as_p()
@@ -111,22 +110,23 @@ def reset_pwd(request, Key):
     except ResetPwdLink.DoesNotExist:
         return redirect("/reset_link_no_found")
 
+
 def reset_pwd_action(request, Key):
     link = None
     try:
-        link = ResetPwdLink.objects.get(key = Key, status = "created")
+        link = ResetPwdLink.objects.get(key=Key, status="created")
     except:
-            return redirect("/reset_link_no_found")
+        return redirect("/reset_link_no_found")
     Form = UsersForgotLinkPswd(request.POST)
     Dict = {}
     if Form.is_valid():
-        link.status='processed'
+        link.status = 'processed'
         passwd = Form.cleaned_data["password1"]
         link.user.set_password(passwd)
         link.user.save()
         link.save()
         return redirect("/reset_success")
-    else :
+    else:
         t = loader.get_template("simple_form_center.html")
         Dict["title"] = my_messages.secondary_main_forgot_link
         Dict["form"] = Form.as_p()
@@ -135,13 +135,15 @@ def reset_pwd_action(request, Key):
         Dict["action_title"] = my_messages.forgot_main_update
         return http_tmpl_context(request, t, Dict)
 
+
 def reset_success(Req):
     t = loader.get_template("simple_msg_center.html")
     Dict = {}
     Dict["title"] = my_messages.secondary_main_forgot_link
     Dict["simple_msg"] = my_messages.reset_pwd_success
     return http_tmpl_context(Req, t, Dict)
-        
+
+
 def reset_link_no_found(Req):
     t = loader.get_template("simple_msg_center.html")
     Dict = {}

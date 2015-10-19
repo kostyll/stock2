@@ -19,7 +19,7 @@ from main.models import HoldsWithdraw
 from main.models import CustomMetaHackAdmin, CustomMetaHack
 from main.models import OnlineUsers, OnlineUsersAdmin
 from main.models import CustomMailAdmin, CustomMail
-from main.models import  VolatileConsts, Category
+from main.models import VolatileConsts, Category
 from main.models import MyUserAdmin
 from django.contrib.auth.models import User
 from main.models import VolatileConsts
@@ -44,10 +44,6 @@ admin.site.register(TransIn, TransInAdmin)
 admin.site.register(TransOut, TransOutAdmin)
 admin.site.register(NewsPage, NewsPageAdmin)
 
-
-
-
-
 admin.site.register(Partnership, PartnershipAdmin)
 admin.site.register(OrderTimer, OrderTimerAdmin)
 admin.site.register(PinsImages, PinsImagesAdmin)
@@ -58,7 +54,6 @@ admin.site.register(ObjectionsP2P)
 admin.site.register(ResetPwdLink)
 admin.site.register(Category)
 
-
 admin.site.register(Currency, CurrencyAdmin)
 admin.site.register(btce_trade_stat_minute_usd, btce_trade_stat_minute_usdAdmin)
 admin.site.register(CustomMailMulti, CustomMailMultiAdmin)
@@ -66,8 +61,6 @@ admin.site.register(CustomMailMulti, CustomMailMultiAdmin)
 admin.site.register(CustomSettings, CustomSettingsAdmin)
 
 admin.site.register(UserCustomSettings, UserCustomSettingsAdmin)
-
-
 
 admin.site.register(VolatileConsts)
 
@@ -77,7 +70,7 @@ admin.site.register(User, MyUserAdmin)
 
 admin.site.register(CustomMail, CustomMailAdmin)
 
-admin.site.register(CardP2PTransfers, CardP2PTransfersAdmin )
+admin.site.register(CardP2PTransfers, CardP2PTransfersAdmin)
 
 admin.site.register(CustomMetaHack, CustomMetaHackAdmin)
 
@@ -89,20 +82,19 @@ admin.site.register(BankTransfers, BankTransfersAdmin)
 
 admin.site.register(CryptoTransfers, CryptoTransfersAdmin)
 
-admin.site.register( ChatHistory )
+admin.site.register(ChatHistory)
 
-admin.site.register( Chat )
+admin.site.register(Chat)
 
-admin.site.register( HoldsWithdraw )
+admin.site.register(HoldsWithdraw)
 
 admin.site.register(OnlineUsers, OnlineUsersAdmin)
-
 
 admin.site.register(TradePairs)
 
 admin.site.register(Msg, MsgAdmin)
 
-admin.site.register(LiqPayTrans, LiqPayTransAdmin )
+admin.site.register(LiqPayTrans, LiqPayTransAdmin)
 
 admin.site.register(Accounts, AccountsAdmin)
 

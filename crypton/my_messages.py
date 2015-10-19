@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import crypton.settings
+
 PN = crypton.settings.PROJECT_NAME
 __author__ = 'bogdan'
 from django.utils.translation import ugettext as _
 
-secondary_main_forgot_link =_(u'Восстановление пароля')
+secondary_main_forgot_link = _(u'Восстановление пароля')
 forgot_link_not_found_msg = _(u'Увы! Указанная ссылка для восстановления  не найдена ')
 forgot_main_update = _(u'Обновить пароль')
 forgot_main_help_text = _(u"Введите новый пароль в форме ниже")
@@ -14,7 +15,7 @@ pin_confirm_operation_title = _("Введите персональный PIN, д
 
 pin_reset_form_title = _("Для получения нового PIN-а, введите текущий")
 help_page = _(u"Помощь")
-pin_page= _(u"Страница персонального PIN кода")
+pin_page = _(u"Страница персонального PIN кода")
 pagetitle_main = _(PN)
 pagetitle_home = _(u"самый простой и дешевый способ купить или продать биткоины в Украине")
 withdraw_cancel = _(u"Вывод отменен")
@@ -35,9 +36,9 @@ attention_be_aware = _(u"Будьте внимательны при заполн
 withdraw_title_bank = _(u"Заявка на вывод банковским переводом")
 withdraw_title_liqpay = _(u"Заявка на вывод через систему liqpay")
 liqpay_attention_be_aware = _(u"Будьте внимательны при указание номера счета liqpay")
-withdrawing_secondary_main_email_confirmation_title= _(u"Подтверждение по электронной почте")
-withdrawing_sending_email_confirmation= _(u"Код для подтверждения вывода средств был направлен вам на электронный адрес")
-
+withdrawing_secondary_main_email_confirmation_title = _(u"Подтверждение по электронной почте")
+withdrawing_sending_email_confirmation = _(
+    u"Код для подтверждения вывода средств был направлен вам на электронный адрес")
 
 withdrawing_error = _(u"Ошибка подтверждения")
 withdraw_doesnot_existed = _(u"Вывод с таким кодом не найден, либо уже в работе, уточняйте вопрос  у службы поддержки")
@@ -45,9 +46,9 @@ withdraw_ok = _(u"Вывод подтвержден")
 withdraw_msg_ok = _(u"Ваша заявка на вывод подтверждена, перевод будет осуществлен в ближайшее время")
 p2p_transfer = _(u"Отправить")
 emoney_transfer = _(u"Отправить")
-emoney_attention_be_aware  = _(u"Будьте внимательны при заполении реквизитов")
+emoney_attention_be_aware = _(u"Будьте внимательны при заполении реквизитов")
 
-p2p_attention_be_aware  = _(u"Будьте внимательны при заполении реквизитов,<br/>\n\
+p2p_attention_be_aware = _(u"Будьте внимательны при заполении реквизитов,<br/>\n\
 комиссия для вывода на Карту ПриватБанка 1&nbsp;%,<br/>\n\
 Карта украинского банка 1.3&nbsp;%,<br/>\n\
 Карта зарубежного банка 1,95 дол + 1&nbsp;%<br/>\n\

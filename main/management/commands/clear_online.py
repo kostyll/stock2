@@ -7,10 +7,7 @@ from django.db import connection
 class Command(BaseCommand):
     args = ''
     help = 'check online users'
-    def handle(self, *args, **options):
-                cursor = connection.cursor()
-                cursor.execute("DELETE FROM main_onlineusers WHERE pub_date<NOW() - interval 20 minute")
-                
 
-       
-       
+    def handle(self, *args, **options):
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM main_onlineusers WHERE pub_date<NOW() - interval 20 minute")

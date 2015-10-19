@@ -10,7 +10,8 @@ from django.core.cache import get_cache
 from django.contrib.auth.models import User
 from django.utils.html import strip_tags
 from main.msgs import notify_email, pins_reset_email, notify_admin_withdraw_fail
-from main.http_common import generate_key_from, start_show_pin, delete_show_pin, generate_key, generate_key_from2, format_numbers10, format_numbers_strong
+from main.http_common import generate_key_from, start_show_pin, delete_show_pin, generate_key, generate_key_from2, \
+    format_numbers10, format_numbers_strong
 from django.db import connection
 from sdk.image_utils import ImageText, draw_text, pin
 from decimal import Decimal
@@ -21,179 +22,192 @@ from Crypto.Cipher import AES
 from django.db import transaction
 import base64
 from sdk.crypto import CryptoAccount
-import  main.http_common 
+import main.http_common
 
 from tinymce.widgets import TinyMCE
 from django.core.urlresolvers import reverse
 
 # Create your models here.
 DEBIT_CREDIT = (
-                ("in", u"debit"),
-                ("out", u"credit"),
-   )
+    ("in", u"debit"),
+    ("out", u"credit"),
+)
 
 BOOL = (
-        ("true", u"true"),
-        ("false", u"false"),
-        )
+    ("true", u"true"),
+    ("false", u"false"),
+)
 
 STATUS_ORDER = (
-        ("manually", u"ручная"),
-        ("deposit", u"депозит"),
-        ("withdraw", u"вывод"),
-        ("bonus", u"партнерское вознаграждение"),
-        ("payin", u"пополнение"),
-        ("comission", u"коммиссионные"),
-        ("created", u"создан"),
-        ("incifition_funds", u"недостаточно средств"),
-        ("currency_core", u"валюты счетов не совпадают"),
-        ("processing", u'в работе'),
-        ("processing2", u'в работе 2'),        
-        ("canceled", u'отменен'),
-        ("wait_secure", u'ручная обработка'),      
-        ("order_cancel",u"отмена заявки"),
-        ("deal", u"сделка"),
-        ("auto", u"автомат"),
-        ("automanually", u"мануальный автомат"),
-        ("deal_return", u"возврат маленького остатка"),
-        ("processed", u'исполнен'),
-        ("core_error", u'ошибка ядра'),
-        )
+    ("manually", u"ручная"),
+    ("deposit", u"депозит"),
+    ("withdraw", u"вывод"),
+    ("bonus", u"партнерское вознаграждение"),
+    ("payin", u"пополнение"),
+    ("comission", u"коммиссионные"),
+    ("created", u"создан"),
+    ("incifition_funds", u"недостаточно средств"),
+    ("currency_core", u"валюты счетов не совпадают"),
+    ("processing", u'в работе'),
+    ("processing2", u'в работе 2'),
+    ("canceled", u'отменен'),
+    ("wait_secure", u'ручная обработка'),
+    ("order_cancel", u"отмена заявки"),
+    ("deal", u"сделка"),
+    ("auto", u"автомат"),
+    ("automanually", u"мануальный автомат"),
+    ("deal_return", u"возврат маленького остатка"),
+    ("processed", u'исполнен'),
+    ("core_error", u'ошибка ядра'),
+)
+
 
 def checksum(Obj):
     return True
 
-        
+
 class PartnershipAdmin(admin.ModelAdmin):
     list_display = ['user_ref', 'user', 'url_from', 'income', 'income_from', 'status']
 
-    
+
 class Partnership(models.Model):
-       user_ref = models.ForeignKey( User, verbose_name = u"Клиент", related_name = "partner" )
-       user = models.ForeignKey( User, verbose_name = u"Приведенный клиент", related_name = "join_by_parnter" )
-       url_from = models.CharField(verbose_name=u"URL from", max_length = 255,default="direct")
-       income = models.CharField(verbose_name=u"доход", max_length = 255,default="0")
-       income_from = models.DateTimeField( verbose_name = u"Дата пересчета", editable = False )
-       status =  models.CharField( max_length = 40,
-                               choices = STATUS_ORDER,
-                               default = 'created', editable = False)
-       class Meta: 
-            verbose_name=u'Референс'
-            verbose_name_plural = u'Референсы' 
+    user_ref = models.ForeignKey(User, verbose_name=u"Клиент", related_name="partner")
+    user = models.ForeignKey(User, verbose_name=u"Приведенный клиент", related_name="join_by_parnter")
+    url_from = models.CharField(verbose_name=u"URL from", max_length=255, default="direct")
+    income = models.CharField(verbose_name=u"доход", max_length=255, default="0")
+    income_from = models.DateTimeField(verbose_name=u"Дата пересчета", editable=False)
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created', editable=False)
+
+    class Meta:
+        verbose_name = u'Референс'
+        verbose_name_plural = u'Референсы'
+
 
 def get_decrypted_user_pin(user):
-        item = PinsImages.objects.using("security").get(user_id=user.id)
-        (Obj, Iv) = main.http_common.get_crypto_object(settings.CRYPTO_KEY, item.iv_key)
-        return  common_decrypt(Obj, item.raw_value )
-            
-            
-def store_registration(UserName, Email, Password, Reference = False, From = False):
-        new_user = User.objects.create_user(UserName,Email, Password )
+    item = PinsImages.objects.using("security").get(user_id=user.id)
+    (Obj, Iv) = main.http_common.get_crypto_object(settings.CRYPTO_KEY, item.iv_key)
+    return common_decrypt(Obj, item.raw_value)
 
-        new_user.is_active = False
-        new_user.save()
-        
-        if Reference :
-                Object = UserCustomSettings.objects.get(value = Reference, setting__title = "partners"  )
 
-                CreatePartnership = None
-                if From:
-                    CreatePartnership = Partnership(user_ref = Object.user, user = new_user,url_from = From )
-                else :
-                    CreatePartnership = Partnership(user_ref = Object.user, user = new_user )
+def store_registration(UserName, Email, Password, Reference=False, From=False):
+    new_user = User.objects.create_user(UserName, Email, Password)
 
-                CreatePartnership.save()
+    new_user.is_active = False
+    new_user.save()
 
-        hold = HoldsWithdraw(user = new_user, hours = 0 )
-        hold.save()
-        ListCurrency  = Currency.objects.all()
-        for i in ListCurrency :
-                new_account = Accounts(user = new_user, currency = i, balance = 0 )
-                new_account.save()
+    if Reference:
+        Object = UserCustomSettings.objects.get(value=Reference, setting__title="partners")
 
-        bulk_add = []
-        for setting in CustomSettings.objects.all():
-                 if setting.title == "partners":
-                     setting.def_value = new_user.id
-                 bulk_add.append(
-                                UserCustomSettings(user = new_user,
-                                                   value = setting.def_value,
-                                                   setting = setting
-                                                   )
-                                )
-        UserCustomSettings.objects.bulk_create(bulk_add)
-        rand_key = generate_key()
-        f = ActiveLink(user = new_user, key = rand_key)
-        f.save()
-	return (new_user, rand_key)
-        
-        
+        CreatePartnership = None
+        if From:
+            CreatePartnership = Partnership(user_ref=Object.user, user=new_user, url_from=From)
+        else:
+            CreatePartnership = Partnership(user_ref=Object.user, user=new_user)
+
+        CreatePartnership.save()
+
+    hold = HoldsWithdraw(user=new_user, hours=0)
+    hold.save()
+    ListCurrency = Currency.objects.all()
+    for i in ListCurrency:
+        new_account = Accounts(user=new_user, currency=i, balance=0)
+        new_account.save()
+
+    bulk_add = []
+    for setting in CustomSettings.objects.all():
+        if setting.title == "partners":
+            setting.def_value = new_user.id
+        bulk_add.append(
+            UserCustomSettings(user=new_user,
+                               value=setting.def_value,
+                               setting=setting
+            )
+        )
+    UserCustomSettings.objects.bulk_create(bulk_add)
+    rand_key = generate_key()
+    f = ActiveLink(user=new_user, key=rand_key)
+    f.save()
+    return (new_user, rand_key)
+
+
 class TransError(Exception):
-     def __init__(self, value):
-         self.value = value
-     def __str__(self):
-         return repr(self.value)
-         
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
 class OrderTimerAdmin(admin.ModelAdmin):
-    list_display = ['order','time_work'] 
- 
+    list_display = ['order', 'time_work']
+
+
 class OrderTimer(models.Model):
-        order = models.IntegerField(verbose_name = u"Ордер" )
-        time_work = models.DecimalField( max_digits = 18,
-                                        decimal_places = 10,
-                                        verbose_name = u"Время",
-                                        default = 0)
-        class Meta: 
-            verbose_name=u'Временной замер'
-            verbose_name_plural = u'Временные замеры'
-         
+    order = models.IntegerField(verbose_name=u"Ордер")
+    time_work = models.DecimalField(max_digits=18,
+                                    decimal_places=10,
+                                    verbose_name=u"Время",
+                                    default=0)
+
+    class Meta:
+        verbose_name = u'Временной замер'
+        verbose_name_plural = u'Временные замеры'
+
+
 class ApiKeys(models.Model):
-        public_key = models.CharField(verbose_name=u"Публичный ключ", max_length = 255)
-        private_key = models.CharField(verbose_name=u"Приватный ключ", max_length = 255)
-        user = models.ForeignKey( User, verbose_name = u"Клиент" )
-        class Meta: 
-                verbose_name=u'API настроек пользователя'
-                verbose_name_plural = u'API настроек пользователя' 
+    public_key = models.CharField(verbose_name=u"Публичный ключ", max_length=255)
+    private_key = models.CharField(verbose_name=u"Приватный ключ", max_length=255)
+    user = models.ForeignKey(User, verbose_name=u"Клиент")
+
+    class Meta:
+        verbose_name = u'API настроек пользователя'
+        verbose_name_plural = u'API настроек пользователя'
+
 
 def get_api_settings(PublicKey):
-        return ApiKeys.objects.get(public_key = PublicKey )
+    return ApiKeys.objects.get(public_key=PublicKey)
+
 
 class CustomSettings(models.Model):
-     title = models.CharField(verbose_name=u"Название настройки", max_length = 255)
-     def_value = models.CharField(verbose_name=u"Значение по умолчанию", null = True, max_length = 255)
-     class Meta: 
-                verbose_name=u'Тип настроек пользователя'
-                verbose_name_plural = u'Типы настроек пользователя'     
-                
-     def __unicode__(obj):
-             return obj.title
-     
-        
-class CustomSettingsAdmin(admin.ModelAdmin):
-      list_display = ['title']        
-      
-      def save_model(self, request, obj, form, change):
-              
-            if obj.id is None:
-                obj.save()
-                bulk_add = []
-                for item in User.objects.all():
-                        bulk_add.append(
-                                UserCustomSettings(user = item,
-                                                   value = obj.def_value,
-                                                   setting = obj
-                                                   )
-                                )
-                UserCustomSettings.objects.bulk_create(bulk_add)
-                
-            else:    
-                obj.save()
-           
-            return True
-    
-#6 2+4,3+3,4+2,5+1,1+5  = 1/36*5
+    title = models.CharField(verbose_name=u"Название настройки", max_length=255)
+    def_value = models.CharField(verbose_name=u"Значение по умолчанию", null=True, max_length=255)
 
-#8 6+2,2+6,4+4,3+5,5+3 = 1/36*5
+    class Meta:
+        verbose_name = u'Тип настроек пользователя'
+        verbose_name_plural = u'Типы настроек пользователя'
+
+    def __unicode__(obj):
+        return obj.title
+
+
+class CustomSettingsAdmin(admin.ModelAdmin):
+    list_display = ['title']
+
+    def save_model(self, request, obj, form, change):
+
+        if obj.id is None:
+            obj.save()
+            bulk_add = []
+            for item in User.objects.all():
+                bulk_add.append(
+                    UserCustomSettings(user=item,
+                                       value=obj.def_value,
+                                       setting=obj
+                    )
+                )
+            UserCustomSettings.objects.bulk_create(bulk_add)
+
+        else:
+            obj.save()
+
+        return True
+
+
+# 6 2+4,3+3,4+2,5+1,1+5  = 1/36*5
+
+# 8 6+2,2+6,4+4,3+5,5+3 = 1/36*5
 
 #7 5+2,2+5,4+3,3+4  = 1/36*4
 
@@ -214,114 +228,114 @@ class CustomSettingsAdmin(admin.ModelAdmin):
 #2 1+1
 
 class PersonalSigns(models.Model):
-    user_id = models.IntegerField(verbose_name = u"Клиент")
+    user_id = models.IntegerField(verbose_name=u"Клиент")
     key = models.CharField(max_length=255, verbose_name=u"key")
+
     def __unicode__(o):
-                return   str(o.user_id)
+        return str(o.user_id)
 
     class Meta:
-        verbose_name=u'Ключи пользователей'
+        verbose_name = u'Ключи пользователей'
         verbose_name_plural = u'Ключ пользователя'
 
 
-
-
 def new_pin4user(obj, oper):
-        pin_name = settings.ROOT_PATH + "pins_images/pin_%i.png" % (obj.user.id)
-        (Letters, Value) = pin(pin_name)
-        obj.req_vocabulary  = Letters
-        obj.hash_value = generate_key_from(Value, settings.PIN_SALT)
-        obj.img = pin_name
-        obj.status = "created"
-        obj.raw_value = Value
-        obj.operator = oper
-        delete_show_pin(obj.show_key)
-        Key = start_show_pin(obj.user.id, 160000)        
-        obj.show_key = Key
-        obj.save()
+    pin_name = settings.ROOT_PATH + "pins_images/pin_%i.png" % (obj.user.id)
+    (Letters, Value) = pin(pin_name)
+    obj.req_vocabulary = Letters
+    obj.hash_value = generate_key_from(Value, settings.PIN_SALT)
+    obj.img = pin_name
+    obj.status = "created"
+    obj.raw_value = Value
+    obj.operator = oper
+    delete_show_pin(obj.show_key)
+    Key = start_show_pin(obj.user.id, 160000)
+    obj.show_key = Key
+    obj.save()
 
-        if obj.type_recover == "email":
-            pins_reset_email(obj, Key)
-                        
-        return obj.show_key
+    if obj.type_recover == "email":
+        pins_reset_email(obj, Key)
+
+    return obj.show_key
 
 
 class PinsImagesAdmin(admin.ModelAdmin):
-    list_display = ['user','date',"operator","status", "type_recover"]
+    list_display = ['user', 'date', "operator", "status", "type_recover"]
     list_filter = ['user']
     actions = ['reset_pin']
-    
+
     def reset_pin(self, request, queryset):
-        for i in queryset:                
-               new_pin4user(i, request.user)
-               
+        for i in queryset:
+            new_pin4user(i, request.user)
+
     def save_model(self, request, obj, form, change):
-              
-            if obj.id is None:
-                new_pin4user(obj, request.user)
-                
+
+        if obj.id is None:
+            new_pin4user(obj, request.user)
+
     reset_pin.short_description = u"Reset Pin"
-      
-      
-      
+
+
 class PinsImages(models.Model):
-        hash_value = models.CharField(max_length = 255, verbose_name = u"Hash", editable = False)
-        req_vocabulary = models.CharField(max_length = 55, verbose_name = u"Словарь", editable = False)
-        raw_value = models.CharField(max_length = 255, editable = False)
-        show_key = models.CharField(max_length = 255, editable = False, null=True, blank = True )
-        img = models.ImageField(upload_to = "pins_images",
-                           verbose_name=u'Картинка', blank = True, null = True, editable = False )
-        date = models.DateTimeField( auto_now = True, verbose_name = u"Дата старта", editable = False )
-        user = models.ForeignKey( User, verbose_name = u"Клиент",  
-                                  related_name = "user_pin")
-        
-        operator = models.ForeignKey( User, verbose_name = u"Оператор изменений",  
-                                      related_name = "operator_pin",
-                                      editable = False)
-        
-        status =  models.CharField(max_length = 40,
-                                   choices=STATUS_ORDER,
-                                   default='created', editable=False)
-        RECOVER_ORDER = (
-                        ("email", u"email"),
-                        ("phone", u"телефон"),
-                        ("skype", u"skype"),
-                )
-        
-        type_recover =  models.CharField( max_length = 40,
-                               choices = RECOVER_ORDER,
-                               default = 'email', editable = False)
-        iv_key = models.CharField( max_length = 255,
-                               default = '', editable = False)
+    hash_value = models.CharField(max_length=255, verbose_name=u"Hash", editable=False)
+    req_vocabulary = models.CharField(max_length=55, verbose_name=u"Словарь", editable=False)
+    raw_value = models.CharField(max_length=255, editable=False)
+    show_key = models.CharField(max_length=255, editable=False, null=True, blank=True)
+    img = models.ImageField(upload_to="pins_images",
+                            verbose_name=u'Картинка', blank=True, null=True, editable=False)
+    date = models.DateTimeField(auto_now=True, verbose_name=u"Дата старта", editable=False)
+    user = models.ForeignKey(User, verbose_name=u"Клиент",
+                             related_name="user_pin")
 
-        def __unicode__(o):
-                return   str(o.user)
+    operator = models.ForeignKey(User, verbose_name=u"Оператор изменений",
+                                 related_name="operator_pin",
+                                 editable=False)
 
-        class Meta: 
-                verbose_name=u'Пин пользователя'
-                verbose_name_plural = u'Пины пользователя' 
-        
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created', editable=False)
+    RECOVER_ORDER = (
+        ("email", u"email"),
+        ("phone", u"телефон"),
+        ("skype", u"skype"),
+    )
+
+    type_recover = models.CharField(max_length=40,
+                                    choices=RECOVER_ORDER,
+                                    default='email', editable=False)
+    iv_key = models.CharField(max_length=255,
+                              default='', editable=False)
+
+    def __unicode__(o):
+        return str(o.user)
+
+    class Meta:
+        verbose_name = u'Пин пользователя'
+        verbose_name_plural = u'Пины пользователя'
+
 
 class UserCustomSettings(models.Model):
-        user = models.ForeignKey(User, verbose_name = u"Клиент",
-                                 related_name = "user_settings",
-                                 editable = False)
-        setting =  models.ForeignKey(CustomSettings, verbose_name = u"Настройки")
-        value = models.CharField(max_length = 255, verbose_name = u"Значение")
-        class Meta: 
-                verbose_name=u'Настройки пользователей'
-                verbose_name_plural = u'Настройки пользователя'  
-        
+    user = models.ForeignKey(User, verbose_name=u"Клиент",
+                             related_name="user_settings",
+                             editable=False)
+    setting = models.ForeignKey(CustomSettings, verbose_name=u"Настройки")
+    value = models.CharField(max_length=255, verbose_name=u"Значение")
+
+    class Meta:
+        verbose_name = u'Настройки пользователей'
+        verbose_name_plural = u'Настройки пользователя'
+
 
 class UserCustomSettingsAdmin(admin.ModelAdmin):
-    list_display = ["id", 'user','setting',"value"]
-    list_filter = ('user','setting',"value")
-        
+    list_display = ["id", 'user', 'setting', "value"]
+    list_filter = ('user', 'setting', "value")
+
 
 #search_args = []
 #for term in request.GET['query_term'].split():
-    #for query in ('first_name__istartswith', 'last_name__istartswith'):
-        #search_args.append(Q(**{query: term}))
+#for query in ('first_name__istartswith', 'last_name__istartswith'):
+#search_args.append(Q(**{query: term}))
+
 
 #all_soggs = Entity.objects.filter(reduce(operator.or_, search_args))
 
@@ -329,1085 +343,1076 @@ class UserCustomSettingsAdmin(admin.ModelAdmin):
 class MyUserAdmin(admin.ModelAdmin):
     list_display = ['username', 'email', 'is_staff']
     search_fields = ('username', 'email')
-    actions = ['hold24', 'hold48', 'hold36', 'hold_week', "ban_chat_1h","ban_chat_15m", "ban_chat_day", "ban_chat_3h",'unban_chat', 'reset_pin']
-    
-    def caching(self):
-        return  get_cache('default')
-    
-    def reset_pin(self, request, queryset):
-        for i in queryset:                
-               obj = PinsImages.objects.get(user = i)
-               new_pin4user(obj, request.user)
-               
-    def unban_chat(self, request, queryset):
-            cache = self.caching()
-            for i in queryset:
-               cache.set("banned_" + i.username, "banned", 1)
-               
-               
-    def ban_chat_1h(self, request, queryset):
-            cache = self.caching()
-            for i in queryset:
-               cache.set("banned_" + i.username, "banned", 3600)
-                
-    def ban_chat_15m(self, request, queryset):
-            cache = self.caching()
-            for i in queryset:
-               cache.set("banned_"+i.username, "banned", 900)
-     
-    def ban_chat_day(self, request, queryset):
-            cache = self.caching()
-            for i in queryset:
-                cache.set("banned_"+i.username, "banned", 86000)
-    
-    def ban_chat_3h(self, request, queryset):
-            cache = self.caching()
-            for i in queryset:
-                cache.set("banned_"+i.username, "banned", 10800)
+    actions = ['hold24', 'hold48', 'hold36', 'hold_week', "ban_chat_1h", "ban_chat_15m", "ban_chat_day", "ban_chat_3h",
+               'unban_chat', 'reset_pin']
 
-    
-    
+    def caching(self):
+        return get_cache('default')
+
+    def reset_pin(self, request, queryset):
+        for i in queryset:
+            obj = PinsImages.objects.get(user=i)
+            new_pin4user(obj, request.user)
+
+    def unban_chat(self, request, queryset):
+        cache = self.caching()
+        for i in queryset:
+            cache.set("banned_" + i.username, "banned", 1)
+
+
+    def ban_chat_1h(self, request, queryset):
+        cache = self.caching()
+        for i in queryset:
+            cache.set("banned_" + i.username, "banned", 3600)
+
+    def ban_chat_15m(self, request, queryset):
+        cache = self.caching()
+        for i in queryset:
+            cache.set("banned_" + i.username, "banned", 900)
+
+    def ban_chat_day(self, request, queryset):
+        cache = self.caching()
+        for i in queryset:
+            cache.set("banned_" + i.username, "banned", 86000)
+
+    def ban_chat_3h(self, request, queryset):
+        cache = self.caching()
+        for i in queryset:
+            cache.set("banned_" + i.username, "banned", 10800)
+
+
     def hold24(self, request, queryset):
-            for i in queryset:
-                hold = HoldsWithdraw(user = i, hours =  24)
-                hold.save()
-                
+        for i in queryset:
+            hold = HoldsWithdraw(user=i, hours=24)
+            hold.save()
+
     def hold48(self, request, queryset):
-            for i in queryset:
-                hold = HoldsWithdraw(user = i, hours =  48)
-                hold.save()
-            
+        for i in queryset:
+            hold = HoldsWithdraw(user=i, hours=48)
+            hold.save()
+
     def hold36(self, request, queryset):
-            for i in queryset:
-                hold = HoldsWithdraw(user = i, hours =  36)
-                hold.save()
-                
+        for i in queryset:
+            hold = HoldsWithdraw(user=i, hours=36)
+            hold.save()
+
     def hold_week(self, request, queryset):
-            for i in queryset:
-                hold = HoldsWithdraw(user = i, hours =  140)
-                hold.save()
-            
-        #do something ...
-        
+        for i in queryset:
+            hold = HoldsWithdraw(user=i, hours=140)
+            hold.save()
+
+            #do something ...
+
     hold24.short_description = u"Остановить вывод на 24 часа"
     hold_week.short_description = u"Остановить вывод на неделю"
     hold48.short_description = u"Остановить вывод на 48 часа"
     hold36.short_description = u"Остановить вывод на 36 часа"
-    
 
-def mines_prec(dec_number1, dec_number2, Prec ):
-        PrecMul = 10 ** Prec        
-        PreStr = list( str(int(dec_number1*PrecMul) - int(dec_number2*PrecMul)) )
-        #print PreStr
-        MinesAdd = False
-        if PreStr[0] == '-':
-                PreStr = PreStr[1:]
-                MinesAdd = True           
-        
-        size = len(PreStr)
-        #print size
-        if size > Prec:
-                Dot = size - Prec
-                if MinesAdd:
-                        return Decimal("-" + "".join(PreStr[:Dot])  + "." + "".join(PreStr[Dot:]) )
-                return Decimal("".join(PreStr[:Dot])  + "." + "".join(PreStr[Dot:]) )
-        else: 
-                
-                Mask = ['0'] * Prec
-                #print Mask
-                From = Prec - size 
-                #print From
-                Mask[From:] = PreStr
-                #print Mask
-                if MinesAdd:
-                        return  Decimal(  "-0." + "".join( Mask ) )
-                return  Decimal(  "0." + "".join( Mask ) )
-               
 
-def plus_prec(dec_number1, dec_number2, Prec ):
-        PrecMul = 10 ** Prec
-        PreStr = list( str(int(dec_number1*PrecMul) + int(dec_number2*PrecMul)) )
-        MinesAdd = False
-        if PreStr[0] == '-':
-                PreStr = PreStr[1:]
-                MinesAdd = True           
-        size = len(PreStr)
-        
-        if size > Prec:
-                Dot = size - Prec
-                if MinesAdd:
-                        return    Decimal('-' + "".join(PreStr[:Dot])  + "." + "".join(PreStr[Dot:]) )
-                        
-                return    Decimal( "".join(PreStr[:Dot])  + "." + "".join(PreStr[Dot:]) )
-        else: 
-                Mask = ['0'] * Prec
-                From = Prec - size 
-                Mask[From:] = PreStr
-                if MinesAdd :
-                        return Decimal(  "-0." + "".join(  Mask   ) )
-                return  Decimal(  "0." + "".join(  Mask   ) )
+def mines_prec(dec_number1, dec_number2, Prec):
+    PrecMul = 10 ** Prec
+    PreStr = list(str(int(dec_number1 * PrecMul) - int(dec_number2 * PrecMul)))
+    #print PreStr
+    MinesAdd = False
+    if PreStr[0] == '-':
+        PreStr = PreStr[1:]
+        MinesAdd = True
+
+    size = len(PreStr)
+    #print size
+    if size > Prec:
+        Dot = size - Prec
+        if MinesAdd:
+            return Decimal("-" + "".join(PreStr[:Dot]) + "." + "".join(PreStr[Dot:]))
+        return Decimal("".join(PreStr[:Dot]) + "." + "".join(PreStr[Dot:]))
+    else:
+
+        Mask = ['0'] * Prec
+        #print Mask
+        From = Prec - size
+        #print From
+        Mask[From:] = PreStr
+        #print Mask
+        if MinesAdd:
+            return Decimal("-0." + "".join(Mask))
+        return Decimal("0." + "".join(Mask))
+
+
+def plus_prec(dec_number1, dec_number2, Prec):
+    PrecMul = 10 ** Prec
+    PreStr = list(str(int(dec_number1 * PrecMul) + int(dec_number2 * PrecMul)))
+    MinesAdd = False
+    if PreStr[0] == '-':
+        PreStr = PreStr[1:]
+        MinesAdd = True
+    size = len(PreStr)
+
+    if size > Prec:
+        Dot = size - Prec
+        if MinesAdd:
+            return Decimal('-' + "".join(PreStr[:Dot]) + "." + "".join(PreStr[Dot:]))
+
+        return Decimal("".join(PreStr[:Dot]) + "." + "".join(PreStr[Dot:]))
+    else:
+        Mask = ['0'] * Prec
+        From = Prec - size
+        Mask[From:] = PreStr
+        if MinesAdd:
+            return Decimal("-0." + "".join(Mask))
+        return Decimal("0." + "".join(Mask))
 
 
 def sato2Dec(Satochi):
-       PreStr = list( str( int(Satochi) ) )
-       size = len(PreStr)
-       Prec = 8
-       if size > Prec:
-                Dot = size - Prec
-                return    Decimal( "".join(PreStr[:Dot])  + "." + "".join(PreStr[Dot:]) )
-       else: 
-                Mask = ['0'] * Prec
-                From = Prec - size 
-                Mask[From:] = PreStr
-                return  Decimal(  "0." + "".join( Mask   ) )       
+    PreStr = list(str(int(Satochi)))
+    size = len(PreStr)
+    Prec = 8
+    if size > Prec:
+        Dot = size - Prec
+        return Decimal("".join(PreStr[:Dot]) + "." + "".join(PreStr[Dot:]))
+    else:
+        Mask = ['0'] * Prec
+        From = Prec - size
+        Mask[From:] = PreStr
+        return Decimal("0." + "".join(Mask))
+
 
 def to_prec(dec_number, Prec):
-       PrecMul = 10 ** Prec
-       PreStr = list( str( int(dec_number*PrecMul) ) )
-       MinesAdd = False
-       if PreStr[0] == '-':
-                PreStr = PreStr[1:]
-                MinesAdd = True  
-                
-       size = len(PreStr)
-       
-       
-       if size > Prec:
-                Dot = size - Prec
-                if MinesAdd:
-                        return    Decimal('-' + "".join(PreStr[:Dot])  + "." + "".join(PreStr[Dot:]) )                        
-                return    Decimal( "".join(PreStr[:Dot])  + "." + "".join(PreStr[Dot:]) )
-       else: 
-                Mask = ['0'] * Prec
-                From = Prec - size 
-                Mask[From:] = PreStr
-                if MinesAdd : 
-                         return  Decimal(  "-0." + "".join( Mask   ) )
-                
-                return  Decimal(  "0." + "".join( Mask   ) )
+    PrecMul = 10 ** Prec
+    PreStr = list(str(int(dec_number * PrecMul)))
+    MinesAdd = False
+    if PreStr[0] == '-':
+        PreStr = PreStr[1:]
+        MinesAdd = True
+
+    size = len(PreStr)
+
+    if size > Prec:
+        Dot = size - Prec
+        if MinesAdd:
+            return Decimal('-' + "".join(PreStr[:Dot]) + "." + "".join(PreStr[Dot:]))
+        return Decimal("".join(PreStr[:Dot]) + "." + "".join(PreStr[Dot:]))
+    else:
+        Mask = ['0'] * Prec
+        From = Prec - size
+        Mask[From:] = PreStr
+        if MinesAdd:
+            return Decimal("-0." + "".join(Mask))
+
+        return Decimal("0." + "".join(Mask))
+
 
 ####make a queue demon here there
 ### repeat functionality of add_trans
-def add_trans2(From, Amnt, Currency, To, order, status = "created", Out_order_id = None, Strict = True):
-       TransPrecession  = settings.TRANS_PREC
-       From = Accounts.objects.get(id = From)
-       To = Accounts.objects.get(id = To)
+def add_trans2(From, Amnt, Currency, To, order, status="created", Out_order_id=None, Strict=True):
+    TransPrecession = settings.TRANS_PREC
+    From = Accounts.objects.get(id=From)
+    To = Accounts.objects.get(id=To)
 
-       if Strict and order is  None:
-               raise TransError("requirment_params_order")
+    if Strict and order is None:
+        raise TransError("requirment_params_order")
 
-       if Out_order_id is None and order is not None :
-               Out_order_id = order
+    if Out_order_id is None and order is not None:
+        Out_order_id = order
 
-       trans =  TransMem(
-                      out_order_id = Out_order_id,
-                      balance1 = From.balance,
-                      balance2 = To.balance,
-                      user1 = From,
-                      user2 = To,
-                      order_id = order,
-                      amnt = Amnt,
-                      status = status
-                      )
+    trans = TransMem(
+        out_order_id=Out_order_id,
+        balance1=From.balance,
+        balance2=To.balance,
+        user1=From,
+        user2=To,
+        order_id=order,
+        amnt=Amnt,
+        status=status
+    )
 
+    if From.currency.id <> Currency:
+        trans.status = "currency_core"
+        trans.currency_id = Currency
+        trans.save()
+        raise TransError("currency_core")
 
-       if From.currency.id <> Currency:
-               trans.status = "currency_core"
-               trans.currency_id = Currency
-               trans.save()
-               raise TransError("currency_core")
+    if To.currency.id <> Currency:
+        trans.status = "currency_core"
+        trans.currency_id = Currency
+        trans.save()
+        raise TransError("currency_core")
+    trans.currency = To.currency
+    trans.save()
 
-       if To.currency.id <> Currency:
-               trans.status = "currency_core"
-               trans.currency_id = Currency
-               trans.save()
-               raise TransError("currency_core")
-       trans.currency = To.currency
-       trans.save()
+    FromBalance = From.balance
+    #NewBalance = mines_prec(FromBalance - Amnt, TransPrecession)
+    NewBalance = FromBalance - Amnt
 
-       FromBalance = From.balance
-       #NewBalance = mines_prec(FromBalance - Amnt, TransPrecession)
-       NewBalance = FromBalance - Amnt
-       
-       if Strict:
-                if NewBalance < 0:
-                    trans.status = "incifition_funds"
-                    trans.save()
-                    raise TransError("incifition_funds")
-
-       ToBalance = To.balance
-       ToNewBalance = ToBalance + Amnt
-       #plus_prec(ToBalance, Amnt, TransPrecession)
-
-       try :
-            #cursor = connection.cursor()
-            #cursor.execute("UPDATE main_accounts SET balance = balance - %s WHERE id = %i", [Amnt, From.id])
-
-            From.balance = NewBalance
-            From.save()
-            To.balance = ToNewBalance
-            #cursor.execute("UPDATE main_accounts SET balance = balance - %s WHERE id = %i", [Amnt, To.id])
-            To.save()
-            trans.res_balance1 = NewBalance
-            trans.res_balance2 = ToNewBalance
+    if Strict:
+        if NewBalance < 0:
+            trans.status = "incifition_funds"
             trans.save()
+            raise TransError("incifition_funds")
+
+    ToBalance = To.balance
+    ToNewBalance = ToBalance + Amnt
+    #plus_prec(ToBalance, Amnt, TransPrecession)
+
+    try:
+        #cursor = connection.cursor()
+        #cursor.execute("UPDATE main_accounts SET balance = balance - %s WHERE id = %i", [Amnt, From.id])
+
+        From.balance = NewBalance
+        From.save()
+        To.balance = ToNewBalance
+        #cursor.execute("UPDATE main_accounts SET balance = balance - %s WHERE id = %i", [Amnt, To.id])
+        To.save()
+        trans.res_balance1 = NewBalance
+        trans.res_balance2 = ToNewBalance
+        trans.save()
 
 
-       except  :
-            trans.status = "core_error"
-            From.balance = FromBalance
-            To.balance  = ToBalance
-            From.save()
-            To.save()
-            trans.save()
-            raise TransError("core_error")
+    except:
+        trans.status = "core_error"
+        From.balance = FromBalance
+        To.balance = ToBalance
+        From.save()
+        To.save()
+        trans.save()
+        raise TransError("core_error")
 
-## add exception here
-       X = True
-       if not X :
-               raise TransError("cant finish trans")
+    ## add exception here
+    X = True
+    if not X:
+        raise TransError("cant finish trans")
+
 
 ####make a queue demon here there
 @transaction.atomic
-def add_trans(From, Amnt, Currency, To, order, status = "created", Out_order_id = None, Strict = True):
-       TransPrecession  = settings.TRANS_PREC
-       From = Accounts.objects.get(id = From.id)
-       To = Accounts.objects.get(id = To.id)
+def add_trans(From, Amnt, Currency, To, order, status="created", Out_order_id=None, Strict=True):
+    TransPrecession = settings.TRANS_PREC
+    From = Accounts.objects.get(id=From.id)
+    To = Accounts.objects.get(id=To.id)
 
-       if Strict and order is  None:
-               raise TransError("requirment_params_order")
+    if Strict and order is None:
+        raise TransError("requirment_params_order")
 
-       if Out_order_id is None and order is not None :
-               Out_order_id = str(order.id)
-       
-       trans = Trans(out_order_id = Out_order_id,
-                     balance1 = From.balance,
-                     balance2 = To.balance,
-                     user1 = From,
-                     user2 = To,
-                     order = order,
-                     currency = Currency,
-                     amnt = Amnt,
-                     status = status)
-       trans.save()
-       
-       if From.currency <> Currency:
-               trans.status = "currency_core"
-               trans.save()
-               raise TransError("currency_core")
-               
-       if To.currency <> Currency:         
-               trans.status = "currency_core"
-               trans.save()
-               raise TransError("currency_core")
-               
-       FromBalance = From.balance  
-  #File "/home/bogdan/crypton/main/models.py", line 438, in add_trans
+    if Out_order_id is None and order is not None:
+        Out_order_id = str(order.id)
+
+    trans = Trans(out_order_id=Out_order_id,
+                  balance1=From.balance,
+                  balance2=To.balance,
+                  user1=From,
+                  user2=To,
+                  order=order,
+                  currency=Currency,
+                  amnt=Amnt,
+                  status=status)
+    trans.save()
+
+    if From.currency <> Currency:
+        trans.status = "currency_core"
+        trans.save()
+        raise TransError("currency_core")
+
+    if To.currency <> Currency:
+        trans.status = "currency_core"
+        trans.save()
+        raise TransError("currency_core")
+
+    FromBalance = From.balance
+    #File "/home/bogdan/crypton/main/models.py", line 438, in add_trans
     #NewBalance = mines_prec(FromBalance, Amnt, TransPrecession)
-  ##File "/home/bogdan/crypton/main/models.py", line 311, in mines_prec
-       
-       NewBalance = mines_prec(FromBalance, Amnt, TransPrecession)
-       
-       if Strict:         
-           if NewBalance < 0:
-               trans.status = "incifition_funds"
-               trans.save()
-               raise TransError("incifition_funds")
-                        
-       ToBalance = To.balance
-       ToNewBalance = plus_prec(ToBalance, Amnt, TransPrecession)
-       
-       try :
-            #cursor = connection.cursor()
-            #cursor.execute("UPDATE main_accounts SET balance = balance - %s WHERE id = %i", [Amnt, From.id])
+    ##File "/home/bogdan/crypton/main/models.py", line 311, in mines_prec
 
-            From.balance = NewBalance            
-            From.save()
-            To.balance = ToNewBalance
-            #cursor.execute("UPDATE main_accounts SET balance = balance - %s WHERE id = %i", [Amnt, To.id])
-            To.save()
-            trans.res_balance1 = NewBalance
-            trans.res_balance2 = ToNewBalance
+    NewBalance = mines_prec(FromBalance, Amnt, TransPrecession)
+
+    if Strict:
+        if NewBalance < 0:
+            trans.status = "incifition_funds"
             trans.save()
-            
+            raise TransError("incifition_funds")
 
-       except  :
-            trans.status = "core_error"
-            From.balance = FromBalance
-            To.balance  = ToBalance
-            From.save()
-            To.save()  
-            trans.save() 
-            raise TransError("core_error")
-        
-## add exception here
-       X = True             
-       if not X :
-               raise TransError("cant finish trans")  
-       
+    ToBalance = To.balance
+    ToNewBalance = plus_prec(ToBalance, Amnt, TransPrecession)
+
+    try:
+        #cursor = connection.cursor()
+        #cursor.execute("UPDATE main_accounts SET balance = balance - %s WHERE id = %i", [Amnt, From.id])
+
+        From.balance = NewBalance
+        From.save()
+        To.balance = ToNewBalance
+        #cursor.execute("UPDATE main_accounts SET balance = balance - %s WHERE id = %i", [Amnt, To.id])
+        To.save()
+        trans.res_balance1 = NewBalance
+        trans.res_balance2 = ToNewBalance
+        trans.save()
+
+
+    except:
+        trans.status = "core_error"
+        From.balance = FromBalance
+        To.balance = ToBalance
+        From.save()
+        To.save()
+        trans.save()
+        raise TransError("core_error")
+
+    ## add exception here
+    X = True
+    if not X:
+        raise TransError("cant finish trans")
 
 
 class StockStatAdmin(admin.ModelAdmin):
-    list_display = ['VolumeBase','VolumeTrade', 'Min', 'Max', 'Start', 'End', 'Stock',"date","start_date","end_date","Status"]
+    list_display = ['VolumeBase', 'VolumeTrade', 'Min', 'Max', 'Start', 'End', 'Stock', "date", "start_date",
+                    "end_date", "Status"]
     actions = ["add"]
-    
+
     def __init__(self, *args, **kwargs):
         super(StockStatAdmin, self).__init__(*args, **kwargs)
         #self.list_display_links = (None, )
-      
-      
-class CustomMetaHack(models.Model):      
-  class Meta: 
-      verbose_name=u'Метоинформация'
-      verbose_name_plural = u'Мета описание для Url'   
-  
+
+
+class CustomMetaHack(models.Model):
+    class Meta:
+        verbose_name = u'Метоинформация'
+        verbose_name_plural = u'Мета описание для Url'
+
 
 class CustomMeta(models.Model):
     stack = models.ForeignKey('CustomMetaHack')
-    url = models.CharField(max_length = 255, verbose_name = u"Относительный url")
-    meta_keyword = models.CharField(max_length = 255, blank = True)
-    meta_description = models.CharField(max_length = 255, blank = True)   
-    title = models.CharField(max_length = 255, verbose_name = u"Загаловок")
-    class Meta: 
-      verbose_name=u'Метоинформация'
-      verbose_name_plural = u'Мета описание для Url'
-      
+    url = models.CharField(max_length=255, verbose_name=u"Относительный url")
+    meta_keyword = models.CharField(max_length=255, blank=True)
+    meta_description = models.CharField(max_length=255, blank=True)
+    title = models.CharField(max_length=255, verbose_name=u"Загаловок")
+
+    class Meta:
+        verbose_name = u'Метоинформация'
+        verbose_name_plural = u'Мета описание для Url'
+
     def __unicode__(o):
-          return o.url 
+        return o.url
+
 
 class CustomMetaAdminInline(admin.TabularInline):
     model = CustomMeta
     extra = 50
+
 
 class CustomMetaHackAdmin(admin.ModelAdmin):
     inlines = [CustomMetaAdminInline]
 
 
 class StockStat(models.Model):
-        VolumeBase = models.DecimalField( max_digits = 18,
-                               decimal_places = 6,
-                               verbose_name = u"Объем базовой",
-                               default = 0)
-        VolumeTrade = models.DecimalField( max_digits = 18,
-                               decimal_places = 6,
-                               verbose_name = u"Объем торга",
-                               default = 0)
-        Min = models.DecimalField( max_digits = 18,
-                               decimal_places = 6,
-                               verbose_name = u"Min",
-                               default = 0)
-        Max = models.DecimalField( max_digits = 18,
-                               decimal_places = 6,
-                               verbose_name = u"Max",
-                               default = 0)
-        Start = models.DecimalField( max_digits = 18,
-                               decimal_places = 6,
-                               verbose_name = u"Start",
-                               default = 0)
-        End = models.DecimalField( max_digits = 18,
-                               decimal_places = 6,
-                               verbose_name = u"End",
-                               default = 0)
-        Stock = models.ForeignKey("TradePairs", verbose_name = "Stock")
-        STATUS_STAT = (
-                ("current", u"Текущий"),
-                ("past", u"Прошедший"),
-        )
-        Status = models.CharField(max_length = 40,
-                               choices = STATUS_STAT,
-                               default = 'current',
-                               editable = False)
-        
-        date = models.DateTimeField( auto_now = True, verbose_name = u"Дата изменение")
-        start_date = models.DateTimeField(  verbose_name = u"Дата старта")
-        end_date = models.DateTimeField(  verbose_name = u"Дата конца")
-        
-        class Meta: 
-                verbose_name=u'Японские свечи'        
-                verbose_name_plural = u'Японские свечи'
+    VolumeBase = models.DecimalField(max_digits=18,
+                                     decimal_places=6,
+                                     verbose_name=u"Объем базовой",
+                                     default=0)
+    VolumeTrade = models.DecimalField(max_digits=18,
+                                      decimal_places=6,
+                                      verbose_name=u"Объем торга",
+                                      default=0)
+    Min = models.DecimalField(max_digits=18,
+                              decimal_places=6,
+                              verbose_name=u"Min",
+                              default=0)
+    Max = models.DecimalField(max_digits=18,
+                              decimal_places=6,
+                              verbose_name=u"Max",
+                              default=0)
+    Start = models.DecimalField(max_digits=18,
+                                decimal_places=6,
+                                verbose_name=u"Start",
+                                default=0)
+    End = models.DecimalField(max_digits=18,
+                              decimal_places=6,
+                              verbose_name=u"End",
+                              default=0)
+    Stock = models.ForeignKey("TradePairs", verbose_name="Stock")
+    STATUS_STAT = (
+        ("current", u"Текущий"),
+        ("past", u"Прошедший"),
+    )
+    Status = models.CharField(max_length=40,
+                              choices=STATUS_STAT,
+                              default='current',
+                              editable=False)
+
+    date = models.DateTimeField(auto_now=True, verbose_name=u"Дата изменение")
+    start_date = models.DateTimeField(verbose_name=u"Дата старта")
+    end_date = models.DateTimeField(verbose_name=u"Дата конца")
+
+    class Meta:
+        verbose_name = u'Японские свечи'
+        verbose_name_plural = u'Японские свечи'
 
 
-                
-class  OnlineUsersAdmin(admin.ModelAdmin):
-    list_display = ['user','pub_date']
-    
-    actions = ['hold24', 'hold48', 'hold36', 'hold_week', "ban_chat_1h","ban_chat_15m", "ban_chat_day", "ban_chat_3h","del_ban","pin_reset"]
-    
+class OnlineUsersAdmin(admin.ModelAdmin):
+    list_display = ['user', 'pub_date']
+
+    actions = ['hold24', 'hold48', 'hold36', 'hold_week', "ban_chat_1h", "ban_chat_15m", "ban_chat_day", "ban_chat_3h",
+               "del_ban", "pin_reset"]
+
     def caching(self):
-        return  get_cache('default')
-    
+        return get_cache('default')
+
     # pin reset 
     def pin_reset(self, request, queryset):
-        for i in queryset:                
-            obj = PinsImages.objects.get(user = i)
+        for i in queryset:
+            obj = PinsImages.objects.get(user=i)
             new_pin4user(obj, request.user)
-    
+
     def ban_chat_1h(self, request, queryset):
         cache = self.caching()
         for i in queryset:
-               cache.set("banned_" + i.user.username, 3600)
-                
+            cache.set("banned_" + i.user.username, 3600)
+
     def ban_chat_15m(self, request, queryset):
-            cache = self.caching()
-            for i in queryset:
-               cache.set("banned_" + i.user.username, 900)
-     
+        cache = self.caching()
+        for i in queryset:
+            cache.set("banned_" + i.user.username, 900)
+
     def ban_chat_day(self, request, queryset):
-            cache = self.caching()
-            for i in queryset:
-                cache.set("banned_" + i.user.username, 86000)
+        cache = self.caching()
+        for i in queryset:
+            cache.set("banned_" + i.user.username, 86000)
 
     def del_ban(self, req, q):
-            cache = self.caching()
-            for i in queryset:
-                cache.delete("banned_" + i.user.username)
-    
+        cache = self.caching()
+        for i in queryset:
+            cache.delete("banned_" + i.user.username)
+
     def ban_chat_3h(self, request, queryset):
-            cache = self.caching()
-            for i in queryset:
-                cache.set("banned_" + i.user.username, 10800)
-                
+        cache = self.caching()
+        for i in queryset:
+            cache.set("banned_" + i.user.username, 10800)
+
     def hold24(self, request, queryset):
-            for i in queryset:
-                hold = HoldsWithdraw(user = i.user, hours =  24)
-                hold.save()
-                
+        for i in queryset:
+            hold = HoldsWithdraw(user=i.user, hours=24)
+            hold.save()
+
     def hold48(self, request, queryset):
-            for i in queryset:
-                hold = HoldsWithdraw(user = i.user, hours =  48)
-                hold.save()
-            
+        for i in queryset:
+            hold = HoldsWithdraw(user=i.user, hours=48)
+            hold.save()
+
     def hold36(self, request, queryset):
-            for i in queryset:
-                hold = HoldsWithdraw(user = i.user, hours =  36)
-                hold.save()
-     
+        for i in queryset:
+            hold = HoldsWithdraw(user=i.user, hours=36)
+            hold.save()
+
     def hold_week(self, request, queryset):
-            for i in queryset:
-                hold = HoldsWithdraw(user = i.user, hours =  140)
-                hold.save()
-            
-        #do something ...
+        for i in queryset:
+            hold = HoldsWithdraw(user=i.user, hours=140)
+            hold.save()
+
+            #do something ...
+
     hold24.short_description = u"Остановить вывод на 24 часа"
     hold_week.short_description = u"Остановить вывод на неделю"
     hold48.short_description = u"Остановить вывод на 48 часа"
     hold36.short_description = u"Остановить вывод на 36 часа"
 
-                
-                
+
 class OnlineUsers(models.Model):
-    user = models.ForeignKey( User, verbose_name = u"Клиент",  
-                             related_name = "user_online",
-                             editable = False, unique = True)
-    pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата последней активности",editable = False )        
+    user = models.ForeignKey(User, verbose_name=u"Клиент",
+                             related_name="user_online",
+                             editable=False, unique=True)
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата последней активности", editable=False)
+
     def __unicode__(o):
-          return o.user.username + " " + str(o.pub_date)
-  
+        return o.user.username + " " + str(o.pub_date)
+
 
 class OutRequest(models.Model):
-        raw_text = models.TextField(verbose_name = u"RAW ")
-        pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата",editable = False )
-        from_ip = models.CharField( max_length = 255,
-                                   verbose_name = u"IP",
-                                   blank = True,
-                                   null = True)
-        http_referer = models.CharField( max_length = 255,
-                                   verbose_name = u"IP",
-                                   blank = True,
-                                   null = True)
-        
-        
-        class Meta: 
-                verbose_name=u'CallBack запросы'        
-                verbose_name_plural = u'CallBack запросы'
-        
-        ordering = ('id',) 
-      
-        def __unicode__(o):
-                return   str(o.from_ip) + " " + str(o.pub_date) 
-        
-def cancel_p24_in(OrderId):        
-         order = Orders.objects.get(id = int(OrderId) )
-         order.status = "canceled"
-         order.save()
-         return True
+    raw_text = models.TextField(verbose_name=u"RAW ")
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата", editable=False)
+    from_ip = models.CharField(max_length=255,
+                               verbose_name=u"IP",
+                               blank=True,
+                               null=True)
+    http_referer = models.CharField(max_length=255,
+                                    verbose_name=u"IP",
+                                    blank=True,
+                                    null=True)
 
-         
-def process_p24_in2(OrderId, Description, Comis, DebCred):        
-                     order = Orders.objects.get(id = int(OrderId), status='processing' )            
-                     order.status = "processing2"
-                     order.save()
-                     add_trans( order.transit_1 , order.sum1, order.currency1,
-                                order.transit_2, order, 
-                                "payin", None , False)
-                     Comission = order.sum1 * Comis
-                     add_trans( order.transit_2 , Comission, order.currency1,
-                                order.transit_1,  order, 
-                                "comission", None, False)
 
-                     order.status = "processed"
-                     order.save()
-                     notify_email(order.user, "deposit_notify", DebCred ) 
-                     return True
-         
-         
+    class Meta:
+        verbose_name = u'CallBack запросы'
+        verbose_name_plural = u'CallBack запросы'
+
+    ordering = ('id',)
+
+    def __unicode__(o):
+        return str(o.from_ip) + " " + str(o.pub_date)
+
+
+def cancel_p24_in(OrderId):
+    order = Orders.objects.get(id=int(OrderId))
+    order.status = "canceled"
+    order.save()
+    return True
+
+
+def process_p24_in2(OrderId, Description, Comis, DebCred):
+    order = Orders.objects.get(id=int(OrderId), status='processing')
+    order.status = "processing2"
+    order.save()
+    add_trans(order.transit_1, order.sum1, order.currency1,
+              order.transit_2, order,
+              "payin", None, False)
+    Comission = order.sum1 * Comis
+    add_trans(order.transit_2, Comission, order.currency1,
+              order.transit_1, order,
+              "comission", None, False)
+
+    order.status = "processed"
+    order.save()
+    notify_email(order.user, "deposit_notify", DebCred)
+    return True
+
+
 def process_p24_in(OrderId, Description, Comis, Key):
-                     order = Orders.objects.get(id = int(OrderId), status = "processing" )            
+    order = Orders.objects.get(id=int(OrderId), status="processing")
 
-                     DebCred = P24TransIn(description=Description,
-                                          currency=order.currency1,
-                                          amnt=order.sum1,
-                                          user=order.user,
-                                          comission=Comission,
-                                          user_accomplished_id=1,
-                                          status="created",
-                                          debit_credit="in",
-                                          order=order
-                                          )
-                     DebCred.sign_record(Key)
-                     DebCred.save()
-                     return True
+    DebCred = P24TransIn(description=Description,
+                         currency=order.currency1,
+                         amnt=order.sum1,
+                         user=order.user,
+                         comission=Comission,
+                         user_accomplished_id=1,
+                         status="created",
+                         debit_credit="in",
+                         order=order
+    )
+    DebCred.sign_record(Key)
+    DebCred.save()
+    return True
+
 
 def cancel_operation(modeladmin, request, queryset):
     for i in queryset:
-            if i.user_accomplished is None and (i.status == "processing" or i.status=='created' ):
-               i.status = "canceled"
-            
-	       order = i.order
-               if order is None:
-                    continue 
+        if i.user_accomplished is None and (i.status == "processing" or i.status == 'created' ):
+            i.status = "canceled"
 
-               order.status = "canceled"
-               add_trans( order.transit_2,
-                          order.sum1,
-                          order.currency2,
-                          order.transit_1,
-                          order,
-                          "order_cancel",
-                          None,
-                          False)
+            order = i.order
+            if order is None:
+                continue
 
-               order.save()
-               i.user_accomplished = request.user
-               i.save()
+            order.status = "canceled"
+            add_trans(order.transit_2,
+                      order.sum1,
+                      order.currency2,
+                      order.transit_1,
+                      order,
+                      "order_cancel",
+                      None,
+                      False)
+
+            order.save()
+            i.user_accomplished = request.user
+            i.save()
 
 
 cancel_operation.short_description = u"Cancel вывод "
 
 
-
 class TransOutAdmin(admin.ModelAdmin):
-    list_display = ['wallet','provider','amnt','currency','user','pub_date', 'status']
+    list_display = ['wallet', 'provider', 'amnt', 'currency', 'user', 'pub_date', 'status']
     list_filter = ['user']
-    search_fields = [ 'ref', 'user', 'wallet']
+    search_fields = ['ref', 'user', 'wallet']
     actions = [cancel_operation]
 
-    
-        
+
 class TransOut(models.Model):
+    ref = models.CharField(max_length=255,
+                           verbose_name=u"Reference",
+                           blank=True,
+                           null=True)
+    wallet = models.CharField(max_length=255,
+                              verbose_name=u"wallet",
+                              blank=True,
+                              null=True)
 
-   ref = models.CharField( max_length = 255,
-                           verbose_name = u"Reference",
-                           blank = True,
-                           null = True)
-   wallet = models.CharField( max_length = 255,
-                                verbose_name = u"wallet",
-                                blank = True,
-                                null = True)
-   
-   provider = models.CharField( max_length = 255,
-                                verbose_name = u"Provider",
-                                blank = True,
-                                null = True)
+    provider = models.CharField(max_length=255,
+                                verbose_name=u"Provider",
+                                blank=True,
+                                null=True)
 
-  
-   currency =  models.ForeignKey( "Currency",  
-                                  verbose_name = u"Валюта",
-                                  editable = False,
-                                  blank = True,
-                                  null = True)
-                                  
-   amnt = models.DecimalField( max_digits = 18,
-                               decimal_places = 2,
-                               verbose_name = u"Сумма",
-                               editable = False,
-                               blank = True,
-                               null = True) 
-     
-   comission = models.DecimalField( max_digits = 18,
-                               decimal_places = 2,
-                               verbose_name = u"комиссия",
-                               editable = False,
-                               blank = True,
-                               null = True)
-   
-   user = models.ForeignKey( User, verbose_name = u"Клиент",  
-                             related_name = "user_requested_all_out",
-                             editable = False,
-                             blank = True,
-                             null = True)
+    currency = models.ForeignKey("Currency",
+                                 verbose_name=u"Валюта",
+                                 editable=False,
+                                 blank=True,
+                                 null=True)
 
-   user_accomplished = models.ForeignKey( User, verbose_name = u"Оператор проводки", 
-                                           related_name = "operator_processed_all_out", 
-                                           blank = True, null = True, editable = False)
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата",editable = False )
-   
-   status =  models.CharField( max_length = 40,
-                               choices = STATUS_ORDER,
-                               default = 'created', editable = False, blank = True, null = True,)
+    amnt = models.DecimalField(max_digits=18,
+                               decimal_places=2,
+                               verbose_name=u"Сумма",
+                               editable=False,
+                               blank=True,
+                               null=True)
 
-   order = models.ForeignKey("Orders",  verbose_name = u"Ордер",
-                              editable = False, null = True, blank = True)
+    comission = models.DecimalField(max_digits=18,
+                                    decimal_places=2,
+                                    verbose_name=u"комиссия",
+                                    editable=False,
+                                    blank=True,
+                                    null=True)
 
-   sign = models.CharField( max_length = 255, blank = True, null = True,
-                                   editable = False)
+    user = models.ForeignKey(User, verbose_name=u"Клиент",
+                             related_name="user_requested_all_out",
+                             editable=False,
+                             blank=True,
+                             null=True)
 
-   confirm_key = models.CharField( max_length = 255, blank = True, null = True, 
-                                   editable = False)
+    user_accomplished = models.ForeignKey(User, verbose_name=u"Оператор проводки",
+                                          related_name="operator_processed_all_out",
+                                          blank=True, null=True, editable=False)
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата", editable=False)
+
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created', editable=False, blank=True, null=True, )
+
+    order = models.ForeignKey("Orders", verbose_name=u"Ордер",
+                              editable=False, null=True, blank=True)
+
+    sign = models.CharField(max_length=255, blank=True, null=True,
+                            editable=False)
+
+    confirm_key = models.CharField(max_length=255, blank=True, null=True,
+                                   editable=False)
 
 
-   def fields4sign(self):
+    def fields4sign(self):
         List = []
-        for i in  ('amnt','wallet','user','provider'):
-           Val = getattr(self, i)          
-           if i in ('amnt','comission'):
-               List.append(format_numbers_strong(Val ) )
-           else:
-               List.append(str(Val))
-        
+        for i in ('amnt', 'wallet', 'user', 'provider'):
+            Val = getattr(self, i)
+            if i in ('amnt', 'comission'):
+                List.append(format_numbers_strong(Val))
+            else:
+                List.append(str(Val))
+
         return ",".join(List)
-            
 
-   def verify(self, key):
-        Fields = self.fields4sign()
-        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
-        return  Sign == self.sign 
 
-   def sign_record(self, key):
+    def verify(self, key):
         Fields = self.fields4sign()
-        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
+        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
+        return Sign == self.sign
+
+    def sign_record(self, key):
+        Fields = self.fields4sign()
+        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
         self.save()
 
 
-
-   class Meta:
-        verbose_name=u'Вывод'
+    class Meta:
+        verbose_name = u'Вывод'
         verbose_name_plural = u'Выводы'
-        
-   ordering = ('id',) 
-      
-   def __unicode__(o):
-      return   str(o.id) + " " + str(o.amnt) + " " +  o.user.username                     
-                     
+
+    ordering = ('id',)
+
+    def __unicode__(o):
+        return str(o.id) + " " + str(o.amnt) + " " + o.user.username
+
+
 class TransInAdmin(admin.ModelAdmin):
-    list_display = ['ref','provider','amnt','currency','user','pub_date', 'status']
+    list_display = ['ref', 'provider', 'amnt', 'currency', 'user', 'pub_date', 'status']
     list_filter = ['user']
-    search_fields = [ 'ref', 'user']
+    search_fields = ['ref', 'user']
     actions = []
 
-    
-        
+
 class TransIn(models.Model):
+    ref = models.CharField(max_length=255,
+                           verbose_name=u"Reference",
+                           blank=True,
+                           null=True)
 
-   ref = models.CharField( max_length = 255,
-                           verbose_name = u"Reference",
-                           blank = True,
-                           null = True)
-                           
-   provider = models.CharField( max_length = 255,
-                                verbose_name = u"Provider",
-                                blank = True,
-                                null = True)
+    provider = models.CharField(max_length=255,
+                                verbose_name=u"Provider",
+                                blank=True,
+                                null=True)
 
-  
-   currency =  models.ForeignKey( "Currency",  
-                                  verbose_name = u"Валюта",
-                                  editable = False,
-                                  blank = True,
-                                  null = True)
-   amnt = models.DecimalField( max_digits = 18,
-                               decimal_places = 2,
-                               verbose_name = u"Сумма",
-                               editable = False,
-                               blank = True,
-                               null = True) 
-     
-   comission = models.DecimalField( max_digits = 18,
-                               decimal_places = 2,
-                               verbose_name = u"комиссия",
-                               editable = False,
-                               blank = True,
-                               null = True)
-   
-   user = models.ForeignKey( User, verbose_name = u"Клиент",  
-                             related_name = "user_requested_all",
-                             editable = False,
-                             blank = True,
-                             null = True)
+    currency = models.ForeignKey("Currency",
+                                 verbose_name=u"Валюта",
+                                 editable=False,
+                                 blank=True,
+                                 null=True)
+    amnt = models.DecimalField(max_digits=18,
+                               decimal_places=2,
+                               verbose_name=u"Сумма",
+                               editable=False,
+                               blank=True,
+                               null=True)
 
-   user_accomplished = models.ForeignKey( User, verbose_name = u"Оператор проводки", 
-                                           related_name = "operator_processed_all", 
-                                           blank = True, null = True, editable = False)
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата",editable = False )
-   
-   status =  models.CharField( max_length = 40,
-                               choices = STATUS_ORDER,
-                               default = 'created', editable = False, blank = True, null = True,)
+    comission = models.DecimalField(max_digits=18,
+                                    decimal_places=2,
+                                    verbose_name=u"комиссия",
+                                    editable=False,
+                                    blank=True,
+                                    null=True)
 
-   order = models.ForeignKey("Orders",  verbose_name = u"Ордер",
-                              editable = False, null = True, blank = True)
+    user = models.ForeignKey(User, verbose_name=u"Клиент",
+                             related_name="user_requested_all",
+                             editable=False,
+                             blank=True,
+                             null=True)
 
-   sign = models.CharField( max_length = 255, blank = True, null = True,
-                                   editable = False)
+    user_accomplished = models.ForeignKey(User, verbose_name=u"Оператор проводки",
+                                          related_name="operator_processed_all",
+                                          blank=True, null=True, editable=False)
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата", editable=False)
+
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created', editable=False, blank=True, null=True, )
+
+    order = models.ForeignKey("Orders", verbose_name=u"Ордер",
+                              editable=False, null=True, blank=True)
+
+    sign = models.CharField(max_length=255, blank=True, null=True,
+                            editable=False)
 
 
-
-   def fields4sign(self):
+    def fields4sign(self):
         List = []
-        for i in  ('amnt','comission','user','comission'):
-           Val = getattr(self, i)          
-           if i in ('amnt','comission'):
-               List.append(format_numbers_strong(Val ) )
-           else:
-               List.append(str(Val))
-        
+        for i in ('amnt', 'comission', 'user', 'comission'):
+            Val = getattr(self, i)
+            if i in ('amnt', 'comission'):
+                List.append(format_numbers_strong(Val))
+            else:
+                List.append(str(Val))
+
         return ",".join(List)
-            
 
-   def verify(self, key):
-        Fields = self.fields4sign()
-        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
-        return  Sign == self.sign 
 
-   def sign_record(self, key):
+    def verify(self, key):
         Fields = self.fields4sign()
-        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
+        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
+        return Sign == self.sign
+
+    def sign_record(self, key):
+        Fields = self.fields4sign()
+        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
         self.save()
 
 
-
-   class Meta: 
-        verbose_name=u'Приход'        
+    class Meta:
+        verbose_name = u'Приход'
         verbose_name_plural = u'Приходы'
-        
-   ordering = ('id',) 
-      
-   def __unicode__(o):
-      return   str(o.id) + " " + str(o.amnt) + " " +  o.user.username
-                     
-                     
+
+    ordering = ('id',)
+
+    def __unicode__(o):
+        return str(o.id) + " " + str(o.amnt) + " " + o.user.username
+
+
 class P24TransInAdmin(admin.ModelAdmin):
-    list_display = ['ref','phone','user','pub_date', 'amnt']
-    list_filter = ['phone','user']
-    search_fields = ['^phone',  'ref', 'user']
+    list_display = ['ref', 'phone', 'user', 'pub_date', 'amnt']
+    list_filter = ['phone', 'user']
+    search_fields = ['^phone', 'ref', 'user']
     actions = []
 
-        
-        
+
 class P24TransIn(models.Model):
-   phone = models.CharField( max_length = 255,
-                             verbose_name = u"Phone",
-                             blank = True,
-                             null = True)
+    phone = models.CharField(max_length=255,
+                             verbose_name=u"Phone",
+                             blank=True,
+                             null=True)
 
-   ref = models.CharField( max_length = 255,
-                           verbose_name = u"Reference",
-                           blank = True,
-                           null = True)
+    ref = models.CharField(max_length=255,
+                           verbose_name=u"Reference",
+                           blank=True,
+                           null=True)
 
-   description = models.CharField( max_length = 255,
-                                   verbose_name = u"Комментарии",
-                                   blank = True,
-                                   null = True)
-   currency =  models.ForeignKey( "Currency",  
-                                  verbose_name = u"Валюта",
-                                  editable = False,
-                                  blank = True,
-                                  null = True)
-   amnt = models.DecimalField( max_digits = 18,
-                               decimal_places = 2,
-                               verbose_name = u"Сумма",
-                               editable = False,
-                               blank = True,
-                               null = True) 
-     
-   comission = models.DecimalField( max_digits = 18,
-                               decimal_places = 2,
-                               verbose_name = u"комиссия",
-                               editable = False,
-                               blank = True,
-                               null = True)
-   
-   user = models.ForeignKey( User, verbose_name = u"Клиент",  
-                             related_name = "user_requested_p24",
-                             editable = False,
-                             blank = True,
-                             null = True)
+    description = models.CharField(max_length=255,
+                                   verbose_name=u"Комментарии",
+                                   blank=True,
+                                   null=True)
+    currency = models.ForeignKey("Currency",
+                                 verbose_name=u"Валюта",
+                                 editable=False,
+                                 blank=True,
+                                 null=True)
+    amnt = models.DecimalField(max_digits=18,
+                               decimal_places=2,
+                               verbose_name=u"Сумма",
+                               editable=False,
+                               blank=True,
+                               null=True)
 
-   user_accomplished = models.ForeignKey( User, verbose_name = u"Оператор проводки", 
-                                           related_name = "operator_processed_p24", 
-                                           blank = True, null = True, editable = False)
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата",editable = False )
-   
-   status =  models.CharField( max_length = 40,
-                               choices = STATUS_ORDER,
-                               default = 'created', editable = False, blank = True, null = True,)
+    comission = models.DecimalField(max_digits=18,
+                                    decimal_places=2,
+                                    verbose_name=u"комиссия",
+                                    editable=False,
+                                    blank=True,
+                                    null=True)
 
-   order = models.ForeignKey("Orders",  verbose_name = u"Ордер",
-                              editable = False, null = True, blank = True)
+    user = models.ForeignKey(User, verbose_name=u"Клиент",
+                             related_name="user_requested_p24",
+                             editable=False,
+                             blank=True,
+                             null=True)
 
-   debit_credit =  models.CharField(max_length = 40,
-                               choices = DEBIT_CREDIT,
-                               default = 'in',
-                               editable = False, blank = True,
-                               null = True,)
-   confirm_key = models.CharField( max_length = 255, blank = True, null = True, 
-                                   editable = False)
-   sign = models.CharField( max_length = 255, blank = True, null = True,
-                                   editable = False)
+    user_accomplished = models.ForeignKey(User, verbose_name=u"Оператор проводки",
+                                          related_name="operator_processed_p24",
+                                          blank=True, null=True, editable=False)
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата", editable=False)
+
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created', editable=False, blank=True, null=True, )
+
+    order = models.ForeignKey("Orders", verbose_name=u"Ордер",
+                              editable=False, null=True, blank=True)
+
+    debit_credit = models.CharField(max_length=40,
+                                    choices=DEBIT_CREDIT,
+                                    default='in',
+                                    editable=False, blank=True,
+                                    null=True, )
+    confirm_key = models.CharField(max_length=255, blank=True, null=True,
+                                   editable=False)
+    sign = models.CharField(max_length=255, blank=True, null=True,
+                            editable=False)
 
 
-
-   def fields4sign(self):
+    def fields4sign(self):
         List = []
-        for i in  ('amnt','comission','user','comission','description'):
-           Val = getattr(self, i)          
-           if i in ('amnt','comission'):
-               List.append(format_numbers_strong(Val ) )
-           else:
-               List.append(str(Val))
-        
+        for i in ('amnt', 'comission', 'user', 'comission', 'description'):
+            Val = getattr(self, i)
+            if i in ('amnt', 'comission'):
+                List.append(format_numbers_strong(Val))
+            else:
+                List.append(str(Val))
+
         return ",".join(List)
-            
 
-   def verify(self, key):
-        Fields = self.fields4sign()
-        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
-        return  Sign == self.sign 
 
-   def sign_record(self, key):
+    def verify(self, key):
         Fields = self.fields4sign()
-        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
+        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
+        return Sign == self.sign
+
+    def sign_record(self, key):
+        Fields = self.fields4sign()
+        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
         self.save()
 
 
-
-   class Meta: 
-        verbose_name=u'P24 ордер'        
+    class Meta:
+        verbose_name = u'P24 ордер'
         verbose_name_plural = u'P24 ордеры'
-        
-   ordering = ('id',) 
-      
-   def __unicode__(o):
-      return   str(o.id) + " " + str(o.amnt) + " " +  o.user.username
 
+    ordering = ('id',)
 
-   
+    def __unicode__(o):
+        return str(o.id) + " " + str(o.amnt) + " " + o.user.username
 
 
 class LiqPayTrans(models.Model):
+    phone = models.CharField(max_length=255,
+                             verbose_name=u"Телефон",
+                             editable=True,
+                             blank=False,
+                             null=False)
 
-   phone = models.CharField( max_length = 255, 
-                             verbose_name = u"Телефон",
-                             editable = True,
-                             blank = False,
-                             null = False )
-   
- #pib = models.CharField( max_length = 255,
-                             #verbose_name = u"ФИО",
-                             #editable = False,
-                             #blank = False,
-                             #null = False )
-   
-   description = models.CharField( max_length = 255,
-                                   verbose_name = u"Комментарии",
-                                   blank = True,
-                                   null = True)
-   currency =  models.ForeignKey( "Currency",  
-                                  verbose_name = u"Валюта",
-                                  editable = True)
-   amnt = models.DecimalField( max_digits = 18,
-                               decimal_places = 2,
-                               verbose_name = u"Сумма",
-                               editable = True) 
-   
-   comission = models.DecimalField( max_digits = 18,
-                               decimal_places = 2,
-                               verbose_name = u"комиссия",
-                               editable = False)
-   
-   user = models.ForeignKey( User, verbose_name = u"Клиент",  
-                             related_name = "user_requested_liqpay",
-                             editable = True, null =  True)
-   user_accomplished = models.ForeignKey( User, verbose_name = u"Оператор проводки", 
-                                           related_name = "operator_processed_liqpay", 
-                                           blank = True, null = True, editable = False)
-   pub_date = models.DateTimeField( auto_now = False, verbose_name = u"Дата",editable = False )
-   
-   status =  models.CharField( max_length = 40,
-                               choices = STATUS_ORDER,
-                               default = 'created', editable = True)
+    #pib = models.CharField( max_length = 255,
+    #verbose_name = u"ФИО",
+    #editable = False,
+    #blank = False,
+    #null = False )
 
-   order = models.ForeignKey("Orders",  verbose_name = u"Ордер",
-                              editable = False, null = True, blank = True)
+    description = models.CharField(max_length=255,
+                                   verbose_name=u"Комментарии",
+                                   blank=True,
+                                   null=True)
+    currency = models.ForeignKey("Currency",
+                                 verbose_name=u"Валюта",
+                                 editable=True)
+    amnt = models.DecimalField(max_digits=18,
+                               decimal_places=2,
+                               verbose_name=u"Сумма",
+                               editable=True)
 
-   debit_credit =  models.CharField(max_length = 40,
-                               choices = DEBIT_CREDIT,
-                               default = 'in',
-                               editable = False)
-   confirm_key = models.CharField( max_length = 255, blank = True, null = True, 
-                                   editable = False)
+    comission = models.DecimalField(max_digits=18,
+                                    decimal_places=2,
+                                    verbose_name=u"комиссия",
+                                    editable=False)
 
-   sign = models.CharField( max_length = 255, blank = True, null = True,
-                                   editable = False)
+    user = models.ForeignKey(User, verbose_name=u"Клиент",
+                             related_name="user_requested_liqpay",
+                             editable=True, null=True)
+    user_accomplished = models.ForeignKey(User, verbose_name=u"Оператор проводки",
+                                          related_name="operator_processed_liqpay",
+                                          blank=True, null=True, editable=False)
+    pub_date = models.DateTimeField(auto_now=False, verbose_name=u"Дата", editable=False)
+
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created', editable=True)
+
+    order = models.ForeignKey("Orders", verbose_name=u"Ордер",
+                              editable=False, null=True, blank=True)
+
+    debit_credit = models.CharField(max_length=40,
+                                    choices=DEBIT_CREDIT,
+                                    default='in',
+                                    editable=False)
+    confirm_key = models.CharField(max_length=255, blank=True, null=True,
+                                   editable=False)
+
+    sign = models.CharField(max_length=255, blank=True, null=True,
+                            editable=False)
 
 
-   def fields4sign(self):
+    def fields4sign(self):
         List = []
-        for i in  ('phone','debit_credit','status','user','comission','amnt','description'):
-           Val = getattr(self, i)          
-           if i in ('comission', 'amnt'):
-               List.append(format_numbers_strong(Val ) )
-           else:
-               List.append(str(Val))
-        
+        for i in ('phone', 'debit_credit', 'status', 'user', 'comission', 'amnt', 'description'):
+            Val = getattr(self, i)
+            if i in ('comission', 'amnt'):
+                List.append(format_numbers_strong(Val))
+            else:
+                List.append(str(Val))
+
         return ",".join(List)
-            
 
-   def verify(self, key):
-        Fields = self.fields4sign()
-        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
-        return  Sign == self.sign 
 
-   def sign_record(self, key):
+    def verify(self, key):
         Fields = self.fields4sign()
-        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
+        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
+        return Sign == self.sign
+
+    def sign_record(self, key):
+        Fields = self.fields4sign()
+        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
         self.save()
 
 
-
-   class Meta: 
-        verbose_name=u'LiqPay ордер'        
+    class Meta:
+        verbose_name = u'LiqPay ордер'
         verbose_name_plural = u'LiqPay ордеры'
-        
-   ordering = ('id',) 
-      
-   def __unicode__(o):
-      return   str(o.id) + " " + str(o.amnt) + " " +  o.user.username
 
+    ordering = ('id',)
+
+    def __unicode__(o):
+        return str(o.id) + " " + str(o.amnt) + " " + o.user.username
 
 
 def process_liqpay(modeladmin, request, queryset):
     for i in queryset:
-            if i.user_accomplished is None and i.status == "processing" and i.debit_credit == "out":
-               i.status = "processed"
-               i.order.status = "processed"
-               i.order.save()
-               i.user_accomplished = request.user
-               i.save()
-               
+        if i.user_accomplished is None and i.status == "processing" and i.debit_credit == "out":
+            i.status = "processed"
+            i.order.status = "processed"
+            i.order.save()
+            i.user_accomplished = request.user
+            i.save()
+
+
 process_liqpay.short_description = u"Process"
 
 
 ###TODO remove various fields from move
 class LiqPayTransAdmin(admin.ModelAdmin):
-    list_display = ["id", 'phone','description',"debit_credit", 'amnt',
+    list_display = ["id", 'phone', 'description', "debit_credit", 'amnt',
                     'currency', "pub_date", "status", "user", "user_accomplished"]
     actions = [process_liqpay]
-    list_filter = ('phone','user', 'debit_credit','user_accomplished')
+    list_filter = ('phone', 'user', 'debit_credit', 'user_accomplished')
 
-    search_fields = ['^phone',  '^description', '=amnt', '=status']
-   
+    search_fields = ['^phone', '^description', '=amnt', '=status']
+
     def __init__(self, *args, **kwargs):
         super(LiqPayTransAdmin, self).__init__(*args, **kwargs)
-        self.list_display_links = (None, )    
-        
-        
-    def save_model(self, request, obj, form, change):    
-                return  True   
-    
+        self.list_display_links = (None, )
+
+
+    def save_model(self, request, obj, form, change):
+        return True
+
+
 class NewsPageAdmin(admin.ModelAdmin):
-    list_display = ["id",'cat' ,'eng_title','title',"pub_date"]
+    list_display = ["id", 'cat', 'eng_title', 'title', "pub_date"]
 
     def formfield_for_dbfield(self, db_field, **kwargs):
-	if db_field.name == 'text':
+        if db_field.name == 'text':
             return db_field.formfield(widget=TinyMCE(
                 attrs={'cols': 200, 'rows': 30},
                 #mce_attrs={'external_link_list_url': reverse('tinymce.views.flatpages_link_list')},
             ))
-	return super(NewsPageAdmin, self).formfield_for_dbfield(db_field, **kwargs)
+        return super(NewsPageAdmin, self).formfield_for_dbfield(db_field, **kwargs)
 
 
-
-    
 class NewsPage(models.Model):
-   eng_title = models.CharField(max_length = 255, verbose_name = u"Ключ на английском")
-   pub_date = models.DateTimeField( auto_now = True )
-   title = models.CharField(max_length = 255, verbose_name = u"Заглавие")
-   text = models.TextField( verbose_name = u"Текст")
-   meta_keyword = models.CharField(max_length = 255, blank = True, verbose_name = u"META описание")
-   meta_description = models.CharField(max_length = 255, blank = True, verbose_name = u"META ключевые слова")     
-   cat =  models.ForeignKey( "Category",  verbose_name = u"Категория" )
-   class Meta: 
-      verbose_name=u'Новость'
-      verbose_name_plural=u'Новости'
-   def __unicode__(o):
-	return o.title
-  
-class StaticPageAdmin(admin.ModelAdmin):
-    list_display = ["id", 'eng_title','title']
+    eng_title = models.CharField(max_length=255, verbose_name=u"Ключ на английском")
+    pub_date = models.DateTimeField(auto_now=True)
+    title = models.CharField(max_length=255, verbose_name=u"Заглавие")
+    text = models.TextField(verbose_name=u"Текст")
+    meta_keyword = models.CharField(max_length=255, blank=True, verbose_name=u"META описание")
+    meta_description = models.CharField(max_length=255, blank=True, verbose_name=u"META ключевые слова")
+    cat = models.ForeignKey("Category", verbose_name=u"Категория")
 
-    def formfield_for_dbfield(self, db_field, **kwargs):
-	if db_field.name == 'text':
-            return db_field.formfield(widget=TinyMCE(
-                attrs={'cols': 200, 'rows': 30},
-                #mce_attrs={'external_link_list_url': reverse('tinymce.views.flatpages_link_list')},
-            ))
-	return super(StaticPageAdmin, self).formfield_for_dbfield(db_field, **kwargs)
-
-    
-
- 
-class StaticPage(models.Model):
-   eng_title = models.CharField(max_length = 255, verbose_name = u"Ключ на английском")
-   title = models.CharField(max_length = 255, verbose_name = u"Заглавие")
-   text = models.TextField( verbose_name = u"Текст")
-   meta_keyword = models.CharField(max_length = 255, blank = True, verbose_name = u"META описание")
-   meta_description = models.CharField(max_length = 255, blank = True, verbose_name = u"META ключевые слова")     
-   class Meta: 
-      verbose_name=u'Статическая страница'
-      verbose_name_plural=u'Статические страницы'
-   def __unicode__(o):
-          return o.title 
-          
-
-   
-
-class Msg(models.Model):
-    pub_date = models.DateTimeField( auto_now = True )
-    user_from = models.ForeignKey(User, related_name = "user_from_id")
-    user_to = models.ForeignKey(User, related_name = "user_to_id")
-    user_seen_from =  models.CharField(max_length = 10,
-                               choices = BOOL,
-                               default = 'false')
-    user_seen_to = models.CharField(max_length = 10,
-                               choices = BOOL,
-                               default = 'false')
-    user_hide_from =  models.CharField(max_length = 10,
-                               choices = BOOL,
-                               default = 'false')
-    user_hide_to = models.CharField(max_length = 10,
-                               choices = BOOL,
-                               default = 'false')
-    text = models.CharField(max_length = 255)
-
-    class Meta: 
-       verbose_name = u'Внутренняя рассылка'
-       verbose_name_plural = u'Внутренняя рассылки'
-       ordering = ('-id',)
+    class Meta:
+        verbose_name = u'Новость'
+        verbose_name_plural = u'Новости'
 
     def __unicode__(o):
-                return o.text
+        return o.title
+
+
+class StaticPageAdmin(admin.ModelAdmin):
+    list_display = ["id", 'eng_title', 'title']
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == 'text':
+            return db_field.formfield(widget=TinyMCE(
+                attrs={'cols': 200, 'rows': 30},
+                #mce_attrs={'external_link_list_url': reverse('tinymce.views.flatpages_link_list')},
+            ))
+        return super(StaticPageAdmin, self).formfield_for_dbfield(db_field, **kwargs)
+
+
+class StaticPage(models.Model):
+    eng_title = models.CharField(max_length=255, verbose_name=u"Ключ на английском")
+    title = models.CharField(max_length=255, verbose_name=u"Заглавие")
+    text = models.TextField(verbose_name=u"Текст")
+    meta_keyword = models.CharField(max_length=255, blank=True, verbose_name=u"META описание")
+    meta_description = models.CharField(max_length=255, blank=True, verbose_name=u"META ключевые слова")
+
+    class Meta:
+        verbose_name = u'Статическая страница'
+        verbose_name_plural = u'Статические страницы'
+
+    def __unicode__(o):
+        return o.title
+
+
+class Msg(models.Model):
+    pub_date = models.DateTimeField(auto_now=True)
+    user_from = models.ForeignKey(User, related_name="user_from_id")
+    user_to = models.ForeignKey(User, related_name="user_to_id")
+    user_seen_from = models.CharField(max_length=10,
+                                      choices=BOOL,
+                                      default='false')
+    user_seen_to = models.CharField(max_length=10,
+                                    choices=BOOL,
+                                    default='false')
+    user_hide_from = models.CharField(max_length=10,
+                                      choices=BOOL,
+                                      default='false')
+    user_hide_to = models.CharField(max_length=10,
+                                    choices=BOOL,
+                                    default='false')
+    text = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = u'Внутренняя рассылка'
+        verbose_name_plural = u'Внутренняя рассылки'
+        ordering = ('-id',)
+
+    def __unicode__(o):
+        return o.text
+
 
 class MsgAdmin(admin.ModelAdmin):
     list_display = ['pub_date', 'user_from', 'user_to', 'user_hide_from', 'user_hide_to', 'text']
@@ -1415,211 +1420,215 @@ class MsgAdmin(admin.ModelAdmin):
     search_fields = ['^text', '^user_from__username', '^user_to__username']
 
 
-
-
 def process_bank(modeladmin, request, queryset):
     for i in queryset:
-            if i.user_accomplished is None and i.status == "processing" and i.debit_credit == "out":
-               i.status = "processed"
-               i.order.status = "processed"
-               i.order.save()
-               i.user_accomplished = request.user
-               i.save()
-                    
+        if i.user_accomplished is None and i.status == "processing" and i.debit_credit == "out":
+            i.status = "processed"
+            i.order.status = "processed"
+            i.order.save()
+            i.user_accomplished = request.user
+            i.save()
+
+
 process_bank.shoort_description = u"Process"
 
 
 class BankTransfersAdmin(admin.ModelAdmin):
-    list_display = ["id",'ref','okpo','mfo', 'account', 'description', "debit_credit", 'amnt','currency', 'user', 'status',"user_accomplished"]
+    list_display = ["id", 'ref', 'okpo', 'mfo', 'account', 'description', "debit_credit", 'amnt', 'currency', 'user',
+                    'status', "user_accomplished"]
     actions = [process_bank]
-    search_fields = ['^okpo','^mfo', '^account', '^description', '=amnt', '^user__username', '^status']
-    exclude = ( "user_accomplished" ,"status")
-    fields = ('ref','okpo','mfo', 'account', 'description', 'amnt','currency')
-    
+    search_fields = ['^okpo', '^mfo', '^account', '^description', '=amnt', '^user__username', '^status']
+    exclude = ( "user_accomplished", "status")
+    fields = ('ref', 'okpo', 'mfo', 'account', 'description', 'amnt', 'currency')
+
     def __init__(self, *args, **kwargs):
         super(BankTransfersAdmin, self).__init__(*args, **kwargs)
         self.list_display_links = (None, )
-        
+
 
     def save_model(self, request, obj, form, change):
-             ## try to find Account and user by reference
-             ###we forbid any regulation after accomplishing transaction onnly manually 
-             
-             ###for in bank transfers
-              Account = None
-             
-              if  obj.ref is   None or obj.ref == "":
-                     return False
-                     
-              obj.debit_credit = "in"             
-              Account  = Accounts.objects.get(reference = obj.ref)  
-              obj.user = Account.user
-              if  obj.user is   None:
-                 return False
-         
-             ## if we have found  Account and user by reference            
-             ## if not by reference, but by users
-              TradePair = TradePairs.objects.get(url_title = "bank_transfers")
-               ##create order for them
-              obj.ref = Account.reference
-              order = Orders(user = obj.user,
-                             currency1 = obj.currency,
-                             currency2 = obj.currency,
-                             sum1_history = obj.amnt,
-                             sum2_history = obj.amnt,
-                             price = obj.amnt,
-                             sum1 = obj.amnt,
-                             sum2 = obj.amnt,
-                             transit_1 = TradePair.transit_on,
-                             transit_2 = Account,
-                             trade_pair = TradePair,
-                             status = "created"
-                            )
-              
-              order.save()
-              add_trans(TradePair.transit_on, obj.amnt, obj.currency, Account, order, "payin", obj.ref, False)
-              obj.user_accomplished = request.user
-              obj.confirm_key = obj.ref
-              obj.order = order
-              order.status = "processed"
-              order.save()              
-              obj.status = "processed"
-              obj.save()     
-               ##bank transfer must ref specified for out transfers        
-              return  True  
-           
-OBJECTIONS_STAT = (
-        ("0", u"0"),
-        ("1", u"0.5%"),
-        ("2", u"1%"),
-        ("manually1", u"1% + 10 грн"),
-        ("manually2", u"1% + 1.95 USD")
+        ## try to find Account and user by reference
+        ###we forbid any regulation after accomplishing transaction onnly manually 
+
+        ###for in bank transfers
+        Account = None
+
+        if obj.ref is None or obj.ref == "":
+            return False
+
+        obj.debit_credit = "in"
+        Account = Accounts.objects.get(reference=obj.ref)
+        obj.user = Account.user
+        if obj.user is None:
+            return False
+
+            ## if we have found  Account and user by reference            
+            ## if not by reference, but by users
+        TradePair = TradePairs.objects.get(url_title="bank_transfers")
+        ##create order for them
+        obj.ref = Account.reference
+        order = Orders(user=obj.user,
+                       currency1=obj.currency,
+                       currency2=obj.currency,
+                       sum1_history=obj.amnt,
+                       sum2_history=obj.amnt,
+                       price=obj.amnt,
+                       sum1=obj.amnt,
+                       sum2=obj.amnt,
+                       transit_1=TradePair.transit_on,
+                       transit_2=Account,
+                       trade_pair=TradePair,
+                       status="created"
         )
 
+        order.save()
+        add_trans(TradePair.transit_on, obj.amnt, obj.currency, Account, order, "payin", obj.ref, False)
+        obj.user_accomplished = request.user
+        obj.confirm_key = obj.ref
+        obj.order = order
+        order.status = "processed"
+        order.save()
+        obj.status = "processed"
+        obj.save()
+        ##bank transfer must ref specified for out transfers        
+        return True
+
+
+OBJECTIONS_STAT = (
+    ("0", u"0"),
+    ("1", u"0.5%"),
+    ("2", u"1%"),
+    ("manually1", u"1% + 10 грн"),
+    ("manually2", u"1% + 1.95 USD")
+)
+
+
 def get_comisP2P(BCard, Amnt):
-        try : 
-              Objections =  ObjectionsP2P.objects.get(CardNumber = BCard )
-              if  Objections.Objection == "0":
-                      return Amnt
-              if  Objections.Objection == "1":
-                      Amnt2 = Amnt/Decimal("1.005")
-                      return to_prec(Amnt2,2)
-              if  Objections.Objection == "2":
-                      Amnt2 = Amnt/Decimal("1.01")
-                      return to_prec(Amnt2,2)        
-              return -1
-        except:
-              return -1
+    try:
+        Objections = ObjectionsP2P.objects.get(CardNumber=BCard)
+        if Objections.Objection == "0":
+            return Amnt
+        if Objections.Objection == "1":
+            Amnt2 = Amnt / Decimal("1.005")
+            return to_prec(Amnt2, 2)
+        if Objections.Objection == "2":
+            Amnt2 = Amnt / Decimal("1.01")
+            return to_prec(Amnt2, 2)
+        return -1
+    except:
+        return -1
+
 
 class ObjectionsP2P(models.Model):
-      CardNumber  =  models.CharField( max_length = 255, verbose_name = u"Номер карты")
-      Objection = models.CharField(max_length = 255, verbose_name = u"Условия вывода",
-                                   choices = OBJECTIONS_STAT,)
-      class Meta: 
-        verbose_name=u'Условие вывода на карту'        
+    CardNumber = models.CharField(max_length=255, verbose_name=u"Номер карты")
+    Objection = models.CharField(max_length=255, verbose_name=u"Условия вывода",
+                                 choices=OBJECTIONS_STAT, )
+
+    class Meta:
+        verbose_name = u'Условие вывода на карту'
         verbose_name_plural = u'Условия выводы на карту'
 
-      ordering = ('id',)       
-      
-      def __unicode__(o):
-        return   str(o.CardNumber) + " " + str(o.Objection) 
+    ordering = ('id',)
 
-
-
-
+    def __unicode__(o):
+        return str(o.CardNumber) + " " + str(o.Objection)
 
 
 def fix2cancel(modeladmin, request, queryset):
-        for i in queryset:
-            i.status = "canceled"
-            i.user_accomplished = request.user
-            i.save()
+    for i in queryset:
+        i.status = "canceled"
+        i.user_accomplished = request.user
+        i.save()
+
 
 def fix2auto(modeladmin, request, queryset):
     for i in queryset:
-           if i.status == "processing":
-                i.status = "auto"
-                i.save()
+        if i.status == "processing":
+            i.status = "auto"
+            i.save()
+
 
 def return_p2p(modeladmin, request, queryset):
     for i in queryset:
-            if i.user_accomplished is None and (i.status == "processing" or i.status=='created' or i.status == "auto" or i.status == "") and i.debit_credit == "out":
-               i.status = "canceled"
-               order = i.order
-               #if order is None:
-                    #continue 
-               
-               order.status = "canceled"
-               add_trans( order.transit_2,
-                          order.sum1,
-                          order.currency2,
-                          order.transit_1,  
-                          order, 
-                          "order_cancel", 
-                          None,
-                          False)               
-               
-               order.save()
-               i.user_accomplished = request.user
-               i.save()
- 
+        if i.user_accomplished is None and (
+                                i.status == "processing" or i.status == 'created' or i.status == "auto" or i.status == "") and i.debit_credit == "out":
+            i.status = "canceled"
+            order = i.order
+            #if order is None:
+            #continue 
+
+            order.status = "canceled"
+            add_trans(order.transit_2,
+                      order.sum1,
+                      order.currency2,
+                      order.transit_1,
+                      order,
+                      "order_cancel",
+                      None,
+                      False)
+
+            order.save()
+            i.user_accomplished = request.user
+            i.save()
+
+
 def P24():
-        from sdk.p24 import p24
-        return p24()
-        
-        
+    from sdk.p24 import p24
+
+    return p24()
+
+
 def p2p_inner_process(user, i):
     i.status = "processed"
     i.order.status = "processed"
     i.order.save()
     i.user_accomplished = user
     i.save()
-    notify_email(i.user, "withdraw_notify", i) 
- 
- 
+    notify_email(i.user, "withdraw_notify", i)
+
+
 def process_p2p(modeladmin, request, queryset):
     for i in queryset:
-            if i.user_accomplished is None and (i.status=="core_error" 
-                                                or i.status == "processing" 
-                                                or i.status == "auto")  and i.debit_credit == "out":
-               P = P24()
-               CardNumber = i.CardNumber
-               CardNumber.replace(" ","")
-               ###this record was processed manually 
+        if i.user_accomplished is None and (i.status == "core_error"
+                                            or i.status == "processing"
+                                            or i.status == "auto") and i.debit_credit == "out":
+            P = P24()
+            CardNumber = i.CardNumber
+            CardNumber.replace(" ", "")
+            ###this record was processed manually 
 
-               if i.status == "auto" :
-                        try :
-                                        NewAmnt = get_comisP2P(CardNumber, i.amnt )
-                                        Result = P.pay2p(i.id, CardNumber, NewAmnt)
-                        except TransError as e:
-                                        i.status = "processing"
-                                        i.save()
-                                        notify_admin_withdraw_fail(i, e.value)
-                                        continue 
-                        except Exception as e:
-                                        i.status = "processing"
-                                        i.save()
-                                        notify_admin_withdraw_fail(i, str(e) )
-                                        continue         
-                        if Result :
-                                p2p_inner_process(request.user, i)
-           
-                        continue
-               ###this record was processed manually 
-               if i.status == "processing" or i.status == "core_error" :
-                      p2p_inner_process(request.user, i)
-                       
-               
+            if i.status == "auto":
+                try:
+                    NewAmnt = get_comisP2P(CardNumber, i.amnt)
+                    Result = P.pay2p(i.id, CardNumber, NewAmnt)
+                except TransError as e:
+                    i.status = "processing"
+                    i.save()
+                    notify_admin_withdraw_fail(i, e.value)
+                    continue
+                except Exception as e:
+                    i.status = "processing"
+                    i.save()
+                    notify_admin_withdraw_fail(i, str(e))
+                    continue
+                if Result:
+                    p2p_inner_process(request.user, i)
+
+                continue
+            ###this record was processed manually 
+            if i.status == "processing" or i.status == "core_error":
+                p2p_inner_process(request.user, i)
 
 
 def p2p_2_vlad_process(modeladmin, request, queryset):
-    for i in queryset:  
-        if  i.status == "processing"    and i.debit_credit == "out":        
+    for i in queryset:
+        if i.status == "processing" and i.debit_credit == "out":
             P = P24()
             P.pay2p(i.id, "5211537323989553", i.amnt)
-            i.status='processing2'
-            i.save()            
-            
+            i.status = 'processing2'
+            i.save()
+
+
 p2p_2_vlad_process.short_description = u"Process to operator"
 return_p2p.short_description = u"Cancel"
 process_p2p.short_description = u"Process"
@@ -1629,463 +1638,473 @@ fix2auto.short_description = u"Make Auto"
 
 
 class CardP2PTransfersAdmin(admin.ModelAdmin):
-    list_display = ["id", 'CardName','CardNumber',"debit_credit", 'amnt',
+    list_display = ["id", 'CardName', 'CardNumber', "debit_credit", 'amnt',
                     'currency', "pub_date", "status", "user", "user_accomplished"]
     actions = [process_p2p, return_p2p, fix2cancel, fix2auto, p2p_2_vlad_process]
-    list_filter = ('CardNumber','user', 'debit_credit','user_accomplished')
+    list_filter = ('CardNumber', 'user', 'debit_credit', 'user_accomplished')
     search_fields = ['CardName', 'CardNumber', '=amnt', 'user__email', 'user__username']
+
     def __init__(self, *args, **kwargs):
         super(CardP2PTransfersAdmin, self).__init__(*args, **kwargs)
-        self.list_display_links = (None, )    
-        
-        
-    def save_model(self, request, obj, form, change):    
-                return  True   
-    
+        self.list_display_links = (None, )
 
-    
+
+    def save_model(self, request, obj, form, change):
+        return True
 
 
 class BankTransfers(models.Model):
-   ref = models.CharField(max_length = 255, verbose_name = u"Референс", null = True, blank = True,)
-   okpo =  models.CharField( max_length = 255, verbose_name = u"ОКПО")
-   mfo =  models.CharField( max_length = 255, verbose_name = u"МФО")
-   account = models.CharField( max_length = 255, verbose_name = u"Счет" )
-   comission = models.DecimalField( max_digits = 18,
-                               decimal_places = 2,
-                               verbose_name = u"комиссия",
-                               editable = False)
-   description = models.CharField( max_length = 255, verbose_name = u"Описание" )
-   currency =  models.ForeignKey( "Currency",  verbose_name = u"Валюта" )
-   amnt = models.DecimalField( max_digits = 18, decimal_places = 2, verbose_name = u"Сумма" ) 
-   user = models.ForeignKey( User, verbose_name = u"Клиент",  related_name = "user_requested", blank = True, null = True )
-   user_accomplished = models.ForeignKey( User, verbose_name = u"Оператор проводки", 
-                                           related_name = "operator_processed", 
-                                           blank = True, null = True )
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата" )
-   status =  models.CharField( max_length = 40,
-                               choices = STATUS_ORDER,
-                               default = 'created')
-   order = models.ForeignKey("Orders",  verbose_name = u"Ордер",
-                              editable = False,
-                              null = True, blank = True)
-   confirm_key = models.CharField( max_length = 255, editable = False, blank = True, null = True)
-   
+    ref = models.CharField(max_length=255, verbose_name=u"Референс", null=True, blank=True, )
+    okpo = models.CharField(max_length=255, verbose_name=u"ОКПО")
+    mfo = models.CharField(max_length=255, verbose_name=u"МФО")
+    account = models.CharField(max_length=255, verbose_name=u"Счет")
+    comission = models.DecimalField(max_digits=18,
+                                    decimal_places=2,
+                                    verbose_name=u"комиссия",
+                                    editable=False)
+    description = models.CharField(max_length=255, verbose_name=u"Описание")
+    currency = models.ForeignKey("Currency", verbose_name=u"Валюта")
+    amnt = models.DecimalField(max_digits=18, decimal_places=2, verbose_name=u"Сумма")
+    user = models.ForeignKey(User, verbose_name=u"Клиент", related_name="user_requested", blank=True, null=True)
+    user_accomplished = models.ForeignKey(User, verbose_name=u"Оператор проводки",
+                                          related_name="operator_processed",
+                                          blank=True, null=True)
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата")
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created')
+    order = models.ForeignKey("Orders", verbose_name=u"Ордер",
+                              editable=False,
+                              null=True, blank=True)
+    confirm_key = models.CharField(max_length=255, editable=False, blank=True, null=True)
 
-   debit_credit =  models.CharField(max_length = 40,
-                               choices = DEBIT_CREDIT,
-                               default = 'in')
-   class Meta: 
-        verbose_name=u'Банковский перевод'        
+    debit_credit = models.CharField(max_length=40,
+                                    choices=DEBIT_CREDIT,
+                                    default='in')
+
+    class Meta:
+        verbose_name = u'Банковский перевод'
         verbose_name_plural = u'Банковские переводы'
-   ordering = ('id',) 
-      
-   def __unicode__(o):
-      return   str(o.id) + " " + str(o.amnt) + " " +   o.currency.title  
+
+    ordering = ('id',)
+
+    def __unicode__(o):
+        return str(o.id) + " " + str(o.amnt) + " " + o.currency.title
 
 
-class ChatHistory(models.Model):           
-   msg = models.CharField(max_length = 255, verbose_name = u"сообщение")
-   user = models.CharField(max_length = 255, verbose_name = u"пользователь")
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата публикации" )
-   CHAT_STATUS = (
-                        ("created", u"created"),
-                        ("banned", u"banned"),
-                )
-   status =  models.CharField(max_length = 40,
-                               choices = CHAT_STATUS,
-                               default = 'created')
-   class Meta: 
-      verbose_name=u'Архив чата'
-      verbose_name_plural = u'Архив чата'
-      ordering = ('id',) 
-   def __unicode__(o):
-      return o.user + ", " + " " + o.pub_date +", "+ o.msg
+class ChatHistory(models.Model):
+    msg = models.CharField(max_length=255, verbose_name=u"сообщение")
+    user = models.CharField(max_length=255, verbose_name=u"пользователь")
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата публикации")
+    CHAT_STATUS = (
+        ("created", u"created"),
+        ("banned", u"banned"),
+    )
+    status = models.CharField(max_length=40,
+                              choices=CHAT_STATUS,
+                              default='created')
+
+    class Meta:
+        verbose_name = u'Архив чата'
+        verbose_name_plural = u'Архив чата'
+        ordering = ('id',)
+
+    def __unicode__(o):
+        return o.user + ", " + " " + o.pub_date + ", " + o.msg
 
 
 class VolatileConsts(models.Model):
-     Name =  models.CharField(max_length = 255, verbose_name = u"название переменной")
-     Value = models.CharField(max_length = 255, verbose_name = u"Значение")     
-     class Meta: 
-        verbose_name=u'Временная переменная'
+    Name = models.CharField(max_length=255, verbose_name=u"название переменной")
+    Value = models.CharField(max_length=255, verbose_name=u"Значение")
+
+    class Meta:
+        verbose_name = u'Временная переменная'
         verbose_name_plural = u'Временные переменные'
-     ordering = ('id',) 
-     def __unicode__(o):
+
+    ordering = ('id',)
+
+    def __unicode__(o):
         return o.Name + "=" + o.Value
-     
 
 
-        
-class Chat(models.Model):   
-        
-   msg = models.CharField(max_length = 255, verbose_name = u"сообщение")
-   user = models.ForeignKey(User, verbose_name = u"пользователь")
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата публикации" )
+class Chat(models.Model):
+    msg = models.CharField(max_length=255, verbose_name=u"сообщение")
+    user = models.ForeignKey(User, verbose_name=u"пользователь")
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата публикации")
 
-   CHAT_STATUS = (
-                        ("created", u"created"),
-                        ("banned", u"banned"),
-                )
-   status =  models.CharField(max_length = 40,
-                               choices = CHAT_STATUS,
-                               default = 'created')
-   class Meta: 
-      verbose_name=u'Сообщение чата'
-      verbose_name_plural = u'Сообщения чата'
-      ordering = ('id',) 
+    CHAT_STATUS = (
+        ("created", u"created"),
+        ("banned", u"banned"),
+    )
+    status = models.CharField(max_length=40,
+                              choices=CHAT_STATUS,
+                              default='created')
 
-   def __unicode__(o):
-      return user + ", " + o.msg
+    class Meta:
+        verbose_name = u'Сообщение чата'
+        verbose_name_plural = u'Сообщения чата'
+        ordering = ('id',)
+
+    def __unicode__(o):
+        return user + ", " + o.msg
+
 
 class FullBinInfo(models.Model):
-    country = models.CharField(max_length = 255, blank = True, null = True)
-    product = models.CharField(max_length = 255, blank = True, null = True)
-    bank = models.CharField(max_length = 255, blank = True, null = True)
-    bin6 = models.CharField(max_length = 255, unique = True)
-    prepaid = models.CharField(max_length = 255, blank = True, null = True)
-    pbbin = models.CharField(max_length = 255,  blank = True, null = True)
-    alphacode = models.CharField(max_length = 255,  blank = True, null = True)
+    country = models.CharField(max_length=255, blank=True, null=True)
+    product = models.CharField(max_length=255, blank=True, null=True)
+    bank = models.CharField(max_length=255, blank=True, null=True)
+    bin6 = models.CharField(max_length=255, unique=True)
+    prepaid = models.CharField(max_length=255, blank=True, null=True)
+    pbbin = models.CharField(max_length=255, blank=True, null=True)
+    alphacode = models.CharField(max_length=255, blank=True, null=True)
 
-    class Meta: 
-        verbose_name=u'Бин'
+    class Meta:
+        verbose_name = u'Бин'
         verbose_name_plural = u'Бины'
-        ordering = ('id',) 
+        ordering = ('id',)
+
 
 class ResetPwdLink(models.Model):
     user = models.ForeignKey(User)
-    key = models.CharField(max_length = 255)
-    pub_date = models.DateTimeField( auto_now = True )
-    status =  models.CharField(max_length = 40,
-                               choices = STATUS_ORDER,
-                               default = 'created')
+    key = models.CharField(max_length=255)
+    pub_date = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created')
+
     class Meta:
-      verbose_name=u'Ссылка обновления пароля'
-      verbose_name_plural = u'Ссылки обновления пароля'
-      ordering = ('id',)
+        verbose_name = u'Ссылка обновления пароля'
+        verbose_name_plural = u'Ссылки обновления пароля'
+        ordering = ('id',)
 
     def __unicode__(o):
-                return o.user.username + "  " + str(o.pub_date)
+        return o.user.username + "  " + str(o.pub_date)
+
 
 class ActiveLink(models.Model):
     user = models.ForeignKey(User)
-    key = models.CharField(max_length = 255)
-    pub_date = models.DateTimeField( auto_now = True )
-    status =  models.CharField(max_length = 40,
-                               choices = STATUS_ORDER,
-                               default = 'created')
-    class Meta: 
-      verbose_name=u'Ссылка активации'
-      verbose_name_plural = u'Ссылки активации'
-      ordering = ('id',) 
-      
+    key = models.CharField(max_length=255)
+    pub_date = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created')
+
+    class Meta:
+        verbose_name = u'Ссылка активации'
+        verbose_name_plural = u'Ссылки активации'
+        ordering = ('id',)
+
     def __unicode__(o):
-                return o.user.username + "  " + str(o.pub_date)
-        
- 
-class  CurrencyAdmin(admin.ModelAdmin):
-        def save_model(self, request, obj, form, change):
-            Comis = User.objects.get(id = settings.COMISSION_USER)
-            Crypto = User.objects.get(id = settings.CRYPTO_USER)
-
-	    obj.save()
-	    if not change:    
-	 	   for i in User.objects.all():
-	 		d=Accounts(user = i, currency  = obj,  balance = "0.000" )
-			d.save()
-		
-            try :
-                ComisAccount = Accounts.objects.get(user = Comis, currency  = obj )    
-            except Accounts.DoesNotExist:
-                ComisAccount = Accounts(user = Comis, currency  = obj, balance = "0.000" )
-                ComisAccount.save()
-                
-            Crypto_Account = None
-            try :
-                Crypto_Account = Accounts.objects.get(user = Crypto, currency  = obj )    
-            except Accounts.DoesNotExist:
-                Crypto_Account = Accounts(user = Crypto, currency  = obj, balance = "0.000" )
-                Crypto_Account.save()
-        
-            try :
-                Tr = TradePairs.objects.get( currency_from = obj,
-                                       currency_on = obj, 
-                                       transit_on = Crypto_Account, 
-                                       transit_from = Crypto_Account)        
-            except TradePairs.DoesNotExist:    
-                trade_pair = TradePairs(
-                                currency_from = obj,
-                                currency_on = obj, 
-                                transit_on = Crypto_Account, 
-                                transit_from = Crypto_Account,
-                                title = "CRYPTO_IN_OUT_%s" % (obj.title),
-                                url_title = "crypto_in_out%s" % (obj.title),
-                                ordering = 0                                                       
-                             ) 
-                trade_pair.save()
-                    
+        return o.user.username + "  " + str(o.pub_date)
 
 
-           
-            return True
-        
+class CurrencyAdmin(admin.ModelAdmin):
+    def save_model(self, request, obj, form, change):
+        Comis = User.objects.get(id=settings.COMISSION_USER)
+        Crypto = User.objects.get(id=settings.CRYPTO_USER)
+
+        obj.save()
+        if not change:
+            for i in User.objects.all():
+                d = Accounts(user=i, currency=obj, balance="0.000")
+                d.save()
+
+        try:
+            ComisAccount = Accounts.objects.get(user=Comis, currency=obj)
+        except Accounts.DoesNotExist:
+            ComisAccount = Accounts(user=Comis, currency=obj, balance="0.000")
+            ComisAccount.save()
+
+        Crypto_Account = None
+        try:
+            Crypto_Account = Accounts.objects.get(user=Crypto, currency=obj)
+        except Accounts.DoesNotExist:
+            Crypto_Account = Accounts(user=Crypto, currency=obj, balance="0.000")
+            Crypto_Account.save()
+
+        try:
+            Tr = TradePairs.objects.get(currency_from=obj,
+                                        currency_on=obj,
+                                        transit_on=Crypto_Account,
+                                        transit_from=Crypto_Account)
+        except TradePairs.DoesNotExist:
+            trade_pair = TradePairs(
+                currency_from=obj,
+                currency_on=obj,
+                transit_on=Crypto_Account,
+                transit_from=Crypto_Account,
+                title="CRYPTO_IN_OUT_%s" % (obj.title),
+                url_title="crypto_in_out%s" % (obj.title),
+                ordering=0
+            )
+            trade_pair.save()
+
+        return True
+
 
 class Balances(models.Model):
-        account = models.CharField(verbose_name = u"Адресс", max_length = 255)
-        balance = models.DecimalField( verbose_name = u"Баланс", max_digits = 20, decimal_places = 10)
-        currency = models.ForeignKey( "Currency", verbose_name = u"криптовалюта")
+    account = models.CharField(verbose_name=u"Адресс", max_length=255)
+    balance = models.DecimalField(verbose_name=u"Баланс", max_digits=20, decimal_places=10)
+    currency = models.ForeignKey("Currency", verbose_name=u"криптовалюта")
 
-        class Meta: 
-                verbose_name=u'Кошелек'
-                verbose_name_plural = u'Кошельки'
-                ordering = ('id',) 
-        def __unicode__(o):
-                return o.account + " " + str(o.balance)
+    class Meta:
+        verbose_name = u'Кошелек'
+        verbose_name_plural = u'Кошельки'
+        ordering = ('id',)
+
+    def __unicode__(o):
+        return o.account + " " + str(o.balance)
+
 
 class Category(models.Model):
-        
-   title = models.CharField(max_length = 255,verbose_name = u"Название")
-   ordering = models.IntegerField(verbose_name = u"Сортировка", default = 1)
-   def __unicode__(o):
-      return o.title
+    title = models.CharField(max_length=255, verbose_name=u"Название")
+    ordering = models.IntegerField(verbose_name=u"Сортировка", default=1)
+
+    def __unicode__(o):
+        return o.title
+
 
 class Currency(models.Model):
-        
-   title = models.CharField(max_length = 255,verbose_name = u"Название")
-   long_title = models.CharField(max_length = 255,verbose_name = u"Длиное название")
-   text = models.TextField(verbose_name = u"Описание")
-   img = models.ImageField(upload_to = 'clogo', verbose_name=u'Логотип')
-   ordering = models.IntegerField(verbose_name = u"Сортировка", default = 1)
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата публикации" )
-   
-   class Meta: 
-      verbose_name=u'Валюта'
-      verbose_name_plural = u'Валюты'
-      ordering = ('id',) 
-      
-   def __unicode__(o):
-      return o.title
+    title = models.CharField(max_length=255, verbose_name=u"Название")
+    long_title = models.CharField(max_length=255, verbose_name=u"Длиное название")
+    text = models.TextField(verbose_name=u"Описание")
+    img = models.ImageField(upload_to='clogo', verbose_name=u'Логотип')
+    ordering = models.IntegerField(verbose_name=u"Сортировка", default=1)
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата публикации")
 
+    class Meta:
+        verbose_name = u'Валюта'
+        verbose_name_plural = u'Валюты'
+        ordering = ('id',)
+
+    def __unicode__(o):
+        return o.title
 
 
 class ChatBan(models.Model):
-   user = models.ForeignKey(User, verbose_name = u"Пользователь" )
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата" )
-   seconds = models.IntegerField(verbose_name = u"Секунд")
-   
-   class Meta: 
-        verbose_name=u'Бан чата'        
+    user = models.ForeignKey(User, verbose_name=u"Пользователь")
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата")
+    seconds = models.IntegerField(verbose_name=u"Секунд")
+
+    class Meta:
+        verbose_name = u'Бан чата'
         verbose_name_plural = u'Баны чата'
-        
-   ordering = ('id',) 
-   def __unicode__(o):
-      return   str(o.id) + " " + str(o.user.username) + " " +  str(o.pub_date) + " on " +  str(o.seconds)  
- 
+
+    ordering = ('id',)
+
+    def __unicode__(o):
+        return str(o.id) + " " + str(o.user.username) + " " + str(o.pub_date) + " on " + str(o.seconds)
+
 
 class HoldsWithdraw(models.Model):
-   user = models.ForeignKey(User, verbose_name = u"Пользователь" )
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата" )
-   hours = models.IntegerField(verbose_name = u"кол-во часов")
-   
-   class Meta: 
-        verbose_name=u'Холды вывода'        
+    user = models.ForeignKey(User, verbose_name=u"Пользователь")
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата")
+    hours = models.IntegerField(verbose_name=u"кол-во часов")
+
+    class Meta:
+        verbose_name = u'Холды вывода'
         verbose_name_plural = u'Холды вывода'
-        
-   ordering = ('id',) 
-   def __unicode__(o):
-      return   str(o.id) + " " + str(o.user.username) + " " +  str(o.pub_date) + " on " +  str(o.hours)  
- 
+
+    ordering = ('id',)
+
+    def __unicode__(o):
+        return str(o.id) + " " + str(o.user.username) + " " + str(o.pub_date) + " on " + str(o.hours)
+
+
 class PoolAccounts(models.Model):
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created')
 
-   status =  models.CharField(max_length = 40,
-                               choices = STATUS_ORDER,
-                               default = 'created')
+    user = models.ForeignKey(User, blank=True, null=True)
+    currency = models.ForeignKey("Currency", verbose_name=u"Валюта")
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата публикации")
+    address = models.CharField(max_length=255,
+                               unique=True,
+                               verbose_name=u" Внешний ключ идентификации или кошелек криптовалюты ")
 
-   user = models.ForeignKey(User, blank = True, null = True )
-   currency =  models.ForeignKey("Currency", verbose_name = u"Валюта" )
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата публикации" )
-   address = models.CharField( max_length = 255,
-                                 unique = True,
-                                 verbose_name = u" Внешний ключ идентификации или кошелек криптовалюты " )
+    class Meta:
+        verbose_name = u'ПулСчетов'
+        verbose_name_plural = u'ПулСчета'
+        ordering = ('id',)
 
-   class Meta:
-      verbose_name=u'ПулСчетов'
-      verbose_name_plural = u'ПулСчета'
-      ordering = ('id',)
-
-   def __unicode__(o):
-                return o.user.username + " " +str(o.address) + " " + str(o.currency)
+    def __unicode__(o):
+        return o.user.username + " " + str(o.address) + " " + str(o.currency)
 
 
- 
 class Accounts(models.Model):
-        
-   user = models.ForeignKey(User)
-   currency =  models.ForeignKey("Currency", verbose_name = u"Валюта" )
-   balance = models.DecimalField(verbose_name = u"Баланс",default = 0, max_digits = 20, decimal_places = 10 )
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата публикации" )
-   reference = models.CharField( max_length = 255, 
-                                 null = True,
-                                 unique = True,
-				 blank = True,				 	
-        		         verbose_name = u" Внешний ключ идентификации или кошелек криптовалюты " )
-	   
-   class Meta: 
-      verbose_name=u'Счет'
-      verbose_name_plural = u'Счета'
-      ordering = ('id',)     
-   
-   def __unicode__(o):
-                return o.user.username + " " +str(o.balance) + " " + str(o.currency)
+    user = models.ForeignKey(User)
+    currency = models.ForeignKey("Currency", verbose_name=u"Валюта")
+    balance = models.DecimalField(verbose_name=u"Баланс", default=0, max_digits=20, decimal_places=10)
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата публикации")
+    reference = models.CharField(max_length=255,
+                                 null=True,
+                                 unique=True,
+                                 blank=True,
+                                 verbose_name=u" Внешний ключ идентификации или кошелек криптовалюты ")
+
+    class Meta:
+        verbose_name = u'Счет'
+        verbose_name_plural = u'Счета'
+        ordering = ('id',)
+
+    def __unicode__(o):
+        return o.user.username + " " + str(o.balance) + " " + str(o.currency)
+
 
 class AccountsAdmin(admin.ModelAdmin):
-    list_display = ['id','user', 'currency', 'balance', 'reference', 'pub_date']
-    actions = ["add","delete","edit"]
+    list_display = ['id', 'user', 'currency', 'balance', 'reference', 'pub_date']
+    actions = ["add", "delete", "edit"]
     list_filter = ('user', 'currency')
 
     #exclude = ['balance']
-    search_fields = ['^user__username','user__email',]
+    search_fields = ['^user__username', 'user__email', ]
     #def get_form(self, request, obj=None, **kwargs):
     #    if obj is None:
     #            return super(AccountsAdmin, self).get_form(request, obj, **kwargs)               
-                
+
     def __init__(self, *args, **kwargs):
         super(AccountsAdmin, self).__init__(*args, **kwargs)
-       # self.list_display_links = (None, )
-  
+        # self.list_display_links = (None, )
+
 
 class TradePairs(models.Model):
-   title = models.CharField(max_length = 255,verbose_name = u"Название")
-   url_title = models.CharField(max_length = 255,verbose_name = u"Url идентификатор")
-   ordering = models.IntegerField(verbose_name = u"Сортировка", default = 1)
-   transit_on = models.ForeignKey(Accounts,
-                                  related_name = "transit_account_on",
-                                  verbose_name = u"транзитный счет валюты торга")
-   transit_from =  models.ForeignKey(Accounts,  related_name = "transit_account_from",
-                                                verbose_name = u"транзитный счет базовой валюты" )
-   currency_on =  models.ForeignKey("Currency",  related_name = "trade_currency_on",
-                                                 verbose_name = u"Валюта торга" )
-   currency_from =  models.ForeignKey("Currency", related_name = "trade_currency_from", 
-                                                   verbose_name = u"Валюта базовая" )
-   status =  models.CharField(max_length = 40,
-                                        choices = STATUS_ORDER,
-                                        default = 'created', verbose_name = u"Статус")
-   pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата" )
-   min_trade_base = models.DecimalField(verbose_name = u"минимальный размер сделки валюты торга/комиссия при выводе",
-                                        max_digits = 12, decimal_places = 10, null=True )   
-   class Meta: 
-      verbose_name=u'Валютная пара'
-      verbose_name_plural = u'Валютные пары'
-      ordering = ('id',)
+    title = models.CharField(max_length=255, verbose_name=u"Название")
+    url_title = models.CharField(max_length=255, verbose_name=u"Url идентификатор")
+    ordering = models.IntegerField(verbose_name=u"Сортировка", default=1)
+    transit_on = models.ForeignKey(Accounts,
+                                   related_name="transit_account_on",
+                                   verbose_name=u"транзитный счет валюты торга")
+    transit_from = models.ForeignKey(Accounts, related_name="transit_account_from",
+                                     verbose_name=u"транзитный счет базовой валюты")
+    currency_on = models.ForeignKey("Currency", related_name="trade_currency_on",
+                                    verbose_name=u"Валюта торга")
+    currency_from = models.ForeignKey("Currency", related_name="trade_currency_from",
+                                      verbose_name=u"Валюта базовая")
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created', verbose_name=u"Статус")
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата")
+    min_trade_base = models.DecimalField(verbose_name=u"минимальный размер сделки валюты торга/комиссия при выводе",
+                                         max_digits=12, decimal_places=10, null=True)
 
-   def __unicode__(o):
-                return o.title
+    class Meta:
+        verbose_name = u'Валютная пара'
+        verbose_name_plural = u'Валютные пары'
+        ordering = ('id',)
+
+    def __unicode__(o):
+        return o.title
+
 
 def check_holds(order):
-      Account = order.transit_2  
-      Now = datetime.now()
-      try   :
-            trans = Trans.objects.get(user2 = Account, status = "payin")
-      except Trans.DoesNotExist:
-            hold = HoldsWithdraw(user = order.user, hours =  36)
-            hold.save()
-      except :
-            pass
-        
+    Account = order.transit_2
+    Now = datetime.now()
+    try:
+        trans = Trans.objects.get(user2=Account, status="payin")
+    except Trans.DoesNotExist:
+        hold = HoldsWithdraw(user=order.user, hours=36)
+        hold.save()
+    except:
+        pass
+
+
 class TransMemAdmin(admin.ModelAdmin):
-    list_display = ['id','out_order_id', 'user1','order_id','balance1', 'user2','balance2', 'currency', 'amnt', 'status','res_balance1','res_balance2','pub_date']
-    list_filter = ('status','currency')
-    
-    
-             
-        
+    list_display = ['id', 'out_order_id', 'user1', 'order_id', 'balance1', 'user2', 'balance2', 'currency', 'amnt',
+                    'status', 'res_balance1', 'res_balance2', 'pub_date']
+    list_filter = ('status', 'currency')
+
 
     def __init__(self, *args, **kwargs):
         super(TransMemAdmin, self).__init__(*args, **kwargs)
         self.list_display_links = (None, )
-  
- 
-        
-class TransMem(models.Model): 
-        out_order_id = models.CharField(max_length = 255, verbose_name = "Внешний order", 
-                                        null = True, blank = True)        
-        balance1 = models.DecimalField( max_digits = 20, editable=False, decimal_places = 10, verbose_name = u"Баланс отправителя") 
-        balance2 = models.DecimalField( max_digits = 20, editable=False,decimal_places = 10, verbose_name = u"Баланс получателя") 
-        
-        res_balance1 = models.DecimalField( max_digits = 20, editable=False, decimal_places = 10, verbose_name = u"Баланс отправителя") 
-        res_balance2 = models.DecimalField( max_digits = 20, editable=False, decimal_places = 10, verbose_name = u"Баланс получателя") 
-        user1 = models.ForeignKey(Accounts,  related_name = "from_mem",
-                                  verbose_name = "Счет отправителя")
-        user2 = models.ForeignKey(Accounts,  related_name = "to_mem",
-                                  verbose_name = "Счет получателя")
-        currency = models.ForeignKey("Currency",   verbose_name = u"Валюта")
-        amnt = models.DecimalField( max_digits = 20, decimal_places = 10, verbose_name = u"Сумма") 
-        status =  models.CharField(max_length = 40,
-                                        choices = STATUS_ORDER,
-                                        default = 'created', verbose_name = u"Статус")        
-        order_id = models.IntegerField(verbose_name = u"Ордер")
-        
-        pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата",editable = False )
-        
-        def archive(self, archive_order):
-            trans=Trans(out_order_id = self.out_order_id,
-                        pub_date = self.pub_date,
-                        balance1=self.balance1,
-                        currency=self.currency,
-                        balance2=self.balance2,
-                        amnt=self.amnt,
-                        res_balance1=self.res_balance1,
-                        res_balance2=self.res_balance2,
-                        user1=self.user1,
-                        user2=self.user2,
-                        status=self.status,
-                        order=archive_order
-                        )
-            trans.save()
-            self.delete()
-            
-        
-        
-        class Meta: 
-                verbose_name = u'Транзакция в памяти'
-                verbose_name_plural = u'Транзакции в памяти'
-                ordering = ('-id',)    
-                
-        def __unicode__(o):
-                return o.out_order_id             
-     
-class Trans(models.Model): 
-        out_order_id = models.CharField(max_length = 255, verbose_name = "Внешний order", 
-                                        null = True, blank = True)        
-        balance1 = models.DecimalField( max_digits = 20, editable=False, decimal_places = 10, verbose_name = u"Баланс отправителя") 
-        balance2 = models.DecimalField( max_digits = 20, editable=False,decimal_places = 10, verbose_name = u"Баланс получателя") 
-        
-        res_balance1 = models.DecimalField( max_digits = 20, editable=False, decimal_places = 10, verbose_name = u"Баланс отправителя") 
-        res_balance2 = models.DecimalField( max_digits = 20, editable=False,decimal_places = 10, verbose_name = u"Баланс получателя") 
-        user1 = models.ForeignKey(Accounts,  related_name = "from",
-                                  verbose_name = "Счет отправителя")
-        user2 = models.ForeignKey(Accounts,  related_name = "to",
-                                  verbose_name = "Счет получателя")
-        currency = models.ForeignKey("Currency",   verbose_name = u"Валюта")
-        amnt = models.DecimalField( max_digits = 20, decimal_places = 10, verbose_name = u"Сумма") 
-        status =  models.CharField(max_length = 40,
-                                        choices = STATUS_ORDER,
-                                        default = 'created', verbose_name = u"Статус")        
-        order = models.ForeignKey("Orders",  verbose_name = u"Ордер", blank = True,  null = True )
-        
-        pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата",editable = False )
-        
-        
-        class Meta: 
-                verbose_name = u'Транзакция'
-                verbose_name_plural = u'Транзакции'
-                ordering = ('-id',)    
-                
-        def __unicode__(o):
-                return o.out_order_id
-        
-def cancel_trans(modeladmin, request, queryset):
-    for obj in queryset: 
 
+
+class TransMem(models.Model):
+    out_order_id = models.CharField(max_length=255, verbose_name="Внешний order",
+                                    null=True, blank=True)
+    balance1 = models.DecimalField(max_digits=20, editable=False, decimal_places=10, verbose_name=u"Баланс отправителя")
+    balance2 = models.DecimalField(max_digits=20, editable=False, decimal_places=10, verbose_name=u"Баланс получателя")
+
+    res_balance1 = models.DecimalField(max_digits=20, editable=False, decimal_places=10,
+                                       verbose_name=u"Баланс отправителя")
+    res_balance2 = models.DecimalField(max_digits=20, editable=False, decimal_places=10,
+                                       verbose_name=u"Баланс получателя")
+    user1 = models.ForeignKey(Accounts, related_name="from_mem",
+                              verbose_name="Счет отправителя")
+    user2 = models.ForeignKey(Accounts, related_name="to_mem",
+                              verbose_name="Счет получателя")
+    currency = models.ForeignKey("Currency", verbose_name=u"Валюта")
+    amnt = models.DecimalField(max_digits=20, decimal_places=10, verbose_name=u"Сумма")
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created', verbose_name=u"Статус")
+    order_id = models.IntegerField(verbose_name=u"Ордер")
+
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата", editable=False)
+
+    def archive(self, archive_order):
+        trans = Trans(out_order_id=self.out_order_id,
+                      pub_date=self.pub_date,
+                      balance1=self.balance1,
+                      currency=self.currency,
+                      balance2=self.balance2,
+                      amnt=self.amnt,
+                      res_balance1=self.res_balance1,
+                      res_balance2=self.res_balance2,
+                      user1=self.user1,
+                      user2=self.user2,
+                      status=self.status,
+                      order=archive_order
+        )
+        trans.save()
+        self.delete()
+
+
+    class Meta:
+        verbose_name = u'Транзакция в памяти'
+        verbose_name_plural = u'Транзакции в памяти'
+        ordering = ('-id',)
+
+    def __unicode__(o):
+        return o.out_order_id
+
+
+class Trans(models.Model):
+    out_order_id = models.CharField(max_length=255, verbose_name="Внешний order",
+                                    null=True, blank=True)
+    balance1 = models.DecimalField(max_digits=20, editable=False, decimal_places=10, verbose_name=u"Баланс отправителя")
+    balance2 = models.DecimalField(max_digits=20, editable=False, decimal_places=10, verbose_name=u"Баланс получателя")
+
+    res_balance1 = models.DecimalField(max_digits=20, editable=False, decimal_places=10,
+                                       verbose_name=u"Баланс отправителя")
+    res_balance2 = models.DecimalField(max_digits=20, editable=False, decimal_places=10,
+                                       verbose_name=u"Баланс получателя")
+    user1 = models.ForeignKey(Accounts, related_name="from",
+                              verbose_name="Счет отправителя")
+    user2 = models.ForeignKey(Accounts, related_name="to",
+                              verbose_name="Счет получателя")
+    currency = models.ForeignKey("Currency", verbose_name=u"Валюта")
+    amnt = models.DecimalField(max_digits=20, decimal_places=10, verbose_name=u"Сумма")
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created', verbose_name=u"Статус")
+    order = models.ForeignKey("Orders", verbose_name=u"Ордер", blank=True, null=True)
+
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата", editable=False)
+
+
+    class Meta:
+        verbose_name = u'Транзакция'
+        verbose_name_plural = u'Транзакции'
+        ordering = ('-id',)
+
+    def __unicode__(o):
+        return o.out_order_id
+
+
+def cancel_trans(modeladmin, request, queryset):
+    for obj in queryset:
         add_trans(obj.user2,
                   obj.amnt,
                   obj.currency,
@@ -2095,36 +2114,35 @@ def cancel_trans(modeladmin, request, queryset):
                   obj.id,
                   False)
 
+
 cancel_trans.short_description = u"Cancel Trans"
 
 
 class TransAdmin(admin.ModelAdmin):
-    list_display = ['id','order', 'user1','balance1', 'user2','balance2', 'currency', 'amnt', 'status','res_balance1','res_balance2','pub_date']
-    list_filter = ('status','currency')
-    
-    
-    
+    list_display = ['id', 'order', 'user1', 'balance1', 'user2', 'balance2', 'currency', 'amnt', 'status',
+                    'res_balance1', 'res_balance2', 'pub_date']
+    list_filter = ('status', 'currency')
+
     actions = ["add", cancel_trans]
+
     def save_model(self, request, obj, form, change):
-            
-            add_trans(obj.user1, 
-                      obj.amnt,
-                      obj.currency, 
-                      obj.user2, 
-                      None, 
-                      obj.status, 
-                      None, 
-                      False)
-            
-            return True
-             
-        
+        add_trans(obj.user1,
+                  obj.amnt,
+                  obj.currency,
+                  obj.user2,
+                  None,
+                  obj.status,
+                  None,
+                  False)
+
+        return True
+
 
     def __init__(self, *args, **kwargs):
         super(TransAdmin, self).__init__(*args, **kwargs)
         self.list_display_links = (None, )
-  
- 
+
+
 # this strips the html, so people will have the text as well.
 # create the email, and attach the HTML version as well.
 
@@ -2132,398 +2150,394 @@ class TransAdmin(admin.ModelAdmin):
 
 
 class CustomMailMultiAdmin(admin.ModelAdmin):
-        
-     list_display = ['Subject', 'From','pub_date']
-     search_fields = ['Text']
-     
-     
-     
-     
- 
+    list_display = ['Subject', 'From', 'pub_date']
+    search_fields = ['Text']
+
 
 class CustomMailMulti(models.Model):
-        Subject =  models.CharField(max_length = 255, verbose_name = u"Тема")
-        From =  models.CharField(max_length = 255, verbose_name = u"От кого")
-        Text =  models.TextField(max_length = 255, verbose_name = u"Текст")
-        pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата", editable = False )
-        status  = models.CharField(max_length = 40,
-                                        choices = STATUS_ORDER,
-                                        verbose_name = u"Статус", default = "created")
-        class Meta: 
-                verbose_name=u'Написать рассылку'
-                verbose_name_plural = u'Рассылки'
-                
-        ordering = ('-id',)           
+    Subject = models.CharField(max_length=255, verbose_name=u"Тема")
+    From = models.CharField(max_length=255, verbose_name=u"От кого")
+    Text = models.TextField(max_length=255, verbose_name=u"Текст")
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата", editable=False)
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              verbose_name=u"Статус", default="created")
 
-        def __unicode__(o):
-                return  u"  %s - %s " % (o.From, o.Subject  )
+    class Meta:
+        verbose_name = u'Написать рассылку'
+        verbose_name_plural = u'Рассылки'
 
+    ordering = ('-id',)
 
-
+    def __unicode__(o):
+        return u"  %s - %s " % (o.From, o.Subject  )
 
 
-
- 
 class CustomMailAdmin(admin.ModelAdmin):
-     list_display = ['user','Subject', 'To','From','pub_date']
-     list_filter = ('From','To')
-     def save_model(self, request, obj, form, change):
-            if obj.user is not None:
-                    obj.To = obj.email
-                
-            text_content = strip_tags(obj.Text)                    
-            msg = EmailMultiAlternatives(obj.Subject, text_content, obj.From, [obj.To])
-            msg.attach_alternative(obj.Text, "text/html")
-            msg.send()
-            obj.save()
-            return True
-     
-     
- 
+    list_display = ['user', 'Subject', 'To', 'From', 'pub_date']
+    list_filter = ('From', 'To')
+
+    def save_model(self, request, obj, form, change):
+        if obj.user is not None:
+            obj.To = obj.email
+
+        text_content = strip_tags(obj.Text)
+        msg = EmailMultiAlternatives(obj.Subject, text_content, obj.From, [obj.To])
+        msg.attach_alternative(obj.Text, "text/html")
+        msg.send()
+        obj.save()
+        return True
+
 
 class CustomMail(models.Model):
-        Subject =  models.CharField(max_length = 255, verbose_name = u"Тема")
-        From =  models.CharField(max_length = 255, verbose_name = u"От кого")
-        To =  models.CharField(max_length = 255, verbose_name = u"Кому" )
-        Text =  models.TextField(max_length = 255, verbose_name = u"Текст")
-        user = models.ForeignKey(User, null = True, blank = True)
-        pub_date = models.DateTimeField( auto_now = True, verbose_name = u"Дата", editable = False )
-        
-        class Meta: 
-                verbose_name=u'Написать Email'
-                verbose_name_plural = u'написать Email'
-                
-        ordering = ('-id',)           
+    Subject = models.CharField(max_length=255, verbose_name=u"Тема")
+    From = models.CharField(max_length=255, verbose_name=u"От кого")
+    To = models.CharField(max_length=255, verbose_name=u"Кому")
+    Text = models.TextField(max_length=255, verbose_name=u"Текст")
+    user = models.ForeignKey(User, null=True, blank=True)
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата", editable=False)
 
-        def __unicode__(o):
-                return  u"  %s - %s " % (o.To, o.Subject  )     
+    class Meta:
+        verbose_name = u'Написать Email'
+        verbose_name_plural = u'написать Email'
+
+    ordering = ('-id',)
+
+    def __unicode__(o):
+        return u"  %s - %s " % (o.To, o.Subject  )
 
 
 def generate_private_sign(ObjSaltable, PrivateKey):
-    ToEncrypt  = generate_key_from2(ObjSaltable.salt_repr(), settings.COMMON_SALT)
-    EncryptKey  = generate_key_from2(PrivateKey, ToEncrypt)
+    ToEncrypt = generate_key_from2(ObjSaltable.salt_repr(), settings.COMMON_SALT)
+    EncryptKey = generate_key_from2(PrivateKey, ToEncrypt)
     return generate_key_from2(ToEncrypt, EncryptKey)
 
 
 def get_crypto_object():
-    return  AES.new(settings.AES_KEY1, AES.MODE_CBC, settings.AES_IV )
+    return AES.new(settings.AES_KEY1, AES.MODE_CBC, settings.AES_IV)
 
 
 def common_encrypt(obj, value):
     str_value = str(value)
     AddLen = len(str_value) % 16
-    tocrypt = str(d) + " "*(16 - AddLen)
-    return base64.b32encode( obj.encrypt(tocrypt) )
+    tocrypt = str(d) + " " * (16 - AddLen)
+    return base64.b32encode(obj.encrypt(tocrypt))
+
 
 def common_decrypt(obj, value):
-     return obj.decrypt(base64.b32decode( value )).strip()
+    return obj.decrypt(base64.b32decode(value)).strip()
+
 
 class CryptTest(models.Model):
-    msg =  models.CharField(max_length = 255)
+    msg = models.CharField(max_length=255)
+
     def crypt(self):
         obj = get_crypto_object()
         self.msg = base64.b32encode(obj.encrypt(self.msg))
         self.save()
-        
+
     def decrypt(self):
         obj = get_crypto_object()
-        self.msg =  obj.decrypt(base64.b32decode(self.msg) )
+        self.msg = obj.decrypt(base64.b32decode(self.msg))
         self.save()
-        
 
 
-
-    
-
-     
 ## WARNING instance should be decrypted
 def check_sign(instance, crypto_obj, salt):
     ClassName = str(instance.__class__)
     Subject = instance.id
     try:
-        D = Signs.objects.get(subject = Subject, object_type = ClassName)
+        D = Signs.objects.get(subject=Subject, object_type=ClassName)
         decrypted_sign = common_decrypt(crypto_obj, D.sign)
         if decrypted_sign == generate_key_from2(instance.salt_repr(), salt):
             return True
         else:
             return False
-    except :
-        return  False
-    
+    except:
+        return False
+
+
 class Signs(models.Model):
-    subject =  models.IntegerField()
-    object_type =  models.CharField(max_length = 255)
-    sign =  models.CharField(max_length = 255)
-    class Meta: 
-        verbose_name=u'Подпись'
+    subject = models.IntegerField()
+    object_type = models.CharField(max_length=255)
+    sign = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = u'Подпись'
         verbose_name_plural = u'Подписи'
-        
-        
+
+
 def save_sign(sign, instance):
-     D = Signs(subject = instance.id, object_type = str(instance.__class__), sign = sign)
-     D.sign = sign
-     D.save()
-     
+    D = Signs(subject=instance.id, object_type=str(instance.__class__), sign=sign)
+    D.sign = sign
+    D.save()
+
+
 ## TODO на уровне хуков и базы данных for  weak defender from raw database change
-class history_change(models.Model):    
-    Subject =  models.IntegerField()
-    Class =  models.CharField(max_length = 255)
-    status =  models.CharField(max_length = 40, choices = STATUS_ORDER, default = 'created', verbose_name = u"Статус")
-          
-    class Meta: 
-        verbose_name=u'История изменений'
+class history_change(models.Model):
+    Subject = models.IntegerField()
+    Class = models.CharField(max_length=255)
+    status = models.CharField(max_length=40, choices=STATUS_ORDER, default='created', verbose_name=u"Статус")
+
+    class Meta:
+        verbose_name = u'История изменений'
         verbose_name_plural = u'История изменений'
-            
+
+
 TYPE = (
-        ("sell", u"sell"),
-        ("buy", u"buy"),
-        )
+    ("sell", u"sell"),
+    ("buy", u"buy"),
+)
+
 
 class DealsMemory(models.Model):
-        user_id = models.IntegerField()
-        type_deal =  models.CharField(max_length = 40, choices = TYPE, default = 'buy', verbose_name = u"Тип")
-        user = models.CharField(max_length = 255, verbose_name = u"Username")
-        price = models.DecimalField(max_digits = 20,
-                                        blank = True, 
-                                        decimal_places = 10, verbose_name = u"цена")
-        
-        amnt_base = models.DecimalField(max_digits = 20,
-                                        blank = True, 
-                                        decimal_places = 10, verbose_name = u"сумма в базовой валюте")
-        amnt_trade = models.DecimalField(max_digits = 20,
-                                        blank = True, 
-                                        decimal_places = 10, verbose_name = u"сумма в валюты торга") 
-        pub_date = models.DateTimeField(auto_now = True, verbose_name = u"Дата " )
-        trade_pair = models.IntegerField(verbose_name = u"Валютная пара")
+    user_id = models.IntegerField()
+    type_deal = models.CharField(max_length=40, choices=TYPE, default='buy', verbose_name=u"Тип")
+    user = models.CharField(max_length=255, verbose_name=u"Username")
+    price = models.DecimalField(max_digits=20,
+                                blank=True,
+                                decimal_places=10, verbose_name=u"цена")
 
-        class Meta: 
-            verbose_name=u'Сделка'
-            verbose_name_plural = u'Сделки'
-            
-        def fields4sign(self):
-            List = []
-            for i in  ('type_deal', 'user'):
-                Val = getattr(self, i)          
-                if i in ('amnt_base','amnt_trade'):
-                    List.append(format_numbers_strong(Val ) )
-                else:
-                    List.append(str(Val))
-        
-            return ",".join(List)
-            
-        def __unicode__(self):
-            return self.fields4sign()                        
+    amnt_base = models.DecimalField(max_digits=20,
+                                    blank=True,
+                                    decimal_places=10, verbose_name=u"сумма в базовой валюте")
+    amnt_trade = models.DecimalField(max_digits=20,
+                                     blank=True,
+                                     decimal_places=10, verbose_name=u"сумма в валюты торга")
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата ")
+    trade_pair = models.IntegerField(verbose_name=u"Валютная пара")
 
-            
+    class Meta:
+        verbose_name = u'Сделка'
+        verbose_name_plural = u'Сделки'
+
+    def fields4sign(self):
+        List = []
+        for i in ('type_deal', 'user'):
+            Val = getattr(self, i)
+            if i in ('amnt_base', 'amnt_trade'):
+                List.append(format_numbers_strong(Val))
+            else:
+                List.append(str(Val))
+
+        return ",".join(List)
+
+    def __unicode__(self):
+        return self.fields4sign()
+
+
 class OrdersMemAdmin(admin.ModelAdmin):
-  list_display = ['user', 'trade_pair', 'price', 'currency1','sum1_history','sum1','currency2','sum2_history','sum2', 'status', 'pub_date']
-  list_filter = ('user', 'currency1', 'currency2', 'status')
+    list_display = ['user', 'trade_pair', 'price', 'currency1', 'sum1_history', 'sum1', 'currency2', 'sum2_history',
+                    'sum2', 'status', 'pub_date']
+    list_filter = ('user', 'currency1', 'currency2', 'status')
 
-           
+
 class OrdersMem(models.Model):
- 
     user = models.IntegerField(User)
-    trade_pair = models.IntegerField(verbose_name = u"Валютная пара")
-    currency1 = models.IntegerField( verbose_name = u"Валюта A",)
-    sum1_history = models.DecimalField(verbose_name = u"Изначальная сумма продажи", max_digits = 20, decimal_places = 10 )
-    price = models.DecimalField(verbose_name = u"Цена", max_digits = 24, decimal_places = 16, blank = True )
-    sum1 = models.DecimalField(verbose_name = u"сумма продажи", max_digits = 20, decimal_places = 10 )
-    currency2 = models.IntegerField( verbose_name = u"Валюта Б",)
-    sum2_history = models.DecimalField(verbose_name = u"Изначальная сумма покупки", max_digits = 20, decimal_places = 10 )
-    sum2 = models.DecimalField(verbose_name = u"сумма покупки", max_digits = 20, decimal_places = 10)   
-    status =  models.CharField(max_length = 40, choices = STATUS_ORDER, default = 'created', verbose_name = u"Статус")
-    pub_date = models.DateTimeField(auto_now = True, verbose_name = u"Дата публикации" )
-    transit_1 = models.IntegerField(  verbose_name = u"транзитный счет покупки")
-    transit_2 =  models.IntegerField( verbose_name = u"транзитный счет продажи" )
-    comission = models.DecimalField(max_digits = 20, default = '0.0005', blank = True, decimal_places = 10, verbose_name = u"Комиссия")
-    sign = models.CharField(max_length = 255, verbose_name = u"Custom sign")
-        
-    class Meta: 
-      verbose_name=u'Заявка'
-      verbose_name_plural = u'Заявки'
-      ordering = ('-id',)           
-    
-    def make2processed(self):
-       self.status = "processed"
-       self.save()
+    trade_pair = models.IntegerField(verbose_name=u"Валютная пара")
+    currency1 = models.IntegerField(verbose_name=u"Валюта A", )
+    sum1_history = models.DecimalField(verbose_name=u"Изначальная сумма продажи", max_digits=20, decimal_places=10)
+    price = models.DecimalField(verbose_name=u"Цена", max_digits=24, decimal_places=16, blank=True)
+    sum1 = models.DecimalField(verbose_name=u"сумма продажи", max_digits=20, decimal_places=10)
+    currency2 = models.IntegerField(verbose_name=u"Валюта Б", )
+    sum2_history = models.DecimalField(verbose_name=u"Изначальная сумма покупки", max_digits=20, decimal_places=10)
+    sum2 = models.DecimalField(verbose_name=u"сумма покупки", max_digits=20, decimal_places=10)
+    status = models.CharField(max_length=40, choices=STATUS_ORDER, default='created', verbose_name=u"Статус")
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата публикации")
+    transit_1 = models.IntegerField(verbose_name=u"транзитный счет покупки")
+    transit_2 = models.IntegerField(verbose_name=u"транзитный счет продажи")
+    comission = models.DecimalField(max_digits=20, default='0.0005', blank=True, decimal_places=10,
+                                    verbose_name=u"Комиссия")
+    sign = models.CharField(max_length=255, verbose_name=u"Custom sign")
 
-  
+    class Meta:
+        verbose_name = u'Заявка'
+        verbose_name_plural = u'Заявки'
+        ordering = ('-id',)
+
+    def make2processed(self):
+        self.status = "processed"
+        self.save()
+
+
     def salt_repr(self):
-        return ",".join([ str(getattr(self, field.name)) for field in self._meta.local_fields])
-  
-    def save_model(self, request, obj, form, change):    
+        return ",".join([str(getattr(self, field.name)) for field in self._meta.local_fields])
+
+    def save_model(self, request, obj, form, change):
         checksum(self)
         super(OrdersMem, self).save(request, obj, form, change)
 
-   
+
     def fields4sign(self):
         List = []
-        for i in  ('currency1', 'currency2','sum1_history','sum2_history','sum1', 'sum2',
-                 'transit_1','transit_2','user', 'comission'):
-           Val = getattr(self, i)          
-           if i in ('sum1_history','sum2_history','sum1', 'sum2','comission'):
-               List.append(format_numbers_strong(Val ) )
-           else:
-               List.append(str(Val))
-        
+        for i in ('currency1', 'currency2', 'sum1_history', 'sum2_history', 'sum1', 'sum2',
+                  'transit_1', 'transit_2', 'user', 'comission'):
+            Val = getattr(self, i)
+            if i in ('sum1_history', 'sum2_history', 'sum1', 'sum2', 'comission'):
+                List.append(format_numbers_strong(Val))
+            else:
+                List.append(str(Val))
+
         return ",".join(List)
-        
-    def  stable_order(self, key):
-       Mem = Orders(
-                       user_id = self.user,
-                       trade_pair_id = self.trade_pair,
-                       currency1_id = self.currency1,
-                       sum1_history = self.sum1_history,
-                       price = self.price,
-                       sum1 = self.sum1,
-                       pub_date=self.pub_date,
-                       currency2_id = self.currency2,
-                       sum2_history = self.sum2_history,
-                       sum2 = self.sum2,
-                       status =  self.status,
-                       transit_1_id = self.transit_1,
-                       transit_2_id = self.transit_2,
-                       comission = self.comission)
-                       
-       Mem.sign_record(key)
-       Mem.save()
-       return Mem
-        
+
+    def stable_order(self, key):
+        Mem = Orders(
+            user_id=self.user,
+            trade_pair_id=self.trade_pair,
+            currency1_id=self.currency1,
+            sum1_history=self.sum1_history,
+            price=self.price,
+            sum1=self.sum1,
+            pub_date=self.pub_date,
+            currency2_id=self.currency2,
+            sum2_history=self.sum2_history,
+            sum2=self.sum2,
+            status=self.status,
+            transit_1_id=self.transit_1,
+            transit_2_id=self.transit_2,
+            comission=self.comission)
+
+        Mem.sign_record(key)
+        Mem.save()
+        return Mem
+
     def __unicode__(self):
         return self.fields4sign()
 
     def verify(self, key):
         Fields = self.fields4sign()
-        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
-        return  Sign == self.sign 
+        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
+        return Sign == self.sign
 
     def sign_record(self, key):
         Fields = self.fields4sign()
-        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
+        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
         self.save()
 
-    
-    
 
-class Orders(models.Model):        
+class Orders(models.Model):
+    user = models.ForeignKey(User)
+    trade_pair = models.ForeignKey(TradePairs, verbose_name=u"Валютная пара")
+    currency1 = models.ForeignKey("Currency", related_name='from_currency', verbose_name=u"Валюта A", )
+    sum1_history = models.DecimalField(verbose_name=u"Изначальная сумма продажи", max_digits=20, decimal_places=10)
+    price = models.DecimalField(verbose_name=u"Цена", max_digits=24, decimal_places=16, blank=True)
+    sum1 = models.DecimalField(verbose_name=u"сумма продажи", max_digits=20, decimal_places=10)
+    currency2 = models.ForeignKey("Currency", related_name='to_currency', verbose_name=u"Валюта Б", )
+    sum2_history = models.DecimalField(verbose_name=u"Изначальная сумма покупки", max_digits=20, decimal_places=10)
+    sum2 = models.DecimalField(verbose_name=u"сумма покупки", max_digits=20, decimal_places=10)
+    status = models.CharField(max_length=40, choices=STATUS_ORDER, default='created', verbose_name=u"Статус")
+    pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата публикации")
+    transit_1 = models.ForeignKey(Accounts, related_name="transit_account_1", verbose_name=u"транзитный счет покупки")
+    transit_2 = models.ForeignKey(Accounts, related_name="transit_account_2", verbose_name=u"транзитный счет продажи")
+    comission = models.DecimalField(max_digits=20, default='0.0005', blank=True, decimal_places=10,
+                                    verbose_name=u"Комиссия")
+    sign = models.CharField(max_length=255, default='0.0005', verbose_name=u"Custom sign")
 
-   user = models.ForeignKey(User)
-   trade_pair = models.ForeignKey(TradePairs, verbose_name = u"Валютная пара")
-   currency1 = models.ForeignKey("Currency", related_name = 'from_currency', verbose_name = u"Валюта A",)
-   sum1_history = models.DecimalField(verbose_name = u"Изначальная сумма продажи", max_digits = 20, decimal_places = 10 )
-   price = models.DecimalField(verbose_name = u"Цена", max_digits = 24, decimal_places = 16, blank = True )
-   sum1 = models.DecimalField(verbose_name = u"сумма продажи", max_digits = 20, decimal_places = 10 )
-   currency2 = models.ForeignKey("Currency", related_name = 'to_currency' , verbose_name = u"Валюта Б",)
-   sum2_history = models.DecimalField(verbose_name = u"Изначальная сумма покупки", max_digits = 20, decimal_places = 10 )
-   sum2 = models.DecimalField(verbose_name = u"сумма покупки", max_digits = 20, decimal_places = 10)   
-   status =  models.CharField(max_length = 40, choices = STATUS_ORDER, default = 'created', verbose_name = u"Статус")
-   pub_date = models.DateTimeField(auto_now = True, verbose_name = u"Дата публикации" )
-   transit_1 = models.ForeignKey(Accounts, related_name = "transit_account_1", verbose_name = u"транзитный счет покупки")
-   transit_2 =  models.ForeignKey(Accounts,  related_name = "transit_account_2",  verbose_name = u"транзитный счет продажи" )
-   comission = models.DecimalField(max_digits = 20, default = '0.0005', blank = True, decimal_places = 10, verbose_name = u"Комиссия")
-   sign = models.CharField(max_length = 255, default = '0.0005', verbose_name = u"Custom sign")
-   
-   # May be we can setup this
-   def salt_repr(self):
-       return ",".join([ str(getattr(self, field.name)) for field in self._meta.local_fields])
-   
-   def fields4sign(self):
+    # May be we can setup this
+    def salt_repr(self):
+        return ",".join([str(getattr(self, field.name)) for field in self._meta.local_fields])
+
+    def fields4sign(self):
         List = []
-        for i in  ('currency1', 'currency2','sum1_history','sum2_history','sum1', 'sum2',
-                 'transit_1','transit_2','user','trade_pair'):
-           Val = getattr(self, i)          
-           if i in ('sum1_history','sum2_history','sum1', 'sum2'):
-               List.append(format_numbers_strong(Val ) )
-           else:
-               List.append(str(Val))
-        
+        for i in ('currency1', 'currency2', 'sum1_history', 'sum2_history', 'sum1', 'sum2',
+                  'transit_1', 'transit_2', 'user', 'trade_pair'):
+            Val = getattr(self, i)
+            if i in ('sum1_history', 'sum2_history', 'sum1', 'sum2'):
+                List.append(format_numbers_strong(Val))
+            else:
+                List.append(str(Val))
+
         return ",".join(List)
-            
 
-   def verify(self, key):
-        Fields = self.fields4sign()
-        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
-        return  Sign == self.sign 
 
-   def sign_record(self, key):
+    def verify(self, key):
         Fields = self.fields4sign()
-        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
+        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
+        return Sign == self.sign
+
+    def sign_record(self, key):
+        Fields = self.fields4sign()
+        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
         self.save()
-       
-   def save_model(self,*args, **kwargs):
-            checksum(self)
-            super(Orders, self).save(*args, **kwargs)
 
-                
-   def mem_order(self, key):
-       Mem = OrdersMem(
-                       id = self.id,
-                       user = self.user_id,
-                       trade_pair = self.trade_pair.id,
-                       currency1 = self.currency1.id,
-                       sum1_history = self.sum1_history,
-                       price = self.price,
-                       sum1 = self.sum1,
-                       currency2 = self.currency2.id,
-                       sum2_history = self.sum2_history,
-                       sum2 = self.sum2,
-                       status =  "processing",
-                       transit_1 = self.transit_1.id,
-                       transit_2 = self.transit_2.id,
-                       comission = self.comission)
-                       
-       Mem.sign_record(key)
-       Mem.save()
-       return Mem
-       
-      
-   
-   class Meta: 
-      verbose_name=u'Сделка'
-      verbose_name_plural = u'Сделки'
-      ordering = ('-id',)           
+    def save_model(self, *args, **kwargs):
+        checksum(self)
+        super(Orders, self).save(*args, **kwargs)
 
-   def __unicode__(o):
-          return str(o.id)
+
+    def mem_order(self, key):
+        Mem = OrdersMem(
+            id=self.id,
+            user=self.user_id,
+            trade_pair=self.trade_pair.id,
+            currency1=self.currency1.id,
+            sum1_history=self.sum1_history,
+            price=self.price,
+            sum1=self.sum1,
+            currency2=self.currency2.id,
+            sum2_history=self.sum2_history,
+            sum2=self.sum2,
+            status="processing",
+            transit_1=self.transit_1.id,
+            transit_2=self.transit_2.id,
+            comission=self.comission)
+
+        Mem.sign_record(key)
+        Mem.save()
+        return Mem
+
+
+    class Meta:
+        verbose_name = u'Сделка'
+        verbose_name_plural = u'Сделки'
+        ordering = ('-id',)
+
+    def __unicode__(o):
+        return str(o.id)
+
 
 def process_p24_in_orders(order, Description, Comis):
-                     
-                     add_trans( order.transit_1 , order.sum1, order.currency1,
-                                order.transit_2, order,
-                                "payin", None , False)
-                     Comission = order.sum1 * Comis
-                     add_trans( order.transit_2 , Comission, order.currency1,
-                                order.transit_1,  order,
-                                "comission", None, False)
+    add_trans(order.transit_1, order.sum1, order.currency1,
+              order.transit_2, order,
+              "payin", None, False)
+    Comission = order.sum1 * Comis
+    add_trans(order.transit_2, Comission, order.currency1,
+              order.transit_1, order,
+              "comission", None, False)
 
-                     DebCred =   P24TransIn(
-                                                  description = Description,
-                                                  currency = order.currency1,
-                                                  amnt = order.sum1 ,
-                                                  user = order.user ,
-                                                  comission = Comission,
-                                                  user_accomplished_id =  1,
-                                                  status = "processed",
-                                                  debit_credit = "in",
-                                                  order = order
-                                                 )
-                     DebCred.save()
-                     order.status = "processed"
-                     order.save()
-                     notify_email(order.user, "deposit_notify", DebCred )
-                     return True
+    DebCred = P24TransIn(
+        description=Description,
+        currency=order.currency1,
+        amnt=order.sum1,
+        user=order.user,
+        comission=Comission,
+        user_accomplished_id=1,
+        status="processed",
+        debit_credit="in",
+        order=order
+    )
+    DebCred.save()
+    order.status = "processed"
+    order.save()
+    notify_email(order.user, "deposit_notify", DebCred)
+    return True
+
 
 def manually_process(modeladmin, request, queryset):
     for i in queryset:
-        process_p24_in_orders(i,"manually from admin", Decimal("0.02") )	
-	
+        process_p24_in_orders(i, "manually from admin", Decimal("0.02"))
+
+
 manually_process.short_description = "for mistakes"
 
+
 class OrdersAdmin(admin.ModelAdmin):
-  list_display = ['user', 'trade_pair', 'price', 'currency1','sum1_history','sum1','currency2','sum2_history','sum2', 'status', 'pub_date']
-  list_filter = ('user', 'currency1', 'currency2', 'status')
-  actions = ["manually_process"] 
-  
+    list_display = ['user', 'trade_pair', 'price', 'currency1', 'sum1_history', 'sum1', 'currency2', 'sum2_history',
+                    'sum2', 'status', 'pub_date']
+    list_filter = ('user', 'currency1', 'currency2', 'status')
+    actions = ["manually_process"]
+
+
 def dictfetchall(cursor, Query):
     "Returns all rows from a cursor as a dict"
     List = cursor.fetchall()
@@ -2533,367 +2547,362 @@ def dictfetchall(cursor, Query):
         for row in List
     ]
 
+
 #CRYPTO BANK TRANSFERS
 def crypton_in(obj, user_accomplished):
-        if not  obj.verify(settings.CRYPTO_SALT):
-            return
+    if not obj.verify(settings.CRYPTO_SALT):
+        return
 
-        TradePair = TradePairs.objects.get(currency_on = obj.currency,
-                                           currency_from  = obj.currency )
-                        
-        AccountTo = Accounts.objects.get(user = obj.user, 
-                                                         currency = obj.currency)
-                        ##create order for them
-        order = Orders( user = obj.user,
-                        currency1 = obj.currency,
-                        currency2 = obj.currency,
-                        sum1_history = obj.amnt,
-                        sum2_history = obj.amnt,
-                        price = obj.amnt,
-                        sum1 = obj.amnt,
-                        sum2 = obj.amnt,
-                        transit_1 = TradePair.transit_on,
-                        transit_2 = AccountTo,
-                        trade_pair = TradePair,
-                        status = "processed"
-                        )
-        order.save()         
-        add_trans(TradePair.transit_on, obj.amnt, obj.currency,
-                  AccountTo, order, "payin", obj.crypto_txid, False)
-        obj.order = order
-        order.save()
-        obj.status = "processed"
-        obj.sign_record(settings.CRYPTO_SALT)
-        obj.user_accomplished = user_accomplished
-        obj.save()
-        notify_email(obj.user, "deposit_notify", obj )        
+    TradePair = TradePairs.objects.get(currency_on=obj.currency,
+                                       currency_from=obj.currency)
+
+    AccountTo = Accounts.objects.get(user=obj.user,
+                                     currency=obj.currency)
+    ##create order for them
+    order = Orders(user=obj.user,
+                   currency1=obj.currency,
+                   currency2=obj.currency,
+                   sum1_history=obj.amnt,
+                   sum2_history=obj.amnt,
+                   price=obj.amnt,
+                   sum1=obj.amnt,
+                   sum2=obj.amnt,
+                   transit_1=TradePair.transit_on,
+                   transit_2=AccountTo,
+                   trade_pair=TradePair,
+                   status="processed"
+    )
+    order.save()
+    add_trans(TradePair.transit_on, obj.amnt, obj.currency,
+              AccountTo, order, "payin", obj.crypto_txid, False)
+    obj.order = order
+    order.save()
+    obj.status = "processed"
+    obj.sign_record(settings.CRYPTO_SALT)
+    obj.user_accomplished = user_accomplished
+    obj.save()
+    notify_email(obj.user, "deposit_notify", obj)
+
 
 class btce_trade_stat_minute_usdAdmin(admin.ModelAdmin):
-        list_display = ['datetime','unixtime', 'price','amount','ask_bid','stock_type']
-        list_filter = ['stock_type']
+    list_display = ['datetime', 'unixtime', 'price', 'amount', 'ask_bid', 'stock_type']
+    list_filter = ['stock_type']
 
 
 class btce_trade_stat_minute_usd(models.Model):
-        unixtime = models.IntegerField(verbose_name = u"UnixDate" )
-        btc_tid = models.IntegerField(verbose_name = u"btc_tid" )
-        datetime = models.DateTimeField( auto_now = True, 
-                                    verbose_name = u"Дата" )
-        price = models.DecimalField(verbose_name = u"Цена", max_digits = 20, decimal_places = 10 )
-        amount = models.DecimalField(verbose_name = u"Сумма", max_digits = 20, decimal_places = 10 )
-        STATUS_ORDER = (
-                ("ask", u"продажа"),
-                ("bid", u"покупка"),
-                )
-        ask_bid =  models.CharField(max_length = 40,
-                                        choices = STATUS_ORDER,
-                                        verbose_name = u"Тип")
-        
-        stock_type =  models.CharField(max_length = 40,
-                                        verbose_name = u"Рынок", default  = "btc_usd")
-        
-                
-        class Meta: 
-                verbose_name=u'BTCe BTC/USD'
-                verbose_name_plural = u'BTCe BTC/USD'
-                ordering = ('-id',)           
+    unixtime = models.IntegerField(verbose_name=u"UnixDate")
+    btc_tid = models.IntegerField(verbose_name=u"btc_tid")
+    datetime = models.DateTimeField(auto_now=True,
+                                    verbose_name=u"Дата")
+    price = models.DecimalField(verbose_name=u"Цена", max_digits=20, decimal_places=10)
+    amount = models.DecimalField(verbose_name=u"Сумма", max_digits=20, decimal_places=10)
+    STATUS_ORDER = (
+        ("ask", u"продажа"),
+        ("bid", u"покупка"),
+    )
+    ask_bid = models.CharField(max_length=40,
+                               choices=STATUS_ORDER,
+                               verbose_name=u"Тип")
 
-      
-        
-    
-    
+    stock_type = models.CharField(max_length=40,
+                                  verbose_name=u"Рынок", default="btc_usd")
+
+
+    class Meta:
+        verbose_name = u'BTCe BTC/USD'
+        verbose_name_plural = u'BTCe BTC/USD'
+        ordering = ('-id',)
+
 
 def process(modeladmin, request, queryset):
     for obj in queryset:
-   
-            if obj.user_accomplished is None and obj.status == "processing":    
-               obj.status = "processed"
-               obj.user_accomplished = request.user               
-               obj.save()
-               if obj.debit_credit == "in":
-                        crypton_in(obj, request.user)                        
-               else:
-			pass
 
-         
+        if obj.user_accomplished is None and obj.status == "processing":
+            obj.status = "processed"
+            obj.user_accomplished = request.user
+            obj.save()
+            if obj.debit_credit == "in":
+                crypton_in(obj, request.user)
+            else:
+                pass
 
 
 def crypto_cancel(obj):
-        TradePair = TradePairs.objects.get(currency_on = obj.currency,
-                                                           currency_from  = obj.currency )
-        AccountTo = Accounts.objects.get(user = obj.user, 
-                                                         currency = obj.currency)
-                        ##create order for them
-        add_trans(AccountTo, obj.amnt, obj.currency,
-                        TradePair.transit_on, obj.order, "order_cancel",
-                        obj.crypto_txid, False)
-        obj.order.status = "order_cancel"
-        obj.order.save()
-        obj.status = "order_cancel"
-        obj.save()
+    TradePair = TradePairs.objects.get(currency_on=obj.currency,
+                                       currency_from=obj.currency)
+    AccountTo = Accounts.objects.get(user=obj.user,
+                                     currency=obj.currency)
+    ##create order for them
+    add_trans(AccountTo, obj.amnt, obj.currency,
+              TradePair.transit_on, obj.order, "order_cancel",
+              obj.crypto_txid, False)
+    obj.order.status = "order_cancel"
+    obj.order.save()
+    obj.status = "order_cancel"
+    obj.save()
+
 
 def crypto_cancel_out(obj):
-        TradePair = TradePairs.objects.get(currency_on = obj.currency,
-                                                           currency_from  = obj.currency )
-        AccountTo = Accounts.objects.get(user = obj.user, 
-                                                         currency = obj.currency)
-                        ##create order for them
-        add_trans(TradePair.transit_on, obj.amnt+obj.comission, obj.currency,
-                        AccountTo, obj.order, "order_cancel",
-                        obj.crypto_txid, False)
-        obj.order.status = "order_cancel"
-        obj.order.save()
-        obj.status = "order_cancel"
-        obj.save()
-
-
+    TradePair = TradePairs.objects.get(currency_on=obj.currency,
+                                       currency_from=obj.currency)
+    AccountTo = Accounts.objects.get(user=obj.user,
+                                     currency=obj.currency)
+    ##create order for them
+    add_trans(TradePair.transit_on, obj.amnt + obj.comission, obj.currency,
+              AccountTo, obj.order, "order_cancel",
+              obj.crypto_txid, False)
+    obj.order.status = "order_cancel"
+    obj.order.save()
+    obj.status = "order_cancel"
+    obj.save()
 
 
 def crypto_cancel_action(modeladmin, request, queryset):
     for obj in queryset:
-            if obj.status == "processed" and obj.debit_credit == "in": 
-               crypto_cancel(obj)
-                
-            if obj.status == "processing" and obj.debit_credit == "out": 
-               crypto_cancel_out(obj)
-                
-                    
+        if obj.status == "processed" and obj.debit_credit == "in":
+            crypto_cancel(obj)
+
+        if obj.status == "processing" and obj.debit_credit == "out":
+            crypto_cancel_out(obj)
+
+
 process.short_description = u"Process"
 crypto_cancel_action.short_description = u"Cancel"
 
 
-
 class CryptoTransfersAdmin(admin.ModelAdmin):
-    list_display = ['confirms','account', 'description', "debit_credit", 'amnt',"comission",'currency', 'user', 'status',"crypto_txid", "user_accomplished", "pub_date"]
+    list_display = ['confirms', 'account', 'description', "debit_credit", 'amnt', "comission", 'currency', 'user',
+                    'status', "crypto_txid", "user_accomplished", "pub_date"]
     actions = ["add", process, crypto_cancel_action]
-    list_filter = ('currency', 'user','user_accomplished','status')
+    list_filter = ('currency', 'user', 'user_accomplished', 'status')
     search_fields = ['account', 'description', '=amnt']
-    exclude = ( "user_accomplished" ,"status")
-    fields = ('account', 'description',"debit_credit", 'amnt','crypto_txid','currency')
-   
+    exclude = ( "user_accomplished", "status")
+    fields = ('account', 'description', "debit_credit", 'amnt', 'crypto_txid', 'currency')
+
     def __init__(self, *args, **kwargs):
         super(CryptoTransfersAdmin, self).__init__(*args, **kwargs)
         self.list_display_links = (None, )
-### TODO add foreign check of transactions txid        
-    def save_model(self, request, obj, form, change):
-             ## try to find Account and user by reference
-             ###we forbid any regulation after accomplishing transaction onnly manually 
-             if obj.user_accomplished is not None :
-                     return  False
-             
-             if obj.debit_credit == "out":
-                  return  False
-             
-             if obj.crypto_txid is None or len(obj.crypto_txid)<64:
-                  return False   
-             
-             Account = None
-             if  obj.account is  not None and obj.account != "":
-                Account  = Accounts.objects.get(reference = obj.account)  
-                obj.user = Account.user
-                
-             if  obj.user is  not None:
-                ## if we have found  Account and user by reference
-                AccountTo = None     
-                
-                if Account is not None:
-                        AccountTo = Account
-                else :        
-                        AccountTo = Accounts.objects.get(user = obj.user, 
-                                                         currency = obj.currency)
-                ## if not by reference, but by users
-                obj.ref = Account.reference
-                obj.currency = Account.currency
 
-                TradePair = TradePairs.objects.get(currency_on = obj.currency, currency_from  = obj.currency )
-                    
-                        ##create order for them
-                order = Orders( user = obj.user,
-                                currency1 = obj.currency,
-                                currency2 = obj.currency, 
-                                sum1_history = obj.amnt,
-                                sum2_history = obj.amnt,
-                                price = obj.amnt,
-                                sum1 = obj.amnt, 
-                                sum2 = obj.amnt,
-                                transit_1 = TradePair.transit_on,
-                                transit_2 = AccountTo,
-                                trade_pair = TradePair,
-                                status = "created"
-                        )
-                order.save()
-                add_trans(TradePair.transit_on, obj.amnt, obj.currency, AccountTo, order, "payin", obj.ref, False)
-                obj.order = order
-                order.status = "processed"
-                order.save()
-                obj.user_accomplished = request.user
-                obj.status = "processed"
-                obj.save()        
-                
-                return  True   
-             
-##if we have a transaction accomplished - do nothing             
-             
+    ### TODO add foreign check of transactions txid        
+    def save_model(self, request, obj, form, change):
+        ## try to find Account and user by reference
+        ###we forbid any regulation after accomplishing transaction onnly manually 
+        if obj.user_accomplished is not None:
+            return False
+
+        if obj.debit_credit == "out":
+            return False
+
+        if obj.crypto_txid is None or len(obj.crypto_txid) < 64:
+            return False
+
+        Account = None
+        if obj.account is not None and obj.account != "":
+            Account = Accounts.objects.get(reference=obj.account)
+            obj.user = Account.user
+
+        if obj.user is not None:
+            ## if we have found  Account and user by reference
+            AccountTo = None
+
+            if Account is not None:
+                AccountTo = Account
+            else:
+                AccountTo = Accounts.objects.get(user=obj.user,
+                                                 currency=obj.currency)
+            ## if not by reference, but by users
+            obj.ref = Account.reference
+            obj.currency = Account.currency
+
+            TradePair = TradePairs.objects.get(currency_on=obj.currency, currency_from=obj.currency)
+
+            ##create order for them
+            order = Orders(user=obj.user,
+                           currency1=obj.currency,
+                           currency2=obj.currency,
+                           sum1_history=obj.amnt,
+                           sum2_history=obj.amnt,
+                           price=obj.amnt,
+                           sum1=obj.amnt,
+                           sum2=obj.amnt,
+                           transit_1=TradePair.transit_on,
+                           transit_2=AccountTo,
+                           trade_pair=TradePair,
+                           status="created"
+            )
+            order.save()
+            add_trans(TradePair.transit_on, obj.amnt, obj.currency, AccountTo, order, "payin", obj.ref, False)
+            obj.order = order
+            order.status = "processed"
+            order.save()
+            obj.user_accomplished = request.user
+            obj.status = "processed"
+            obj.save()
+
+            return True
+
+            ##if we have a transaction accomplished - do nothing
+
 
 class CardP2PTransfers(models.Model):
-   CardNumber  =  models.CharField( max_length = 255, verbose_name = u"Номер карты")
-   CardName =  models.CharField( max_length = 255, verbose_name = u"Имя держателя на карте")   
-   currency =  models.ForeignKey( "Currency",  verbose_name = u"Валюта" )
-   amnt = models.DecimalField( max_digits = 18, decimal_places = 2, verbose_name = u"Сумма" ) 
-   user = models.ForeignKey( User, 
-                             verbose_name = u"Клиент",
-                             related_name = "user_requested_card",
-                             blank = True, null = True )
-   user_accomplished = models.ForeignKey( User, verbose_name = u"Оператор проводки", 
-                                           related_name = "operator_processed_card", 
-                                           blank = True, null = True )
-   
-   comission = models.DecimalField( max_digits = 18,
-                                    decimal_places = 2,
-                                    verbose_name = u"комиссия",
-                                    editable = False, 
-                                    blank = True,
-                                    null = True)
-   
-   pub_date = models.DateTimeField( auto_now = False, 
-                                    verbose_name = u"Дата" )
-   
-   status =  models.CharField( max_length = 40,
-                               choices = STATUS_ORDER,
-                               default = 'created')
-   
-   order = models.ForeignKey( "Orders",  
-                              verbose_name = u"Ордер",
-                              editable = False,
-                              null = True, 
-                              blank = True)
-                              
-   sign = models.CharField( max_length = 255,
-                                   editable = False, 
-                                   blank = True, 
-                                   null = True)
-   
-   confirm_key = models.CharField( max_length = 255,
-                                   editable = False, 
-                                   blank = True, 
-                                   null = True)
+    CardNumber = models.CharField(max_length=255, verbose_name=u"Номер карты")
+    CardName = models.CharField(max_length=255, verbose_name=u"Имя держателя на карте")
+    currency = models.ForeignKey("Currency", verbose_name=u"Валюта")
+    amnt = models.DecimalField(max_digits=18, decimal_places=2, verbose_name=u"Сумма")
+    user = models.ForeignKey(User,
+                             verbose_name=u"Клиент",
+                             related_name="user_requested_card",
+                             blank=True, null=True)
+    user_accomplished = models.ForeignKey(User, verbose_name=u"Оператор проводки",
+                                          related_name="operator_processed_card",
+                                          blank=True, null=True)
 
-   debit_credit =  models.CharField(max_length = 40,
-                               choices = DEBIT_CREDIT,
-                               default = 'out')
+    comission = models.DecimalField(max_digits=18,
+                                    decimal_places=2,
+                                    verbose_name=u"комиссия",
+                                    editable=False,
+                                    blank=True,
+                                    null=True)
 
-   def salt_repr(self):
-        return ",".join([ str(getattr(self, field.name)) for field in self._meta.local_fields])
+    pub_date = models.DateTimeField(auto_now=False,
+                                    verbose_name=u"Дата")
 
-  
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created')
 
-   def fields4sign(self):
+    order = models.ForeignKey("Orders",
+                              verbose_name=u"Ордер",
+                              editable=False,
+                              null=True,
+                              blank=True)
+
+    sign = models.CharField(max_length=255,
+                            editable=False,
+                            blank=True,
+                            null=True)
+
+    confirm_key = models.CharField(max_length=255,
+                                   editable=False,
+                                   blank=True,
+                                   null=True)
+
+    debit_credit = models.CharField(max_length=40,
+                                    choices=DEBIT_CREDIT,
+                                    default='out')
+
+    def salt_repr(self):
+        return ",".join([str(getattr(self, field.name)) for field in self._meta.local_fields])
+
+
+    def fields4sign(self):
         List = []
-        for i in  ('CardNumber', 'currency','amnt','user','comission','status','confirm_key'):
-           Val = getattr(self, i)          
-           if i in ('amnt','comission'):
-               List.append(format_numbers_strong(Val ) )
-           else:
-               List.append(str(Val))
-        
+        for i in ('CardNumber', 'currency', 'amnt', 'user', 'comission', 'status', 'confirm_key'):
+            Val = getattr(self, i)
+            if i in ('amnt', 'comission'):
+                List.append(format_numbers_strong(Val))
+            else:
+                List.append(str(Val))
+
         return ",".join(List)
-            
 
-   def verify(self, key):
-        Fields = self.fields4sign()
-        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
-        return  Sign == self.sign 
 
-   def sign_record(self, key):
+    def verify(self, key):
         Fields = self.fields4sign()
-        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT )
+        Sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
+        return Sign == self.sign
+
+    def sign_record(self, key):
+        Fields = self.fields4sign()
+        self.sign = generate_key_from2(Fields, key + settings.SIGN_SALT)
         self.save()
 
 
-# WARNING transaction to payments account must be first
-   def save_model(self, *args, **kwargs):
+    # WARNING transaction to payments account must be first
+    def save_model(self, *args, **kwargs):
 
-            checksum(self)
-            super(CardP2PTransfers, self).save(*args, **kwargs)
+        checksum(self)
+        super(CardP2PTransfers, self).save(*args, **kwargs)
 
-   
-   class Meta: 
-        verbose_name=u'Вывод на карту'        
+
+    class Meta:
+        verbose_name = u'Вывод на карту'
         verbose_name_plural = u'Выводы на карту'
-   ordering = ('id',)       
-   def __unicode__(o):
-      return   str(o.id) + " " + str(o.amnt) + " " +   o.currency.title 
 
+    ordering = ('id',)
 
+    def __unicode__(o):
+        return str(o.id) + " " + str(o.amnt) + " " + o.currency.title
 
 
 class CryptoTransfers(models.Model):
-   account = models.CharField( max_length = 255, verbose_name = u"Счет" )
-   description = models.CharField( max_length = 255, verbose_name = u"Описание", blank = True )
-   currency =  models.ForeignKey( "Currency",  verbose_name = u"Валюта" )
-   amnt = models.DecimalField( max_digits = 18, decimal_places = 10, verbose_name = u"Сумма" ) 
-   user = models.ForeignKey( User, verbose_name = u"Клиент",  related_name = "user_crypto_requested" )
-   user_accomplished = models.ForeignKey( User, verbose_name = u"Оператор проводки", 
-                                           related_name = "operator_crypto_processed", 
-                                           blank = True, null = True )
-   confirms = models.IntegerField(verbose_name = u" Подтверждения", default=0 )
-   pub_date = models.DateTimeField(auto_now = True,
-                                   verbose_name = u"Дата" )
-   status = models.CharField( max_length = 40,
-                               choices = STATUS_ORDER,
-                               default = 'created')
-   comission = models.DecimalField( max_digits = 18,
-                               decimal_places = 10,
-                               verbose_name = u"комиссия",
-                               editable = False)
-   confirm_key = models.CharField( max_length = 255, editable = False, blank = True, null = True)
-   crypto_txid = models.CharField( max_length = 255, blank = True, null = True)
-       
-   order = models.ForeignKey(
-                             "Orders",  verbose_name = u"Ордер",
-                             editable = False,
-                             null = True,
-                             blank = True)
+    account = models.CharField(max_length=255, verbose_name=u"Счет")
+    description = models.CharField(max_length=255, verbose_name=u"Описание", blank=True)
+    currency = models.ForeignKey("Currency", verbose_name=u"Валюта")
+    amnt = models.DecimalField(max_digits=18, decimal_places=10, verbose_name=u"Сумма")
+    user = models.ForeignKey(User, verbose_name=u"Клиент", related_name="user_crypto_requested")
+    user_accomplished = models.ForeignKey(User, verbose_name=u"Оператор проводки",
+                                          related_name="operator_crypto_processed",
+                                          blank=True, null=True)
+    confirms = models.IntegerField(verbose_name=u" Подтверждения", default=0)
+    pub_date = models.DateTimeField(auto_now=True,
+                                    verbose_name=u"Дата")
+    status = models.CharField(max_length=40,
+                              choices=STATUS_ORDER,
+                              default='created')
+    comission = models.DecimalField(max_digits=18,
+                                    decimal_places=10,
+                                    verbose_name=u"комиссия",
+                                    editable=False)
+    confirm_key = models.CharField(max_length=255, editable=False, blank=True, null=True)
+    crypto_txid = models.CharField(max_length=255, blank=True, null=True)
 
-   sign = models.CharField(verbose_name = u"подпись клиента", max_length = 255, null = False)
+    order = models.ForeignKey(
+        "Orders", verbose_name=u"Ордер",
+        editable=False,
+        null=True,
+        blank=True)
 
-   def salt_fields(self):
-       return ('account', 'debit_credit', 'currency', 'amnt', 'status',
-               'user_id', 'confirm_key', 'confirms','crypto_txid')
+    sign = models.CharField(verbose_name=u"подпись клиента", max_length=255, null=False)
 
-   def verify(self, key):
-       Fields = self.salt_fields()
-       StableData = ",".join([ str(getattr(self, field)) for field in Fields ])
-       if generate_key_from2(StableData, key+settings.SIGN_SALT ) == self.sign :
+    def salt_fields(self):
+        return ('account', 'debit_credit', 'currency', 'amnt', 'status',
+                'user_id', 'confirm_key', 'confirms', 'crypto_txid')
+
+    def verify(self, key):
+        Fields = self.salt_fields()
+        StableData = ",".join([str(getattr(self, field)) for field in Fields])
+        if generate_key_from2(StableData, key + settings.SIGN_SALT) == self.sign:
             return True
-       else:
+        else:
             return False
 
-   def salt_repr(self):
-        return ",".join([ str(getattr(self, field.name)) for field in self._meta.local_fields])
+    def salt_repr(self):
+        return ",".join([str(getattr(self, field.name)) for field in self._meta.local_fields])
 
-   def save_model(self, request, obj, form, change):
+    def save_model(self, request, obj, form, change):
         checksum(self)
         super(CryptoTransfers, self).save(request, obj, form, change)
 
 
-   def sign_record(self, key):
-       Fields = self.salt_fields()
-       StableSalt = ",".join([ str(getattr(self, field)) for field in Fields ])
-       self.sign = generate_key_from2(StableSalt, key + settings.SIGN_SALT )
-        
+    def sign_record(self, key):
+        Fields = self.salt_fields()
+        StableSalt = ",".join([str(getattr(self, field)) for field in Fields])
+        self.sign = generate_key_from2(StableSalt, key + settings.SIGN_SALT)
 
-    
-                             
-                             
-   debit_credit =  models.CharField(max_length = 40,
-                               choices = DEBIT_CREDIT,
-                               default = 'in')
-   class Meta:
-        verbose_name=u'Перевод криптовалюты'        
-        verbose_name_plural = u'Переводы криптовалюты' 
-   ordering = ('id',)
-   def __unicode__(o):
-        return   str(o.id) + " " + str(o.amnt) + " " +   o.currency.title
+
+    debit_credit = models.CharField(max_length=40,
+                                    choices=DEBIT_CREDIT,
+                                    default='in')
+
+    class Meta:
+        verbose_name = u'Перевод криптовалюты'
+        verbose_name_plural = u'Переводы криптовалюты'
+
+    ordering = ('id',)
+
+    def __unicode__(o):
+        return str(o.id) + " " + str(o.amnt) + " " + o.currency.title
 
 
 
