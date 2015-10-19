@@ -1,0 +1,47 @@
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+
+          <a class="brand" href="#">Project name</a>
+
+          <div class="menu_block">
+            <ul class="nav">
+              <li class="active"><a href="#">Купить/Продать</a></li>
+              <li><a href="#about">Регистрация</a></li>
+              <li><a href="#contact">Тарифы</a></li>
+              <li><a href="#contact">Соглашение</a></li>
+              <li><a href="#contact">FAQ</a></li>
+              <li><a href="#contact">Помощь</a></li>
+              <li><a href="#contact">Личный кабинет</a></li>              
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+
+.menu_block {
+	float: right;
+	height: 60px;
+
+}
+
+.menu_block ul li a {
+	height: 41px;
+	line-height: 39px;
+}
+
+.menu_block ul li a:hover {
+	background-color: #00a3e1 !important;
+}
+
+.active a {
+	background-color: #00a3e1 !important;
+}

@@ -17,17 +17,10 @@ var finance  = {
 		"perfect_money_eur": "Perfect Money EUR",
 		"p24_transfer": "Privat24 UAH",
 		"ya_rur": "Yandex RUR",
-<<<<<<< HEAD
-	},
-	currency_titles:{
-
-=======
-		"sberbank_rur":"SberBank RUR"
 	},
 	currency_titles:{
 
 		"sberbank_rur":"SberBank RUR",
->>>>>>> 137e852afcc19395c1c41f4212fde52f31cbc0a7
 		"ya_rur": "Yandex RUR",
 		"okpay_usd": "OKPay USD",
 		"okpay_eur": "OKPay EUR",
