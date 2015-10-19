@@ -600,7 +600,7 @@ def home(request):
     return index(request)   
 
         
-def stock(Req, Title = "btc_usd"):
+def stock(Req, Title = "btc_uah"):
     if  Title is None:
             Title = Req.session.get('stock_path', None)
             if Title is None:
