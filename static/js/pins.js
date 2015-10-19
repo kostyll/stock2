@@ -1,6 +1,6 @@
 var Pins  = {
-     host: "https://btc-trade.com.ua",
-     host_ws: "wss://btc-trade.com.ua",
+     host: "https://bitmoney.trade",
+     host_ws: "wss://bitmoney.trade",
      id: "",
      container:"",
      session:"",

@@ -36,12 +36,25 @@ var Chat  = {
                 var NewElements = "";
                 
                 for(var i = 0; i< size;i++){
+/*  <tr>                                      
+                                  <td>
+                                    <div class="sidebar_chat_nick">
+                                        <h3>Ник 1</h3>
+                                    </div>
+                                    <div class="sidebar_chat_message">
+                                        <p>Первое сообщение Нажмите посчитать, чтобы рассчи</p>
+                                    </div>
+                                  </td>
+                                </tr>
+*/
+
+
                                         var username =  messages[i]["username"];
                                         var message =  messages[i]["message"];
                                         
                                         var NewElement = "<tr class='cursor' onclick=\"answer('"+username+"')\">";                                                        
-                                        NewElement  +="<td ><strong>"+ username  +"</strong>:&nbsp;</td></tr><tr><td>";
-                                        NewElement  += message+"</td></tr>";
+                                        NewElement  +="<td><div class='sidebar_chat_nick'> <h3>"+ username  +"</h3></div><div class='sidebar_chat_message'><p>";
+                                        NewElement  += message+"</p></div></td></tr>";
                                         NewElements += NewElement;
                 }
                 $("#"+Chat.container).prepend( NewElements );

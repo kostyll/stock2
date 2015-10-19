@@ -661,7 +661,7 @@ var Main = {
         },
         user_menu: function(callback){
                          if(!Login.logged){
-                                setTimeout(callback, 23000);
+                setTimeout(callback, 23000);
                                 return        
                          }
                 
@@ -671,9 +671,9 @@ var Main = {
                              type : "GET", 
                              cache: false,
                              error: function (data) {
-                                        console.log(data);
-                                        setTimeout(callback, 23000);
-                                        return
+                                                console.log(data);
+                        setTimeout(callback, 23000);
+                        return
 
                              }, 
                              success : function(Data){
@@ -686,7 +686,7 @@ var Main = {
                                         Login.use_f2a = Data["use_f2a"];
                                         $("#notify_count").html("("+ Data["notify_count"] + ")");
                                         $("#msg_count").html("(" + Data["msg_count"] +")" );
-                                        callback();
+                    callback();
                                  }
                              }); 
                  
