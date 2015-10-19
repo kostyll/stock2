@@ -1,3 +1,4 @@
 crypton/settings.py
 sdk/crypto_settings.py
 .svn
+.idea
