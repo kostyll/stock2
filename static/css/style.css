@@ -1,7 +1,15 @@
 /*---TEST COMMENT for commit -------*/
 
 body {
-    background: #f8f8f8 url(/static/images/pattern.jpg);
+    /*background: #f8f8f8 url(/static/images/pattern.jpg);*/
+    /*border-top: 5px solid #01406c;*/
+    /*font-family: 'Lato', sans-serif;*/
+    /*margin: 0;*/
+    /*color:#555;*/
+}
+
+body {
+    background-color: #fff;
     border-top: 5px solid #01406c;
     font-family: 'Lato', sans-serif;
     margin: 0;
