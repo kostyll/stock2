@@ -368,7 +368,6 @@ class CommonRequestHandlerOneParam(tornado.web.RequestHandler, ThreadableMixin):
         self.start_worker()
 
 
-# TODO add thread
 # common handler for processing http request through tornado with one param in url
 class CommonRequestHandlerTwoParam(CommonRequestHandler):
     def initialize(self, *args, **kwargs):

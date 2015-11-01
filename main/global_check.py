@@ -47,7 +47,9 @@ def check_uah_balance():
         (s, ) = s
 
     cursor.execute(
-        "SELECT sum(amnt)*0.99 FROM main_cardp2ptransfers WHERE status in ('created','processing','processing2','auto') AND pub_date>='2015-05-08' ");
+        "SELECT sum(amnt)*0.99 FROM main_cardp2ptransfers "
+        "WHERE status in ('created','processing','processing2','auto')"
+        "AND pub_date>='2015-05-08'");
 
     s1 = cursor.fetchone() * 1
     if s1 == (None, ):
@@ -115,7 +117,8 @@ def check_crypto_balance(Currency, Correction="0"):
         (s, ) = s
 
     cursor.execute(
-        "SELECT sum(amnt) FROM main_cryptotransfers WHERE status in ('processing') AND pub_date>='2015-05-08' and currency_id=%i " % Currency.id);
+        "SELECT sum(amnt) FROM main_cryptotransfers WHERE status in ('processing')"
+        " AND pub_date>='2015-05-08' and currency_id=%i " % Currency.id);
 
     s1 = cursor.fetchone() * 1
     if s1 == (None, ):
@@ -144,8 +147,8 @@ def check_crypto_currency(Cur):
     NotId = ",".join(transit_accounts)
     # not Credit and not Mistake and not transit accounts
     Query = "SELECT sum(balance) FROM main_accounts \
-                    WHERE currency_id=%s \
-                    AND user_id not in (346, 31, %s) AND id not in (%s) AND balance>0 " % (str(Cur.id), ComisId, NotId)
+             WHERE currency_id=%s \
+             AND user_id not in (346, 31, %s) AND id not in (%s) AND balance>0 " % (str(Cur.id), ComisId, NotId)
 
     cursor.execute(Query, [])
     S1 = cursor.fetchone()
@@ -155,9 +158,9 @@ def check_crypto_currency(Cur):
         S1 = S1[0]
 
     Query = "SELECT sum(sum1) FROM main_orders \
-                        WHERE currency1_id=%s AND currency2_id!=currency1_id \
-                        AND status=\"processing\"  \
-                        AND user_id not in (346)  " % (str(Cur.id))
+             WHERE currency1_id=%s AND currency2_id!=currency1_id \
+             AND status=\"processing\"  \
+             AND user_id not in (346)  " % (str(Cur.id))
 
     cursor.execute(Query, [])
 
@@ -205,9 +208,9 @@ def check_currency_orders(Cur):
     else:
         TransitSum = TransitSum[0]
     Query = "SELECT sum(sum1) FROM main_orders \
-                        WHERE currency1_id=%s AND currency2_id!=currency1_id \
-                        AND status=\"processing\"  \
-                        AND user_id not in (346)  " % ( str(Cur.id) )
+             WHERE currency1_id=%s AND currency2_id!=currency1_id \
+             AND status=\"processing\"  \
+             AND user_id not in (346)  " % ( str(Cur.id) )
     cursor.execute(Query, [])
 
     OrdersSum = cursor.fetchone() * 1
@@ -254,16 +257,17 @@ def check_fiat_currency(Cur):
     NotId = ",".join(transit_accounts)
     #not Credit and not Mistake and not transit accounts
     Query = "SELECT sum(balance) FROM main_accounts WHERE currency_id=%s \
-                            AND user_id not in (346, 31) AND id not in (%s) AND balance>0 " % (str(Cur.id), NotId)
-    cursor.execute(Query, [])
+             AND user_id not in (346, 31) AND id not in (%s) AND balance>0 " % (str(Cur.id), NotId)
 
+    cursor.execute(Query, [])
     S1 = cursor.fetchone() * 1
     if S1 == (None, ):
         S1 = Decimal("0.0")
 
-    Query = "SELECT sum(sum1) FROM main_orders WHERE currency1_id=%s AND currency2_id!=currency1_id \
-                                                AND status=\"processing\"  \
-                            AND user_id not in (346)  " % ( str(Cur.id) )
+    Query = "SELECT sum(sum1) FROM main_orders " \
+            "WHERE currency1_id=%s AND currency2_id!=currency1_id  \
+             AND status=\"processing\"  \
+             AND user_id not in (346)  " % ( str(Cur.id) )
     cursor.execute(Query, [])
 
     S2 = cursor.fetchone() * 1

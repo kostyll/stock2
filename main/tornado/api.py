@@ -15,7 +15,6 @@ import threading
 # Create your views here.
 
 from django.template import Context, loader
-
 from crypton.http import HttpResponse
 from crypton import settings
 from django.utils.translation import ugettext as _
@@ -541,7 +540,7 @@ def remove_order(Req, Order):
 
 def __inner_remove_order(Order, User):
     Order2Remove = OrdersMem.objects.get(user=User.id, id=int(Order), status="processing")
-    if not Order2Remove.verify(str(User.id)) and False:
+    if not Order2Remove.verify(str(User.id)) :
         return False
 
     Market = TradePairs.objects.get(id=Order2Remove.trade_pair)
