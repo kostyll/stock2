@@ -117,7 +117,8 @@ def check_crypto_balance(Currency, Correction="0"):
         (s, ) = s
 
     cursor.execute(
-        "SELECT sum(amnt) FROM main_cryptotransfers WHERE status in ('processing')"
+        "SELECT sum(amnt) FROM main_cryptotransfers WHERE debit_credit='out'"
+        " AND status in ('processing')"
         " AND pub_date>='2015-05-08' and currency_id=%i " % Currency.id);
 
     s1 = cursor.fetchone() * 1
