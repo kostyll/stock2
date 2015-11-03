@@ -529,7 +529,7 @@ def add_trans2(From, Amnt, Currency, To, status="created",  Strict=True):
                   status="core_error")
     trans.save()
 
-    if From.currency() <> Currency:
+    if From.currency() <> Currency.id:
         trans.status = "currency_core"
         trans.currency_id = Currency
         trans.save()
@@ -559,14 +559,13 @@ def add_trans2(From, Amnt, Currency, To, status="created",  Strict=True):
 
     try:
         trans.res_balance1 = NewBalance
-        To.save(trans)
+        To.update(trans, ToNewBalance)
         # race condition
         From.save(trans)
         trans.status=status
         trans.save()
     except:
         From.reload()
-        To.reload()
         trans.save()
         raise TransError("core_error")
 
@@ -2326,6 +2325,13 @@ class OrdersMem(models.Model):
     comission = models.DecimalField(max_digits=20, default='0.0005', blank=True, decimal_places=10,
                                     verbose_name=u"Комиссия")
     sign = models.CharField(max_length=255, verbose_name=u"Custom sign")
+    last_trans_id = models.IntegerField(verbose_name=u"last id", blank=True)
+
+
+    def update(self, trans, new_amnt):
+        OrdersMem.objects.get(id=self.id, last_trans_id=self.last_trans_id).update(
+                last_trans_id = trans.id,
+                sum1 = new_amnt)
 
     class Meta:
         verbose_name = u'Заявка'
@@ -2348,7 +2354,7 @@ class OrdersMem(models.Model):
     def fields4sign(self):
         List = []
         for i in ('currency1', 'sum1_history', 'sum1',
-                  'transit_1', 'transit_2', 'user', 'comission'):
+                  'price', 'last_trans_id', 'user', 'comission'):
             Val = getattr(self, i)
             if i in ('sum1_history', 'sum1', 'sum2', 'comission'):
                 List.append(format_numbers_strong(Val))
