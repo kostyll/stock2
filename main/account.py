@@ -20,7 +20,7 @@ class Account(object):
             user_id = user
 
         currency_id = data.get('currency_id', None)
-        if isinstance(currency, Currency):
+        if isinstance(currency, main.models.Currency):
             currency_id = currency.id
 
         if isinstance(currency, int):
