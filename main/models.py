@@ -2325,7 +2325,7 @@ class OrdersMem(models.Model):
     sign = models.CharField(max_length=255, verbose_name=u"Custom sign")
     last_trans_id = models.IntegerField(verbose_name=u"last id", blank=True)
 
-    currency2 = models.ForeignKey("Currency", related_name='to_currency', verbose_name=u"Валюта Б", )
+    currency2 = models.IntegerField(blank=True, verbose_name=u"Валюта Б", )
     sum2_history = models.DecimalField(verbose_name=u"Изначальная сумма покупки", max_digits=20, decimal_places=10)
     sum2 = models.DecimalField(verbose_name=u"сумма покупки", max_digits=20, decimal_places=10)
     transit_1 = models.IntegerField(blank=True, verbose_name=u"транзитный счет покупки")
