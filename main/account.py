@@ -1,6 +1,11 @@
 import main.models 
 from django.contrib.auth.models import User
 
+def get_account(**kawrds):
+    return Account(**kawrds)
+
+
+
 class Account(object):
     def __init__(self, *args, **kwards):
         user = data.get('user', None)

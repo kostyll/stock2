@@ -23,7 +23,7 @@ from django.db import transaction
 import base64
 from sdk.crypto import CryptoAccount
 import main.http_common
-import main
+from main.account import get_account
 from tinymce.widgets import TinyMCE
 from django.core.urlresolvers import reverse
 
