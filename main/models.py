@@ -1997,8 +1997,8 @@ def check_holds(order):
 
 
 class TransMemAdmin(admin.ModelAdmin):
-    list_display = ['id',  'user1', 'order_id', 'balance1', 'user2', 'balance2', 'currency', 'amnt',
-                    'status', 'res_balance1', 'res_balance2', 'pub_date']
+    list_display = ['id',  'user1', 'order_id', 'balance1',  'currency', 'amnt',
+                    'status', 'res_balance1',  'pub_date']
     list_filter = ('status', 'currency')
 
 
