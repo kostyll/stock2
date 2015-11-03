@@ -523,7 +523,7 @@ def add_trans2(From, Amnt, Currency, To, status="created",  Strict=True):
     trans = TransMem(
                   balance1=From.get_balance(),
                   user1=From.acc(),
-                  order=order,
+                  order_id=order.id,
                   currency=Currency,
                   amnt=Amnt,
                   status="core_error")
@@ -531,13 +531,11 @@ def add_trans2(From, Amnt, Currency, To, status="created",  Strict=True):
 
     if From.currency() <> Currency.id:
         trans.status = "currency_core"
-        trans.currency_id = Currency
         trans.save()
         raise TransError("currency_core")
 
     if To.currency1 <> Currency.id:
         trans.status = "currency_core"
-        trans.currency_id = Currency
         trans.save()
         raise TransError("currency_core")
 
@@ -1999,7 +1997,7 @@ def check_holds(order):
 
 
 class TransMemAdmin(admin.ModelAdmin):
-    list_display = ['id', 'out_order_id', 'user1', 'order_id', 'balance1', 'user2', 'balance2', 'currency', 'amnt',
+    list_display = ['id',  'user1', 'order_id', 'balance1', 'user2', 'balance2', 'currency', 'amnt',
                     'status', 'res_balance1', 'res_balance2', 'pub_date']
     list_filter = ('status', 'currency')
 
@@ -2327,6 +2325,13 @@ class OrdersMem(models.Model):
     sign = models.CharField(max_length=255, verbose_name=u"Custom sign")
     last_trans_id = models.IntegerField(verbose_name=u"last id", blank=True)
 
+    currency2 = models.ForeignKey("Currency", related_name='to_currency', verbose_name=u"Валюта Б", )
+    sum2_history = models.DecimalField(verbose_name=u"Изначальная сумма покупки", max_digits=20, decimal_places=10)
+    sum2 = models.DecimalField(verbose_name=u"сумма покупки", max_digits=20, decimal_places=10)
+    transit_1 = models.IntegerField(related_name="transit_account_1", verbose_name=u"транзитный счет покупки")
+    transit_2 = models.IntegerField(related_name="transit_account_2", verbose_name=u"транзитный счет продажи")
+
+    
 
     def update(self, trans, new_amnt):
         OrdersMem.objects.get(id=self.id, last_trans_id=self.last_trans_id).update(

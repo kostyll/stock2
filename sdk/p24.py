@@ -192,7 +192,7 @@ class p24:
         Str = u''.join((Data, self.__password)).encode('utf-8').strip()
         return hashlib.sha1(hashlib.md5(Str).hexdigest()).hexdigest()
 
-    def generate_pay_request(self, User, Amount):
+    def generate_order_request(self, User, Amount):
         AmountStr = Decimal(Amount)
         user_account = Accounts.objects.get(user=User, currency=self.__currency)
         if AmountStr < 0:
@@ -242,6 +242,15 @@ class p24:
         Response['Content-Type'] = 'application/json'
         return Response
 
+    def generate_pay_request(self, User, Amount):
+
+        Dict = self.generate_order_request(User, Amount)
+        Response =  HttpResponse( json.JSONEncoder().encode(Dict) )
+        Response['Content-Type'] = 'application/json'
+        return Response
+
+        
+        
     def generate_result_url(self, order, User, Amount):
         return settings.BASE_URL + "finance/common_confirm_page/" + str(order.id)
 
