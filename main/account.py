@@ -30,7 +30,7 @@ class Account(object):
         self.__account = main.models.Accounts.objects.get(user_id = user_id, currency_id=currency_id)
         self.__currency_id = currency_id
         self.__user_id = user_id
-        self.__trans = main.models.Trans.objects.get(id=self.account.last_trans_id)
+        self.__trans = main.models.Trans.objects.get(id=self.__account.last_trans_id)
         if self.__account.id == self.__trans.user2_id:
            self.__balance =  self.__trans.res_balance2
         else:
