@@ -1,7 +1,4 @@
-from main.models import Trans
-from main.models import Accounts
-from main.models import Currency
-from main.models import TransError
+import main.models 
 from django.contrib.auth.models import User
 
 class Account(object):
@@ -25,10 +22,10 @@ class Account(object):
             currency_id = currency
 
 
-        self.__account = Accounts.objects.get(user_id = user_id, currency_id=currency_id)
+        self.__account = main.models.Accounts.objects.get(user_id = user_id, currency_id=currency_id)
         self.__currency_id = currency_id
         self.__user_id = user_id
-        self.__trans = Trans.objects.get(id=self.account.last_trans_id)
+        self.__trans = main.models.Trans.objects.get(id=self.account.last_trans_id)
         if self.__account.id == self.__trans.user2_id:
            self.__balance =  self.__trans.res_balance2
         else:
@@ -46,8 +43,8 @@ class Account(object):
         return self.__user_id
 
     def reload(self):
-        self.__account = Accounts.objects.get(user_id = self.__user_id, currency_id=self.__currency_id)
-        self.__trans = Trans.objects.get(id=self.__account.last_trans_id)
+        self.__account = main.models.Accounts.objects.get(user_id = self.__user_id, currency_id=self.__currency_id)
+        self.__trans = main.models.Trans.objects.get(id=self.__account.last_trans_id)
 
 
         if self.__account.id == self.__trans.user2_id:
@@ -74,12 +71,12 @@ class Account(object):
             raise TransError("it seems a race condition, reload object")
 
         try:
-            acc = Accounts.objects.get(id=self.__account.id, last_trans_id=self.__trans.id).update(
+            acc = main.models.Accounts.objects.get(id=self.__account.id, last_trans_id=self.__trans.id).update(
                 last_trans_id = trans.id,
                 balance = self.__balance)
 
             self.__account = acc
             self.__trans = trans
-        except Accounts.DoesNotExist:
+        except main.models.Accounts.DoesNotExist:
             raise TransError("it seems a race condition")
             self.__inconsist = True
