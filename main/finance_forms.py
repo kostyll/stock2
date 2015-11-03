@@ -9,7 +9,7 @@ from datetime import datetime
 import math
 from django.utils.translation import ugettext as _
 from main.http_common import generate_key_from
-from main import get_account
+from main.account import get_account
 from django.utils.html import mark_safe
 import crypton.settings as settings
 import json
