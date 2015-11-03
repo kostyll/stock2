@@ -184,127 +184,130 @@ def order_description_sell(Sum1, Sum2, Order, TradePair):
                   'order_id': Order.id,
                   'price': Price})
 
-
-# process order  item that match order Order
-def process_order(AccountBuyer, ComisBuy, AccumSum, AccumSumToSell, item, Order, TradePair, ComisSell):
-    ## TODO move to settings for every user
-    ComisPercentSeller = item.comission
-    ComisPercentBuyer = Order.comission
+# process order  item that match order  AccumSumToSell=>7000UAH  AccountBuyer BTC  Accountc
+# OrderBuy order of buying BTC sum1 is for exmaple 1 BTC , OrderSell 7000UAH  selling
+def process_order_buy(AccountSeller,  AccumSumToSell, OrderBuy, OrderSell, TradePair):
+     ## TODO move to settings for every user
+    logging.debug("=========================================================================================")
+    logging.debug(OrderSell)
+    logging.debug("%s" % (AccumSumToSell))
+    logging.debug(OrderBuy)
     logging.debug("=========================================================================================")
 
-    logging.debug(item)
-    logging.debug("%s%s" % (AccumSum, AccumSumToSell))
-    logging.debug(Order)
-    logging.debug("=========================================================================================")
+    if not item.verify(str(OrderBuy.user)):
+        logging.debug("Sign FAILED %s" % str(OrderBuy))
+        return  AccumSumToSell
 
-    if not item.verify(str(item.user)):
-        logging.debug("Sign FAILED %s" % str(item))
-        return AccumSum, AccumSumToSell
-
-    if item.sum1 > AccumSum:
+    # OrderBuy.sum1*OrderBuy.price
+    # 1.9 *7000  = 13000 UAH
+    # OrderBuySum  UAH
+    OrderBuySum = OrderBuy.sum1*OrderBuy.price
+    if OrderBuySum > AccumSumToSell:
         ## a danger of low overflow
-        ## TODO remove deviding
-        Diff = AccumSum / item.sum1
-        # UAH -> BTC * 5600
-        # BTC-> UAH / 5600
-        # AcumSum => 5600
-        # item.sum => 5200
-        TransSum = item.sum2 * Diff  # =>AccumSum*item.price
-        # TransSum = AccumSumToSell
-        AccountSeller = get_account(user=item.user, currency=item.currency2)
-
+        TransSum = AccumSumToSell/OrderBuy.price
+        AccountBuyer = get_account(user=OrderBuy.user, currency=OrderSell.currency1)
         ##comission
-        item.sum1 = item.sum1 - AccumSum
-        item.sum2 = item.sum2 - TransSum
-        item.sign_record(str(item.user))
-        item.save()
-        Order.sum2 = 0
-        Order.sum1 = AccumSumToSell - TransSum
-        Order.save()
-        account_transit_2 = get_account(id=item.transit_2, currency=item.currency2)
-        add_trans2(account_transit_2,
-                   TransSum,
-                   AccountSeller,
-                   item.id,
-                   "deal",
-                   Out_order_id=Order.id
-        )
+        add_trans2(AccountBuyer,
+                   AccumSumToSell*-1,
+                   OrderSell,
+                   "deal")
 
         add_trans2(AccountSeller,
-                   TransSum * ComisPercentSeller,
-                   ComisSell,
-                   item.id,
-                   "comission",
-                   Out_order_id=Order.id
-        )
-        account_transit_1 = get_account(id=item.transit_1, currency=item.currency1)
-
-        add_trans2(account_transit_1,
-                   AccumSum,
-                   AccountBuyer,
-                   item.id,
-                   "deal",
-                   Out_order_id=Order.id
-        )
-
-        add_trans2(AccountBuyer,
-                   AccumSum * ComisPercentBuyer,
-                   ComisBuy,
-                   Order.id,
-                   "comission",
-                   Out_order_id=Order.id)
+                   TransSum*-1,
+                   OrderBuy,
+                   "deal")
 
         try:
-            system_notify_async(order_description_sell(AccumSum, TransSum, item, TradePair), AccountSeller.get_user())
+            system_notify_async(order_description_sell(AccumSum, TransSum, OrderBuy, TradePair), AccountSeller.get_user())
+            system_notify_async(order_description_buy(TransSum, AccumSum, Order, item, TradePair), AccountBuyer.get_user())
+        except:
+            logging.info("something gooing wrong with notification")
+            pass
+        OrderSell.make2processed()
+        return 0
+
+    if OrderBuySum <= AccumSumToSell:
+        TransSum = OrderBuy.sum1
+        AccountBuyer = get_account(user=OrderBuy.user, currency=OrderSell.currency1)
+        ##comission
+
+        add_trans2(AccountBuyer,
+                   OrderBuySum*-1,
+                   OrderSell,
+                   "deal")
+
+        add_trans2(AccountSeller,
+                   TransSum*-1,
+                   OrderBuy,
+                   "deal")
+
+        try:
+            system_notify_async(order_description_sell(NotifySum, TransSum, OrderBuy, TradePair), AccountBuyer.get_user())
+            system_notify_async(order_description_buy(TransSum, NotifySum, Order, item, TradePair),
+                                AccountBuyer.get_user())
+            system_notify_async(order_finish(item), AccountSeller.get_user())
+
+        except:
+            logging.info("somthing gooing wrong with notification")
+            pass
+
+        return AccumSumToSell-OrderBuySum
+
+
+
+# process order  item that match order Order AccumSumToSell=>1BTC  AccountSeller UAH Accounts
+# OrderBuy order of buying BTC sum1 is for exmaple 7000 UAH , OrderSell 1 BTC selling
+def process_order_sell(AccountSeller,  AccumSumToSell, OrderBuy, OrderSell, TradePair):
+    ## TODO move to settings for every user
+    logging.debug("=========================================================================================")
+    logging.debug(OrderSell)
+    logging.debug("%s" % (AccumSumToSell))
+    logging.debug(OrderBuy)
+    logging.debug("=========================================================================================")
+
+    if not item.verify(str(OrderBuy.user)):
+        logging.debug("Sign FAILED %s" % str(OrderBuy))
+        return  AccumSumToSell
+    # 7000/3600 = 1.9 BTC
+    OrderBuySum = OrderBuy.sum1/OrderBuy.price
+    if OrderBuySum > AccumSumToSell:
+        ## a danger of low overflow
+        TransSum = AccumSumToSell*OrderBuy.price
+        AccountBuyer = get_account(user=OrderBuy.user, currency=OrderSell.currency1)
+        ##comission
+        add_trans2(AccountBuyer,
+                   AccumSumToSell*-1,
+                   OrderSell,
+                   "deal")
+
+        add_trans2(AccountSeller,
+                   TransSum*-1,
+                   OrderBuy,
+                   "deal")
+
+        try:
+            system_notify_async(order_description_sell(AccumSum, TransSum, OrderBuy, TradePair), AccountSeller.get_user())
             system_notify_async(order_description_buy(TransSum, AccumSum, Order, item, TradePair), AccountBuyer.get_user())
         except:
             logging.info("something gooing wrong with notification")
             pass
 
-        return 0, Order.sum1
+        OrderBuy.make2processed()
+        return 0
 
-    if item.sum1 <= AccumSum:
-        TransSum = item.sum2
-        NotifySum = item.sum1
-        AccountSeller = get_account(user=item.user, currency=item.currency2)
+    if OrderBuySum <= AccumSumToSell:
+        TransSum = OrderBuy.sum1
+        AccountBuyer = get_account(user=OrderBuy.user, currency=OrderSell.currency1)
         ##comission
-        # TODO move to archive
-        item.status = "processed"
-        item.sum1 = 0
-        item.sum2 = 0
-        item.save()
-        Order.sum2 = AccumSum - NotifySum
-        Order.sum1 = AccumSumToSell - TransSum
-        Order.save()
-        account_transit_2 = get_account(id=item.transit_2, currency=item.currency2)
-        add_trans2(account_transit_2,
-                   TransSum,
-                   AccountSeller,
-                   item.id,
-                   "deal",
-                   Out_order_id=Order.id)
+        add_trans2(AccountBuyer,
+                   OrderBuySum*-1,
+                   OrderSell,
+                   "deal")
 
         add_trans2(AccountSeller,
-                   TransSum * ComisPercentSeller,
-                   ComisSell,
-                   item.id,
-                   "comission",
-                   Out_order_id=Order.id)
-        account_transit_1 = get_account(id=item.transit_1, currency=item.currency1)
-        add_trans2(account_transit_1,
-                   NotifySum,
-                   AccountBuyer,
-                   item.id,
-                   "deal",
-                   Out_order_id=Order.id)
-
-        add_trans2(AccountBuyer,
-                   NotifySum * ComisPercentBuyer,
-                   ComisBuy.id,
-                   Order.id,
-                   "comission",
-                   Out_order_id=Order.id)
-
+                   TransSum*-1,
+                   OrderBuy,
+                   "deal")
         try:
             system_notify_async(order_description_sell(NotifySum, TransSum, item, TradePair), AccountSeller.get_user())
             system_notify_async(order_description_buy(TransSum, NotifySum, Order, item, TradePair),
@@ -314,8 +317,7 @@ def process_order(AccountBuyer, ComisBuy, AccumSum, AccumSumToSell, item, Order,
         except:
             logging.info("somthing gooing wrong with notification")
             pass
-        item.make2processed()
-        return Order.sum2, Order.sum1
+        return AccumSumToSell-OrderBuySum
 
 
 def auth(Req):
@@ -342,74 +344,69 @@ def auth(Req):
         return json_false500(Req, {"description": "auth_faild"})
 
 
-def make_auto_trade(Order, TradePair, Price, Currency1, Sum1, Currency2, Sum2):
+def make_auto_trade(OrderSell, TradePair, Price, Currency1, Sum1, Currency2):
     ##if we sell
     # Query = "SELECT * FROM main_ordersmem  WHERE  trade_pair_id=%i" % (TradePair.id)
 
     if int(TradePair.currency_on.id) == int(Currency1.id):
-        Query = "SELECT * FROM main_ordersmem  WHERE  currency1=%i AND currency2=%i \
+        Query = "SELECT * FROM main_ordersmem  WHERE  currency1=%i AND trade_pair.id=%i \
                            AND status='processing' AND price >= %s  \
                            AND user!=%i  ORDER BY price DESC, id DESC" % (Currency2.id,
-                                                                          Currency1.id,
-                                                                          format_numbers_strong(Price), Order.user)
+                                                                          TradePair.id,
+                                                                          format_numbers_strong(Price), OrderSell.user)
     else:
-        Query = "SELECT * FROM main_ordersmem WHERE  currency1=%i AND currency2=%i \
+        Query = "SELECT * FROM main_ordersmem WHERE  currency1=%i AND trade_pair=%i \
                            AND status='processing' AND price <= %s \
                            AND user!=%i  ORDER BY price, id DESC " % (Currency2.id,
-                                                                      Currency1.id,
-                                                                      format_numbers_strong(Price), Order.user )
+                                                                      TradePair.id,
+                                                                      format_numbers_strong(Price), OrderSell.user )
 
     List = OrdersMem.objects.raw(Query)
 
-    ##work on first case
-    CommissionSell = get_account(settings.COMISSION_USER, Currency1)
-    ComnissionBuy = get_account(settings.COMISSION_USER, Currency2)
+    # ##work on first case
+    # CommissionSell = get_account(settings.COMISSION_USER, Currency1)
+    # ComnissionBuy = get_account(settings.COMISSION_USER, Currency2)
     AccumSumToSell = Sum1
-    AccumSum2Buy = Sum2
-    AccountBuyer = get_account(Order.user, Currency2.id)
+    AccountBuyer = get_account(user_id=Order.user, currency_id=Currency2.id)
     UserDeals = [int(Order.user)]
+    process_order = None
 
-    for item in List:
-        (AccumSum2Buy, AccumSumToSell) = process_order(AccountBuyer, ComnissionBuy, AccumSum2Buy,
-                                                       AccumSumToSell, item, Order,
-                                                       TradePair, CommissionSell)
-        UserDeals.append(int(item.user))
-        if AccumSum2Buy > 0.00000001:
+    if TradePair.currency_on.id == Currency1.id :
+        process_order = lambda AccountBuyer, AccumSumToSell, OrderBuy, OrderSell, TradePair: process_order_sell(AccountBuyer, AccumSumToSell, OrderBuy, OrderSell, TradePair)
+    else:
+        process_order = lambda AccountBuyer, AccumSumToSell, OrderBuy, OrderSell, TradePair: process_order_buy(AccountBuyer, AccumSumToSell, OrderBuy, OrderSell, TradePair)
+
+    for OrderBuy in List:
+        AccumSumToSell = process_order(AccountBuyer, AccumSumToSell, OrderBuy, OrderSell, TradePair)
+
+        UserDeals.append(int(OrderBy.user))
+        if AccumSumToSell > 0.00000001:
             continue
         else:
             break
 
-    ResultSum = finish_create_order(TradePair, AccumSum2Buy, AccumSumToSell, Order)
+    ResultSum = finish_create_order(TradePair, AccumSumToSell, OrderSell)
     Order.sum1 = AccumSumToSell
 
-    if ResultSum > 0.00000001:
-        Order.sum2 = ResultSum
+    if ResultSum < 0.00000001:
+         return_rest2acc(Order, AccumSumToSell)
+         Order.sum1 = 0
+         Order.make2processed()
     else:
-        Order.sum2 = 0
-        Order.status = "processed"
+         Order.save()
 
 
-    # if order has rest of funds return all to account
-    if AccumSumToSell > 0 and Order.sum2 == 0 and Order.status == "processed":
-        return_rest2acc(Order, AccumSumToSell)
-        Order.sum1 = 0
-
-    Order.save()
-
-    return {"start_sum": Sum2, "last_sum": ResultSum, "users_bothered": UserDeals}
+    return {"start_sum": Sum1, "last_sum": ResultSum, "users_bothered": UserDeals}
 
 
 @my_async
 def return_rest2acc(Order, AccumSumToSell):
     Account2Sell = get_account(user=Order.user, currency=Order.currency1)
-    account_transit_1 = get_account(id=Order.transit_1, currency=Order.currency1)
-
-    add_trans2(account_transit_1,
+    add_trans2(Account2Sell,
                AccumSumToSell,
-               Account2Sell,
-               Order.id,
+               Order,
                "deal_return")
-    system_notify(order_return_unused(Order, Account2Sell.currency, AccumSumToSell), Order.user)
+    system_notify(order_return_unused(Order, Account2Sell.currency(), AccumSumToSell), Order.user)
 
 
 @my_async
@@ -417,7 +414,7 @@ def system_notify_async(Msg, User):
     system_notify(Msg, User)
 
 
-def finish_create_order(TradePair, SumToBuy, AccumSumToSell, Order):
+def finish_create_order(TradePair,  AccumSumToSell, Order):
     ##base currency
     if Order.currency1 == TradePair.currency_on:
 
@@ -425,8 +422,9 @@ def finish_create_order(TradePair, SumToBuy, AccumSumToSell, Order):
             system_notify_async(order_finish(Order), Order.user)
             return 0
         else:
-            return SumToBuy
+            return AccumSumToSell*Order.price
     else:
+        SumToBuy = AccumSumToSell/Order.price
         if SumToBuy < TradePair.min_trade_base:
             system_notify_async(order_finish(Order), Order.user)
             return 0
@@ -547,12 +545,11 @@ def __inner_remove_order(Order, User):
 
     try:
         Account = get_account(user=User, currency_id=Order2Remove.currency1)
-        account_transit_1 = get_account(id=Order2Remove.transit_1, currency=Order2Remove.currency1)
+        account_transit_1 = get_account(id=Order2Remove, currency=Order2Remove.currency1)
 
         add_trans2(account_transit_1,
                    Order2Remove.sum1,
                    Account,
-                   Order2Remove.id,
                    "order_cancel")
 
         cache = caching()
@@ -619,39 +616,28 @@ def sell(Req, Trade_pair):
     CurrencyBaseS = Req.REQUEST.get("currency1")
     Amnt1 = Count
     Amnt2 = Count * Price
-
     CurrencyBase = Currency.objects.get(title=CurrencyBaseS)
     CurrencyOn = Currency.objects.get(title=CurrencyOnS)
     TradeLock = my_lock(LOCK)
     order = OrdersMem(user=Req.user.id,
                       currency1=CurrencyOn.id,
-                      currency2=CurrencyBase.id,
                       sum1_history=Amnt1,
-                      sum2_history=Amnt2,
                       price=Price,
-                      sum1=Amnt1,
-                      sum2=Amnt2,
-                      transit_1=TradePair.transit_on.id,
-                      transit_2=TradePair.transit_from.id,
+                      sum1=Decimal("0.0"),
                       trade_pair=TradePair.id,
                       comission=Comission,
-                      status="processing"
-    )
+                      status="created")
 
     order.save()
     i = order.id
     try:
         FromAccount = get_account(user=Req.user, currency=CurrencyOn)
         system_notify_async(deposit_funds(order, CurrencyOn), Req.user.id)
-        account_transit = get_account(id=TradePair.transit_on.id, currency=CurrencyOn)
-        add_trans2(FromAccount, Amnt1, account_transit, order.id, "deposit")
-        order.sign_record(str(Req.user.id))
-        ResAuto = make_auto_trade(order, TradePair, order.price, CurrencyOn, Amnt1, CurrencyBase, Amnt2)
+        add_trans2(FromAccount, Amnt1, CurrencyOn, order, "deposit")
+        order.status='processing'
+        order.save()
+        ResAuto = make_auto_trade(order, TradePair, order.price, CurrencyOn, Amnt1, CurrencyBase)
 
-        if order.status == "processed":
-            order.make2processed()
-        else:
-            order.sign_record(str(Req.user.id))
         # adding locks
         my_release(TradeLock)
         Response = HttpResponse(process_auto(ResAuto, TradePair))
@@ -663,7 +649,6 @@ def sell(Req, Trade_pair):
         return Response
     except TransError as e:
         order.status = "canceled"
-        order.sign_record(str(Req.user.id))
         order.save()
         Status = e.value
         my_release(TradeLock)
@@ -732,41 +717,27 @@ def buy(Req, Trade_pair):
     TradeLock = my_lock(LOCK)
     order = OrdersMem(user=Req.user.id,
                       currency1=CurrencyBase.id,
-                      currency2=CurrencyOn.id,
-                      price=Price,
                       sum1_history=Amnt1,
-                      sum2_history=Amnt2,
-                      sum1=Amnt1,
-                      sum2=Amnt2,
-                      transit_1=TradePair.transit_from.id,
-                      transit_2=TradePair.transit_on.id,
+                      price=Price,
+                      sum1=Decimal("0.0"),
                       trade_pair=TradePair.id,
                       comission=Comission,
-                      status="processing"
-    )
+                      status="created")
     order.save()
     i = order.id
     try:
         FromAccount = get_account(user=Req.user, currency=CurrencyBase)
-        account_transit = get_account(id=TradePair.transit_from.id, currency=CurrencyBase)
-        # order.status = "processing"
-        order.save()
+
         system_notify_async(deposit_funds(order, CurrencyBase), Req.user.id)
         # TODO Order to Encrypted object
-        add_trans2(FromAccount, Amnt1, account_transit, order.id, "deposit")
-        order.sign_record(str(Req.user.id))
-
-        ResAuto = make_auto_trade(order, TradePair, order.price, CurrencyBase, Amnt1, CurrencyOn, Amnt2)
-
-        if order.status == "processed":
-            order.make2processed()
-        else:
-            order.sign_record(str(Req.user.id))
+        add_trans2(FromAccount, Amnt1, CurrencyBase, order, "deposit")
+        order.status = "processing"
+        order.save()
+        ResAuto = make_auto_trade(order, TradePair, order.price, CurrencyBase, Amnt1, CurrencyOn)
         Response = HttpResponse(process_auto(ResAuto, TradePair))
         my_release(TradeLock)
         Response['Content-Type'] = 'application/json'
         End = time.time()
-
         measure = OrderTimer(order=i, time_work=str(End - Start), error="")
         measure.save()
 
@@ -775,7 +746,6 @@ def buy(Req, Trade_pair):
 
 
         order.status = "canceled"
-        order.sign_record(str(Req.user.id))
         order.save()
         Status = e.value
         Response = HttpResponse(process_mistake(Req, Status))

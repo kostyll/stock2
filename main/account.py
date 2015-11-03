@@ -9,6 +9,8 @@ class Account(object):
         user = data.get('user', None)
         currency = data.get('currency', None)
         user_id=data.get('user_id', None)
+        id = data.get('id', None)
+
         if isinstance(user, User):
             user_id = user.id
 
@@ -46,7 +48,6 @@ class Account(object):
     def reload(self):
         self.__account = Accounts.objects.get(user_id = self.__user_id, currency_id=self.__currency_id)
         self.__trans = Trans.objects.get(id=self.__account.last_trans_id)
-        if self.__trans.status == 'core_error' or self.__trans.status == 'incifition_funds':
 
 
         if self.__account.id == self.__trans.user2_id:
