@@ -886,7 +886,7 @@ def process_p24_in(OrderId, Description, Comis, Key):
     )
     DebCred.sign_record(Key)
     DebCred.save()
-    return True
+    return DebCred
 
 
 def cancel_operation(modeladmin, request, queryset):
