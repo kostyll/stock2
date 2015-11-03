@@ -37,7 +37,6 @@ import random
 import json
 from decimal import Decimal, getcontext
 from main.models import dictfetchall, store_registration
-import main.api
 
 from django.utils import translation
 
@@ -548,7 +547,7 @@ def setup_trades_pairs(Title, Dict=None):
         ListCurrency.append(item)
 
     Dict["Currency1"] = Current.currency_from
-    Dict["min_deal"] = main.api.format_numbers(Current.min_trade_base)
+    Dict["min_deal"] = format_numbers_strong(Current.min_trade_base)
     Dict["Currency"] = Current.currency_on
     Dict["CurrencyTrade"] = ListCurrency
 

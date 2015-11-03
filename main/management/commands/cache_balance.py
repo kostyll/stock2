@@ -7,7 +7,6 @@ import crypton.settings
 
 from sdk.crypto_settings import Settings as CryptoSettings
 
-from main.api import format_numbers_strong
 from django.db import connection
 from decimal import getcontext, Decimal
 

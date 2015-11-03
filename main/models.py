@@ -23,7 +23,7 @@ from django.db import transaction
 import base64
 from sdk.crypto import CryptoAccount
 import main.http_common
-
+import main
 from tinymce.widgets import TinyMCE
 from django.core.urlresolvers import reverse
 
@@ -64,6 +64,9 @@ STATUS_ORDER = (
 
 def checksum(Obj):
     return True
+
+
+
 
 
 class PartnershipAdmin(admin.ModelAdmin):
@@ -504,9 +507,11 @@ def to_prec(dec_number, Prec):
 ####make a queue demon here there
 ### repeat functionality of add_trans
 def add_trans2(From, Amnt, Currency, To, order, status="created", Out_order_id=None, Strict=True):
-    TransPrecession = settings.TRANS_PREC
-    From = Accounts.objects.get(id=From)
-    To = Accounts.objects.get(id=To)
+    if not isinstance(From, main.Account):
+        raise TransError("requirment accounts from")
+
+    if not isinstance(To, main.Account):
+        raise TransError("requirment accounts To")
 
     if Strict and order is None:
         raise TransError("requirment_params_order")
@@ -514,34 +519,31 @@ def add_trans2(From, Amnt, Currency, To, order, status="created", Out_order_id=N
     if Out_order_id is None and order is not None:
         Out_order_id = order
 
-    trans = TransMem(
-        out_order_id=Out_order_id,
-        balance1=From.balance,
-        balance2=To.balance,
-        user1=From,
-        user2=To,
-        order_id=order,
-        amnt=Amnt,
-        status=status
-    )
-
-    if From.currency.id <> Currency:
-        trans.status = "currency_core"
-        trans.currency_id = Currency
-        trans.save()
-        raise TransError("currency_core")
-
-    if To.currency.id <> Currency:
-        trans.status = "currency_core"
-        trans.currency_id = Currency
-        trans.save()
-        raise TransError("currency_core")
-    trans.currency = To.currency
+    trans = Trans(out_order_id=Out_order_id,
+                  balance1=From.get_balance(),
+                  balance2=To.get_balance(),
+                  user1=From.acc(),
+                  user2=To.acc(),
+                  order=order,
+                  currency=Currency,
+                  amnt=Amnt,
+                  status="core_error")
     trans.save()
 
-    FromBalance = From.balance
-    #NewBalance = mines_prec(FromBalance - Amnt, TransPrecession)
-    NewBalance = FromBalance - Amnt
+    if From.currency() <> Currency:
+        trans.status = "currency_core"
+        trans.currency_id = Currency
+        trans.save()
+        raise TransError("currency_core")
+
+    if To.currency() <> Currency:
+        trans.status = "currency_core"
+        trans.currency_id = Currency
+        trans.save()
+        raise TransError("currency_core")
+
+    trans.save()
+    NewBalance = From.mines(Amnt)
 
     if Strict:
         if NewBalance < 0:
@@ -549,39 +551,29 @@ def add_trans2(From, Amnt, Currency, To, order, status="created", Out_order_id=N
             trans.save()
             raise TransError("incifition_funds")
 
-    ToBalance = To.balance
-    ToNewBalance = ToBalance + Amnt
-    #plus_prec(ToBalance, Amnt, TransPrecession)
+    ToNewBalance = To.plus(Amnt)
+    if Strict:
+        if ToNewBalance < 0:
+            trans.status = "incifition_funds"
+            trans.save()
+            raise TransError("incifition_funds")
 
     try:
-        #cursor = connection.cursor()
-        #cursor.execute("UPDATE main_accounts SET balance = balance - %s WHERE id = %i", [Amnt, From.id])
-
-        From.balance = NewBalance
-        From.save()
-        To.balance = ToNewBalance
-        #cursor.execute("UPDATE main_accounts SET balance = balance - %s WHERE id = %i", [Amnt, To.id])
-        To.save()
         trans.res_balance1 = NewBalance
         trans.res_balance2 = ToNewBalance
+        To.save(trans)
+        # race condition
+        From.save(trans)
+        trans.status=status
         trans.save()
-
-
     except:
-        trans.status = "core_error"
-        From.balance = FromBalance
-        To.balance = ToBalance
-        From.save()
-        To.save()
+        From.reload()
+        To.reload()
         trans.save()
         raise TransError("core_error")
 
-    ## add exception here
-    X = True
-    if not X:
-        raise TransError("cant finish trans")
 
-
+# DO NOT USE for highload operations
 ####make a queue demon here there
 @transaction.atomic
 def add_trans(From, Amnt, Currency, To, order, status="created", Out_order_id=None, Strict=True):
@@ -985,7 +977,7 @@ class TransOut(models.Model):
 
     def fields4sign(self):
         List = []
-        for i in ('amnt', 'wallet', 'user', 'provider'):
+        for i in ('amnt', 'wallet', 'user_id', 'provider'):
             Val = getattr(self, i)
             if i in ('amnt', 'comission'):
                 List.append(format_numbers_strong(Val))
@@ -1077,7 +1069,7 @@ class TransIn(models.Model):
 
     def fields4sign(self):
         List = []
-        for i in ('amnt', 'comission', 'user', 'comission'):
+        for i in ('amnt', 'comission', 'user_id', 'comission'):
             Val = getattr(self, i)
             if i in ('amnt', 'comission'):
                 List.append(format_numbers_strong(Val))
@@ -1180,7 +1172,7 @@ class P24TransIn(models.Model):
 
     def fields4sign(self):
         List = []
-        for i in ('amnt', 'comission', 'user', 'comission', 'description'):
+        for i in ('amnt', 'comission', 'user_id', 'description'):
             Val = getattr(self, i)
             if i in ('amnt', 'comission'):
                 List.append(format_numbers_strong(Val))
@@ -1269,7 +1261,7 @@ class LiqPayTrans(models.Model):
 
     def fields4sign(self):
         List = []
-        for i in ('phone', 'debit_credit', 'status', 'user', 'comission', 'amnt', 'description'):
+        for i in ('phone', 'debit_credit', 'status', 'user_id', 'comission', 'amnt', 'description'):
             Val = getattr(self, i)
             if i in ('comission', 'amnt'):
                 List.append(format_numbers_strong(Val))
@@ -1432,7 +1424,7 @@ def process_bank(modeladmin, request, queryset):
 
 process_bank.shoort_description = u"Process"
 
-
+#TODO banks account
 class BankTransfersAdmin(admin.ModelAdmin):
     list_display = ["id", 'ref', 'okpo', 'mfo', 'account', 'description', "debit_credit", 'amnt', 'currency', 'user',
                     'status', "user_accomplished"]
@@ -2313,7 +2305,7 @@ class DealsMemory(models.Model):
 
     def fields4sign(self):
         List = []
-        for i in ('type_deal', 'user'):
+        for i in ('type_deal', 'user_id'):
             Val = getattr(self, i)
             if i in ('amnt_base', 'amnt_trade'):
                 List.append(format_numbers_strong(Val))
@@ -2440,7 +2432,7 @@ class Orders(models.Model):
     def fields4sign(self):
         List = []
         for i in ('currency1', 'currency2', 'sum1_history', 'sum2_history', 'sum1', 'sum2',
-                  'transit_1', 'transit_2', 'user', 'trade_pair'):
+                  'transit_1', 'transit_2', 'user_id', 'trade_pair'):
             Val = getattr(self, i)
             if i in ('sum1_history', 'sum2_history', 'sum1', 'sum2'):
                 List.append(format_numbers_strong(Val))
@@ -2797,7 +2789,7 @@ class CardP2PTransfers(models.Model):
 
     def fields4sign(self):
         List = []
-        for i in ('CardNumber', 'currency', 'amnt', 'user', 'comission', 'status', 'confirm_key'):
+        for i in ('CardNumber', 'currency', 'amnt', 'user_id', 'comission', 'status', 'confirm_key'):
             Val = getattr(self, i)
             if i in ('amnt', 'comission'):
                 List.append(format_numbers_strong(Val))

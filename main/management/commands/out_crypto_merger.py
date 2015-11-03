@@ -7,7 +7,6 @@ from sdk.crypto import CryptoAccount
 import crypton.settings
 from sdk.crypto_settings import Settings as CryptoSettings
 import sys
-from main.api import format_numbers_strong
 from django.db import connection
 from decimal import getcontext
 from main.my_cache_key import my_lock, my_release, LockBusyException

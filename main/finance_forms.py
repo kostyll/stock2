@@ -9,6 +9,7 @@ from datetime import datetime
 import math
 from django.utils.translation import ugettext as _
 from main.http_common import generate_key_from
+from main import get_account
 from django.utils.html import mark_safe
 import crypton.settings as settings
 import json
@@ -111,12 +112,12 @@ class MyFinanceForms(forms.Form):
 
 
         ## we must got mail
-        Account = Accounts.objects.get(currency=self.currency_instance, user=self.__user)
+        Account = get_account(currency=self.currency_instance, user=self.__user)
 
-        if Account.balance < amnt:
+        if Account.get_balance() < amnt:
             check = True
         else:
-            self.__balance = Account.balance
+            self.__balance = Account.get_balance()
             check = False
 
         if check:

@@ -1,13 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
-from main.models import Orders, TradePairs
-from main.api import return_rest2acc, order_finish
-from  main.msgs import system_notify
-from django.db import connection
-from datetime import datetime
-from decimal import getcontext
 import sys
 from django.core.management import call_command
-
 from main.my_cache_key import my_lock, my_release, LockBusyException
 
 

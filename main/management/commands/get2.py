@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from sdk.crypto import CryptoAccount
 from main.models import Balances, sato2Dec
 
-from main.api import format_numbers_strong
 from django.db import connection
 from decimal import getcontext
 

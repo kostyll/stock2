@@ -44,6 +44,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum
 from datetime import date
 from main.finance_forms import FiatCurrencyTransferForm
+from main import get_account
 from crypton import my_messages
 
 
@@ -185,6 +186,7 @@ def bank_transfer_withdraw(Req, CurrencyTitle, Amnt):
 
     Dict = {}
     CurrencyIn = Currency.objects.get(title=CurrencyTitle)
+    # TODO add working with ref through Account class
     Account = Accounts.objects.get(user=Req.user, currency=CurrencyIn)
     if Account.reference is None or len(Account.reference) == 0:
         Account.reference = generate_key(settings.BANK_KEY_SALT)
@@ -405,7 +407,7 @@ def depmotion(request, CurrencyTitle):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         TransListPage = paginator.page(paginator.num_pages)
-    #balance =  Balances.objects.get(account = "whole", currency = CurrencyInstance)
+    # balance =  Balances.objects.get(account = "whole", currency = CurrencyInstance)
 
 
 
@@ -425,6 +427,7 @@ def depmotion(request, CurrencyTitle):
 @json_auth_required
 def crypto_currency_get_account(Req, CurrencyTitle):
     CurrencyIn = Currency.objects.get(title=CurrencyTitle)
+    # TODO add working with ref through Account class
     Account = Accounts.objects.get(user=Req.user, currency=CurrencyIn)
     if Account.reference is not None and Account.reference != "":
         Response = HttpResponse('{"account":\"' + Account.reference + '\"}')
@@ -447,7 +450,7 @@ def crypto_currency_get_account(Req, CurrencyTitle):
 def confirm_withdraw_bank(Req, S):
     Transfer = BankTransfers.objects.get(user=Req.user, status="created", confirm_key=S)
     ##add trans may be there
-    AccountTo = Accounts.objects.get(user=Req.user, currency=Transfer.currency)
+    AccountTo = get_account(user=Req.user, currency=Transfer.currency)
 
     FreqKey = "orders" + str(Req.user.id)
     if not check_freq(FreqKey, 2):
@@ -464,14 +467,14 @@ def confirm_withdraw_bank(Req, S):
                    sum2_history=Transfer.amnt,
                    sum1=Transfer.amnt,
                    sum2=Transfer.amnt,
-                   transit_1=AccountTo,
+                   transit_1=AccountTo.acc(),
                    transit_2=TradePair.transit_from,
                    trade_pair=TradePair,
                    status="created"
     )
     order.save()
     # TODO add process exception in withdraw crypto currency
-    add_trans(AccountTo, Transfer.amnt, Transfer.currency,
+    add_trans(AccountTo.acc(), Transfer.amnt, Transfer.currency,
               TradePair.transit_from, order, "withdraw", S, True)
     order.status = "processing"
     order.save()
@@ -562,7 +565,7 @@ def confirm_withdraw_currency(Req, S, PrivateKey):
     S = S.replace("\n", "").replace(" ", "")
     Transfer = CryptoTransfers.objects.get(status="created", confirm_key=S)
     ##add trans may be there
-    AccountTo = Accounts.objects.get(user=Transfer.user, currency=Transfer.currency)
+    AccountTo = get_account(user=Transfer.user, currency=Transfer.currency)
     ## if not by reference, but by users
 
     TradePair = TradePairs.objects.get(currency_on=Transfer.currency,
@@ -596,7 +599,7 @@ def confirm_withdraw_currency(Req, S, PrivateKey):
     Transfer.sign_record(PrivateKey)
     Transfer.save()
     # TODO add process exception in withdraw crypto currency
-    add_trans(AccountTo, Transfer.amnt + Transfer.comission, Transfer.currency, TradePair.transit_from,
+    add_trans(AccountTo.acc(), Transfer.amnt + Transfer.comission, Transfer.currency, TradePair.transit_from,
               order, "withdraw", S, True)
 
     t = loader.get_template("ajax_simple_msg.html")
@@ -686,7 +689,7 @@ def p2p_transfer_withdraw_secure(Req, Form):
 
     Transfer.save()
 
-    AccountTo = Accounts.objects.get(user=Req.user, currency=Transfer.currency)
+    AccountTo = get_account(user=Req.user, currency=Transfer.currency)
     ## if not by reference, but by users
     TradePair = TradePairs.objects.get(url_title="p2p_transfers")
     order = Orders(user=Req.user,
@@ -703,7 +706,7 @@ def p2p_transfer_withdraw_secure(Req, Form):
     )
     order.save()
     # TODO add process exception in withdraw p2p
-    add_trans(AccountTo, Transfer.amnt, Transfer.currency, TradePair.transit_from,
+    add_trans(AccountTo.acc(), Transfer.amnt, Transfer.currency, TradePair.transit_from,
               order, "withdraw", Key, True)
     order.status = "processing"
     order.save()
@@ -760,7 +763,7 @@ def p2p_transfer_withdraw_common_operation(Req, Form):
         )
         Transfer.sign_record(settings.COMMON_SALT)
 
-    AccountTo = Accounts.objects.get(user=Req.user, currency=Transfer.currency)
+    AccountTo = get_account(user=Req.user, currency=Transfer.currency)
     ## if not by reference, but by users
     TradePair = TradePairs.objects.get(url_title="p2p_transfers")
     order = Orders(user=Req.user,
@@ -777,7 +780,7 @@ def p2p_transfer_withdraw_common_operation(Req, Form):
     )
     order.save()
     # TODO add process exception in withdraw p2p
-    add_trans(AccountTo, Transfer.amnt, Transfer.currency, TradePair.transit_from,
+    add_trans(AccountTo.acc(), Transfer.amnt, Transfer.currency, TradePair.transit_from,
               order, "withdraw", Key, True)
 
     order.status = "processing"
@@ -814,7 +817,7 @@ def emoney_transfer_withdraw_secure(Req, Form, provider):
 
     Transfer.save()
 
-    AccountTo = Accounts.objects.get(user=Req.user, currency=Transfer.currency)
+    AccountTo = get_account(user=Req.user, currency=Transfer.currency)
     ## if not by reference, but by users
     trade_pair_title = provider + "_" + Form.currency_instance.title.lower()
     TradePair = TradePairs.objects.get(url_title=trade_pair_title)
@@ -833,7 +836,7 @@ def emoney_transfer_withdraw_secure(Req, Form, provider):
     )
     order.save()
     # TODO add process exception in withdraw p2p
-    add_trans(AccountTo, Transfer.amnt, Transfer.currency, TradePair.transit_from,
+    add_trans(AccountTo.acc(), Transfer.amnt, Transfer.currency, TradePair.transit_from,
               order, "withdraw", Key, True)
     order.status = "processing"
     order.save()
@@ -988,7 +991,7 @@ def liqpay_transfer_withdraw(Req, CurrencyTitle, Amnt):
     Dict = {}
     CurrencyIn = Currency.objects.get(title=CurrencyTitle)
 
-    Account = Accounts.objects.get(user=Req.user, currency=CurrencyIn)
+    Account = get_account(user=Req.user, currency=CurrencyIn)
     if Account.reference is None or len(Account.reference) == 0:
         Account.reference = generate_key(settings.BANK_KEY_SALT)
         Account.save()
@@ -1061,7 +1064,7 @@ def confirm_withdraw_liqpay(Req, S):
         return Response
 
         ##add trans may be there
-    AccountTo = Accounts.objects.get(user=Req.user, currency=Transfer.currency)
+    AccountTo = get_account(user=Req.user, currency=Transfer.currency)
     ## if not by reference, but by users
     TradePair = liqpay_class.get_traid_pair()
     order = Orders(user=Req.user,
@@ -1077,7 +1080,7 @@ def confirm_withdraw_liqpay(Req, S):
                    status="created"
     )
     order.save()
-    add_trans(AccountTo, Transfer.amnt, Transfer.currency, TradePair.transit_from,
+    add_trans(AccountTo.acc(), Transfer.amnt, Transfer.currency, TradePair.transit_from,
               order, "withdraw", S, True)
     order.status = "processing"
     order.save()
@@ -1100,7 +1103,7 @@ def p2p_deposit(Req, Cur, Amnt):
     Dict = {}
     t = loader.get_template("p2p_transfer_req.html")
     CurrencyIn = Currency.objects.get(title=Cur)
-    Account = Accounts.objects.get(user=Req.user, currency=CurrencyIn)
+    Account = get_account(user=Req.user, currency=CurrencyIn)
     Dict["account"] = P2P_DEPOSIT_OPTS[Cur]
     if Account.reference is None or len(Account.reference) == 0:
         Account.reference = generate_key("bank_pp", 16)
@@ -1122,6 +1125,7 @@ def bank_deposit(Req, Cur, Amnt):
     Dict["mfo"] = settings.BANK_UAH_MFO
     Dict["account"] = settings.BANK_UAH_ACCOUNT
     CurrencyIn = Currency.objects.get(title=Cur)
+    # TODO add working with ref through Account class
     Account = Accounts.objects.get(user=Req.user, currency=CurrencyIn)
     if Account.reference is None or len(Account.reference) == 0:
         Account.reference = generate_key(settings.BANK_KEY_SALT)
@@ -1189,7 +1193,7 @@ def home(Req):
     else:
         t = loader.get_template("finance.html")
         Dict = {}
-
+        # it is not an actual information
         All = Accounts.objects.filter(user=Req.user).order_by('-currency__ordering')
         BalancesOrders = OrdersMem.objects.filter(user=Req.user.id,
                                                   status="processing").values('currency1').annotate(

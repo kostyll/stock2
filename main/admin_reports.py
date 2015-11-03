@@ -108,12 +108,11 @@ def whole_balance(request):
                                 AND user_id not in (346, %i, 12,31 ) AND balance>0 " % ( ComisId ), [])
     (s, ) = cursor.fetchone() * 1
     SaldoCor.append({"currency": "UAH", "sum":
-        format_numbers_strong(Balances["UAH"] - s)})
+                     format_numbers_strong(Balances["UAH"] - s)})
 
     return render_to_response('admin/main/whole_balance.html',
                               {'currency_consist': CurrencyConsist,
                                "currency_local_balance": CurrencyLocalBalance,
                                "currency_balance": CurrencyFor,
-                               "saldo": SaldoCor
-                              },
-                              context_instance=RequestContext(request))
+                               "saldo": SaldoCor},
+                                context_instance=RequestContext(request))

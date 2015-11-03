@@ -268,6 +268,17 @@ class ThreadableMixin:
         self.finish()
 
 
+
+
+    # render mistake response to the client
+    @staticmethod
+    def render_low_level_mistake(self, mistake_body):
+        self.clear()
+        self.set_status(500)
+        self.write(mistake_body)
+        self.finish()
+
+
 # common handler for processing http request through tornado
 class CommonRequestHandler(tornado.web.RequestHandler, ThreadableMixin):
     def initialize(self, callable_object, name):

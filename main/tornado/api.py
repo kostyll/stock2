@@ -13,7 +13,7 @@ import tornado.web
 # import pyuv
 import threading
 # Create your views here.
-
+import sys, traceback
 from django.template import Context, loader
 from crypton.http import HttpResponse
 from crypton import settings
@@ -28,6 +28,8 @@ from main.models import UserCustomSettings, VolatileConsts, OrdersMem, Accounts,
 from main.api_http_common import caching, cached_json_object, my_cache, status_false, json_auth_required, check_api_sign
 from main.api_http_common import format_numbers10, format_numbers_strong, format_numbers, format_numbers4, \
     json_false500, json_true
+
+from main import get_account
 
 import logging
 
@@ -131,10 +133,6 @@ def my_async(func2decorate):
     return wrapper
 
 
-def get_account(user, currency):
-    return Accounts.objects.get(user_id=user, currency_id=currency)
-
-
 def deposit_funds(Order, currency1):
     return _("Deposit funds  %(sum)s %(currency)s according with order #%(order_id)i " % {
         'sum': Order.sum1_history,
@@ -213,7 +211,8 @@ def process_order(AccountBuyer, ComisBuy, AccumSum, AccumSumToSell, item, Order,
         # item.sum => 5200
         TransSum = item.sum2 * Diff  # =>AccumSum*item.price
         # TransSum = AccumSumToSell
-        AccountSeller = get_account(item.user, item.currency2)
+        AccountSeller = get_account(user=item.user, currency=item.currency2)
+
         ##comission
         item.sum1 = item.sum1 - AccumSum
         item.sum2 = item.sum2 - TransSum
@@ -222,45 +221,42 @@ def process_order(AccountBuyer, ComisBuy, AccumSum, AccumSumToSell, item, Order,
         Order.sum2 = 0
         Order.sum1 = AccumSumToSell - TransSum
         Order.save()
-
-        add_trans2(item.transit_2,
+        account_transit_2 = get_account(id=item.transit_2, currency=item.currency2)
+        add_trans2(account_transit_2,
                    TransSum,
-                   item.currency2,
-                   AccountSeller.id,
+                   AccountSeller,
                    item.id,
                    "deal",
                    Out_order_id=Order.id
         )
 
-        add_trans2(AccountSeller.id,
+        add_trans2(AccountSeller,
                    TransSum * ComisPercentSeller,
-                   item.currency2,
-                   ComisSell.id,
+                   ComisSell,
                    item.id,
                    "comission",
                    Out_order_id=Order.id
         )
+        account_transit_1 = get_account(id=item.transit_1, currency=item.currency1)
 
-        add_trans2(item.transit_1,
+        add_trans2(account_transit_1,
                    AccumSum,
-                   item.currency1,
-                   AccountBuyer.id,
+                   AccountBuyer,
                    item.id,
                    "deal",
                    Out_order_id=Order.id
         )
 
-        add_trans2(AccountBuyer.id,
+        add_trans2(AccountBuyer,
                    AccumSum * ComisPercentBuyer,
-                   item.currency1,
-                   ComisBuy.id,
+                   ComisBuy,
                    Order.id,
                    "comission",
                    Out_order_id=Order.id)
 
         try:
-            system_notify_async(order_description_sell(AccumSum, TransSum, item, TradePair), AccountSeller.user.id)
-            system_notify_async(order_description_buy(TransSum, AccumSum, Order, item, TradePair), AccountBuyer.user.id)
+            system_notify_async(order_description_sell(AccumSum, TransSum, item, TradePair), AccountSeller.get_user())
+            system_notify_async(order_description_buy(TransSum, AccumSum, Order, item, TradePair), AccountBuyer.get_user())
         except:
             logging.info("something gooing wrong with notification")
             pass
@@ -270,7 +266,7 @@ def process_order(AccountBuyer, ComisBuy, AccumSum, AccumSumToSell, item, Order,
     if item.sum1 <= AccumSum:
         TransSum = item.sum2
         NotifySum = item.sum1
-        AccountSeller = get_account(item.user, item.currency2)
+        AccountSeller = get_account(user=item.user, currency=item.currency2)
         ##comission
         # TODO move to archive
         item.status = "processed"
@@ -280,44 +276,40 @@ def process_order(AccountBuyer, ComisBuy, AccumSum, AccumSumToSell, item, Order,
         Order.sum2 = AccumSum - NotifySum
         Order.sum1 = AccumSumToSell - TransSum
         Order.save()
-
-        add_trans2(item.transit_2,
+        account_transit_2 = get_account(id=item.transit_2, currency=item.currency2)
+        add_trans2(account_transit_2,
                    TransSum,
-                   item.currency2,
-                   AccountSeller.id,
+                   AccountSeller,
                    item.id,
                    "deal",
                    Out_order_id=Order.id)
 
-        add_trans2(AccountSeller.id,
+        add_trans2(AccountSeller,
                    TransSum * ComisPercentSeller,
-                   item.currency2,
-                   ComisSell.id,
+                   ComisSell,
                    item.id,
                    "comission",
                    Out_order_id=Order.id)
-
-        add_trans2(item.transit_1,
+        account_transit_1 = get_account(id=item.transit_1, currency=item.currency1)
+        add_trans2(account_transit_1,
                    NotifySum,
-                   item.currency1,
-                   AccountBuyer.id,
+                   AccountBuyer,
                    item.id,
                    "deal",
                    Out_order_id=Order.id)
 
-        add_trans2(AccountBuyer.id,
+        add_trans2(AccountBuyer,
                    NotifySum * ComisPercentBuyer,
-                   item.currency1,
                    ComisBuy.id,
                    Order.id,
                    "comission",
                    Out_order_id=Order.id)
 
         try:
-            system_notify_async(order_description_sell(NotifySum, TransSum, item, TradePair), AccountSeller.user.id)
+            system_notify_async(order_description_sell(NotifySum, TransSum, item, TradePair), AccountSeller.get_user())
             system_notify_async(order_description_buy(TransSum, NotifySum, Order, item, TradePair),
-                                AccountBuyer.user.id)
-            system_notify_async(order_finish(item), AccountSeller.user.id)
+                                AccountBuyer.get_user())
+            system_notify_async(order_finish(item), AccountSeller.get_user())
 
         except:
             logging.info("somthing gooing wrong with notification")
@@ -370,8 +362,8 @@ def make_auto_trade(Order, TradePair, Price, Currency1, Sum1, Currency2, Sum2):
     List = OrdersMem.objects.raw(Query)
 
     ##work on first case
-    CommissionSell = Accounts.objects.get(user_id=settings.COMISSION_USER, currency=Currency1)
-    ComnissionBuy = Accounts.objects.get(user_id=settings.COMISSION_USER, currency=Currency2)
+    CommissionSell = get_account(settings.COMISSION_USER, Currency1)
+    ComnissionBuy = get_account(settings.COMISSION_USER, Currency2)
     AccumSumToSell = Sum1
     AccumSum2Buy = Sum2
     AccountBuyer = get_account(Order.user, Currency2.id)
@@ -409,11 +401,12 @@ def make_auto_trade(Order, TradePair, Price, Currency1, Sum1, Currency2, Sum2):
 
 @my_async
 def return_rest2acc(Order, AccumSumToSell):
-    Account2Sell = get_account(Order.user, Order.currency1)
-    add_trans2(Order.transit_1,
+    Account2Sell = get_account(user=Order.user, currency=Order.currency1)
+    account_transit_1 = get_account(id=Order.transit_1, currency=Order.currency1)
+
+    add_trans2(account_transit_1,
                AccumSumToSell,
-               Order.currency1,
-               Account2Sell.id,
+               Account2Sell,
                Order.id,
                "deal_return")
     system_notify(order_return_unused(Order, Account2Sell.currency, AccumSumToSell), Order.user)
@@ -553,11 +546,12 @@ def __inner_remove_order(Order, User):
     TradeLock = my_lock(LOCK)
 
     try:
-        Account = Accounts.objects.get(user=User, currency_id=Order2Remove.currency1)
-        add_trans2(Order2Remove.transit_1,
+        Account = get_account(user=User, currency_id=Order2Remove.currency1)
+        account_transit_1 = get_account(id=Order2Remove.transit_1, currency=Order2Remove.currency1)
+
+        add_trans2(account_transit_1,
                    Order2Remove.sum1,
-                   Order2Remove.currency1,
-                   Account.id,
+                   Account,
                    Order2Remove.id,
                    "order_cancel")
 
@@ -647,9 +641,10 @@ def sell(Req, Trade_pair):
     order.save()
     i = order.id
     try:
-        FromAccount = Accounts.objects.get(user=Req.user, currency=CurrencyOn)
+        FromAccount = get_account(user=Req.user, currency=CurrencyOn)
         system_notify_async(deposit_funds(order, CurrencyOn), Req.user.id)
-        add_trans2(FromAccount.id, Amnt1, CurrencyOn.id, TradePair.transit_on.id, order.id, "deposit")
+        account_transit = get_account(id=TradePair.transit_on.id, currency=CurrencyOn)
+        add_trans2(FromAccount, Amnt1, account_transit, order.id, "deposit")
         order.sign_record(str(Req.user.id))
         ResAuto = make_auto_trade(order, TradePair, order.price, CurrencyOn, Amnt1, CurrencyBase, Amnt2)
 
@@ -663,7 +658,7 @@ def sell(Req, Trade_pair):
         Response['Content-Type'] = 'application/json'
 
         End = time.time()
-        measure = OrderTimer(order=i, time_work=str(End - Start))
+        measure = OrderTimer(order=i, time_work=str(End - Start), error="")
         measure.save()
         return Response
     except TransError as e:
@@ -675,7 +670,8 @@ def sell(Req, Trade_pair):
         Response = HttpResponse(process_mistake(Req, Status))
         Response['Content-Type'] = 'application/json'
         End = time.time()
-        measure = OrderTimer(order=i, time_work=str(End - Start))
+        tb = traceback.format_exc()
+        measure = OrderTimer(order=i, time_work=str(End - Start),error=tb)
         measure.save()
         return Response
 
@@ -751,12 +747,13 @@ def buy(Req, Trade_pair):
     order.save()
     i = order.id
     try:
-        FromAccount = Accounts.objects.get(user=Req.user, currency=CurrencyBase)
+        FromAccount = get_account(user=Req.user, currency=CurrencyBase)
+        account_transit = get_account(id=TradePair.transit_from.id, currency=CurrencyBase)
         # order.status = "processing"
         order.save()
         system_notify_async(deposit_funds(order, CurrencyBase), Req.user.id)
         # TODO Order to Encrypted object
-        add_trans2(FromAccount.id, Amnt1, CurrencyBase.id, TradePair.transit_from.id, order.id, "deposit")
+        add_trans2(FromAccount, Amnt1, account_transit, order.id, "deposit")
         order.sign_record(str(Req.user.id))
 
         ResAuto = make_auto_trade(order, TradePair, order.price, CurrencyBase, Amnt1, CurrencyOn, Amnt2)
@@ -769,7 +766,8 @@ def buy(Req, Trade_pair):
         my_release(TradeLock)
         Response['Content-Type'] = 'application/json'
         End = time.time()
-        measure = OrderTimer(order=i, time_work=str(End - Start))
+
+        measure = OrderTimer(order=i, time_work=str(End - Start), error="")
         measure.save()
 
         return Response
@@ -784,7 +782,8 @@ def buy(Req, Trade_pair):
         Response['Content-Type'] = 'application/json'
         my_release(TradeLock)
         End = time.time()
-        measure = OrderTimer(order=i, time_work=str(End - Start))
+        tb = traceback.format_exc()
+        measure = OrderTimer(order=i, time_work=str(End - Start), error=tb)
         measure.save()
         return Response
 
@@ -1255,8 +1254,8 @@ def client_orders(Req, User_id, Title):
             MyOrdersDict["amnt_trade"] = format_numbers10(i.sum2)
         MyOrdersList.append(MyOrdersDict)
 
-    balance_sell = Accounts.objects.get(user_id=User_id, currency=Current.currency_on)
-    balance_buy = Accounts.objects.get(user_id=User_id, currency=Current.currency_from)
+    balance_sell = get_account(user_id=User_id, currency=Current.currency_on)
+    balance_buy = get_account(user_id=User_id, currency=Current.currency_from)
     Dict["balance_buy"] = format_numbers_strong(balance_buy.balance)
     Dict["balance_sell"] = format_numbers_strong(balance_sell.balance)
     Dict["your_open_orders"] = MyOrdersList

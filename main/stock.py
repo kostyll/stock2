@@ -8,7 +8,7 @@ from crypton import settings
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from main.models import VolatileConsts, Accounts, TradePairs, Orders, Trans, Currency, Msg, add_trans, TransError, \
+from main.models import VolatileConsts, Accounts, TradePairs, Orders, Trans, Currency, Msg, TransError, \
     StockStat, OnlineUsers
 from django.views.decorators.cache import cache_page
 from main.http_common import caching, cached_json_object

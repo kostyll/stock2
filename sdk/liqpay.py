@@ -5,10 +5,8 @@ from datetime import datetime
 from base64 import b64encode
 import hashlib 
 from decimal import Decimal
-from main.api import TransError
-from main.api import add_trans
 from main.msgs import notify_email
-from main.models import Accounts, TradePairs, Orders, Trans, Currency, LiqPayTrans
+from main.models import Accounts, TradePairs, Orders, Trans, Currency, LiqPayTrans, add_trans, TransError
 from django.contrib.auth.models import User
 from django.http import HttpResponse 
 import json

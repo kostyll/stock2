@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from main.models import Orders, TradePairs
-from main.api import return_rest2acc, order_finish
+from main.tornado.api import return_rest2acc, order_finish
 from  main.msgs import system_notify
 from django.db import connection
 from datetime import datetime
