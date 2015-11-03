@@ -2328,8 +2328,8 @@ class OrdersMem(models.Model):
     currency2 = models.ForeignKey("Currency", related_name='to_currency', verbose_name=u"Валюта Б", )
     sum2_history = models.DecimalField(verbose_name=u"Изначальная сумма покупки", max_digits=20, decimal_places=10)
     sum2 = models.DecimalField(verbose_name=u"сумма покупки", max_digits=20, decimal_places=10)
-    transit_1 = models.IntegerField(related_name="transit_account_1", verbose_name=u"транзитный счет покупки")
-    transit_2 = models.IntegerField(related_name="transit_account_2", verbose_name=u"транзитный счет продажи")
+    transit_1 = models.IntegerField(blank=True, verbose_name=u"транзитный счет покупки")
+    transit_2 = models.IntegerField(blank=True, verbose_name=u"транзитный счет продажи")
 
     
 
