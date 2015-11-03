@@ -12,7 +12,6 @@ import time
 import json
 
 from main.my_cache_key import my_lock, my_release, LockBusyException
-from main.api import format_numbers_strong
 from django.db import connection
 from decimal import getcontext
 import os

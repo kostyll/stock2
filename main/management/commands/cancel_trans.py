@@ -4,7 +4,6 @@ from  main.finance import notify_admin_withdraw
 from main.msgs import notify_email
 from main.models import add_trans, Trans
 import sys
-from main.api import format_numbers_strong
 from django.db import connection
 from decimal import getcontext, Decimal
 from main.my_cache_key import my_lock, my_release, LockBusyException

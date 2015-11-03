@@ -5,7 +5,6 @@ from main.models import PoolAccounts, Accounts, VolatileConsts, Currency, sato2D
     generate_private_sign
 
 import crypton.settings
-from main.api import format_numbers_strong
 from django.db import connection
 from decimal import getcontext
 from blockchain import blockexplorer

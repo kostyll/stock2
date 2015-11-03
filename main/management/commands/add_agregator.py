@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from main.models import Currency, Accounts, TradePairs
 
-from main.api import format_numbers_strong
+from main.http_common import format_numbers_strong
 from django.db import connection
 from decimal import getcontext
 

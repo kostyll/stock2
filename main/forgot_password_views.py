@@ -21,14 +21,12 @@ from main.models import ResetPwdLink
 from sdk.g2f import auth
 
 from django.views.decorators.cache import cache_page
-
 from datetime import datetime
 import hashlib
 import random
 import json
 from decimal import Decimal, getcontext
 from main.models import dictfetchall, store_registration
-import main.api
 import crypton.settings
 
 

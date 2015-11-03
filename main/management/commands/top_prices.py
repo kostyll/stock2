@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from main.models import TradePairs, VolatileConsts, dictfetchall
 from datetime import datetime
 from django.db import connection
-from main.api import format_numbers10, format_numbers, format_numbers_strong
+from main.http_common import format_numbers10, format_numbers, format_numbers_strong
 
 
 class Command(BaseCommand):

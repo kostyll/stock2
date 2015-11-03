@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 
 from main.models import ApiKeys
 from main.http_common import generate_key_from, generate_key
-from main.api import format_numbers_strong
 from django.db import connection
 from decimal import getcontext
 import hashlib

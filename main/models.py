@@ -23,7 +23,7 @@ from django.db import transaction
 import base64
 from sdk.crypto import CryptoAccount
 import main.http_common
-
+import main
 from tinymce.widgets import TinyMCE
 from django.core.urlresolvers import reverse
 
@@ -64,6 +64,9 @@ STATUS_ORDER = (
 
 def checksum(Obj):
     return True
+
+
+
 
 
 class PartnershipAdmin(admin.ModelAdmin):
@@ -150,6 +153,8 @@ class OrderTimer(models.Model):
                                     decimal_places=10,
                                     verbose_name=u"Время",
                                     default=0)
+    error = models.CharField(verbose_name=u"Error", null=True, default='', max_length=255)
+
 
     class Meta:
         verbose_name = u'Временной замер'
@@ -503,45 +508,41 @@ def to_prec(dec_number, Prec):
 
 ####make a queue demon here there
 ### repeat functionality of add_trans
-def add_trans2(From, Amnt, Currency, To, order, status="created", Out_order_id=None, Strict=True):
-    TransPrecession = settings.TRANS_PREC
-    From = Accounts.objects.get(id=From)
-    To = Accounts.objects.get(id=To)
+def add_trans2(From, Amnt, Currency, To, status="created",  Strict=True):
+
+    if not isinstance(From, main.Account):
+        raise TransError("requirment accounts from")
+
+    if not isinstance(To, OrdersMem):
+        raise TransError("requirment accounts To")
 
     if Strict and order is None:
         raise TransError("requirment_params_order")
 
-    if Out_order_id is None and order is not None:
-        Out_order_id = order
 
     trans = TransMem(
-        out_order_id=Out_order_id,
-        balance1=From.balance,
-        balance2=To.balance,
-        user1=From,
-        user2=To,
-        order_id=order,
-        amnt=Amnt,
-        status=status
-    )
-
-    if From.currency.id <> Currency:
-        trans.status = "currency_core"
-        trans.currency_id = Currency
-        trans.save()
-        raise TransError("currency_core")
-
-    if To.currency.id <> Currency:
-        trans.status = "currency_core"
-        trans.currency_id = Currency
-        trans.save()
-        raise TransError("currency_core")
-    trans.currency = To.currency
+                  balance1=From.get_balance(),
+                  user1=From.acc(),
+                  order=order,
+                  currency=Currency,
+                  amnt=Amnt,
+                  status="core_error")
     trans.save()
 
-    FromBalance = From.balance
-    #NewBalance = mines_prec(FromBalance - Amnt, TransPrecession)
-    NewBalance = FromBalance - Amnt
+    if From.currency() <> Currency.id:
+        trans.status = "currency_core"
+        trans.currency_id = Currency
+        trans.save()
+        raise TransError("currency_core")
+
+    if To.currency1 <> Currency.id:
+        trans.status = "currency_core"
+        trans.currency_id = Currency
+        trans.save()
+        raise TransError("currency_core")
+
+    trans.save()
+    NewBalance = From.mines(Amnt)
 
     if Strict:
         if NewBalance < 0:
@@ -549,39 +550,27 @@ def add_trans2(From, Amnt, Currency, To, order, status="created", Out_order_id=N
             trans.save()
             raise TransError("incifition_funds")
 
-    ToBalance = To.balance
-    ToNewBalance = ToBalance + Amnt
-    #plus_prec(ToBalance, Amnt, TransPrecession)
+    ToNewBalance = order.sum1 + Amnt
+    if Strict:
+        if ToNewBalance < 0:
+            trans.status = "incifition_funds"
+            trans.save()
+            raise TransError("incifition_funds")
 
     try:
-        #cursor = connection.cursor()
-        #cursor.execute("UPDATE main_accounts SET balance = balance - %s WHERE id = %i", [Amnt, From.id])
-
-        From.balance = NewBalance
-        From.save()
-        To.balance = ToNewBalance
-        #cursor.execute("UPDATE main_accounts SET balance = balance - %s WHERE id = %i", [Amnt, To.id])
-        To.save()
         trans.res_balance1 = NewBalance
-        trans.res_balance2 = ToNewBalance
+        To.update(trans, ToNewBalance)
+        # race condition
+        From.save(trans)
+        trans.status=status
         trans.save()
-
-
     except:
-        trans.status = "core_error"
-        From.balance = FromBalance
-        To.balance = ToBalance
-        From.save()
-        To.save()
+        From.reload()
         trans.save()
         raise TransError("core_error")
 
-    ## add exception here
-    X = True
-    if not X:
-        raise TransError("cant finish trans")
 
-
+# DO NOT USE for highload operations
 ####make a queue demon here there
 @transaction.atomic
 def add_trans(From, Amnt, Currency, To, order, status="created", Out_order_id=None, Strict=True):
@@ -985,7 +974,7 @@ class TransOut(models.Model):
 
     def fields4sign(self):
         List = []
-        for i in ('amnt', 'wallet', 'user', 'provider'):
+        for i in ('amnt', 'wallet', 'user_id', 'provider'):
             Val = getattr(self, i)
             if i in ('amnt', 'comission'):
                 List.append(format_numbers_strong(Val))
@@ -1077,7 +1066,7 @@ class TransIn(models.Model):
 
     def fields4sign(self):
         List = []
-        for i in ('amnt', 'comission', 'user', 'comission'):
+        for i in ('amnt', 'comission', 'user_id', 'comission'):
             Val = getattr(self, i)
             if i in ('amnt', 'comission'):
                 List.append(format_numbers_strong(Val))
@@ -1180,7 +1169,7 @@ class P24TransIn(models.Model):
 
     def fields4sign(self):
         List = []
-        for i in ('amnt', 'comission', 'user', 'comission', 'description'):
+        for i in ('amnt', 'comission', 'user_id', 'description'):
             Val = getattr(self, i)
             if i in ('amnt', 'comission'):
                 List.append(format_numbers_strong(Val))
@@ -1269,7 +1258,7 @@ class LiqPayTrans(models.Model):
 
     def fields4sign(self):
         List = []
-        for i in ('phone', 'debit_credit', 'status', 'user', 'comission', 'amnt', 'description'):
+        for i in ('phone', 'debit_credit', 'status', 'user_id', 'comission', 'amnt', 'description'):
             Val = getattr(self, i)
             if i in ('comission', 'amnt'):
                 List.append(format_numbers_strong(Val))
@@ -1432,7 +1421,7 @@ def process_bank(modeladmin, request, queryset):
 
 process_bank.shoort_description = u"Process"
 
-
+#TODO banks account
 class BankTransfersAdmin(admin.ModelAdmin):
     list_display = ["id", 'ref', 'okpo', 'mfo', 'account', 'description', "debit_credit", 'amnt', 'currency', 'user',
                     'status', "user_accomplished"]
@@ -2021,26 +2010,18 @@ class TransMemAdmin(admin.ModelAdmin):
 
 
 class TransMem(models.Model):
-    out_order_id = models.CharField(max_length=255, verbose_name="Внешний order",
-                                    null=True, blank=True)
-    balance1 = models.DecimalField(max_digits=20, editable=False, decimal_places=10, verbose_name=u"Баланс отправителя")
-    balance2 = models.DecimalField(max_digits=20, editable=False, decimal_places=10, verbose_name=u"Баланс получателя")
 
+    balance1 = models.DecimalField(max_digits=20, editable=False, decimal_places=10, verbose_name=u"Баланс пользователя")
     res_balance1 = models.DecimalField(max_digits=20, editable=False, decimal_places=10,
-                                       verbose_name=u"Баланс отправителя")
-    res_balance2 = models.DecimalField(max_digits=20, editable=False, decimal_places=10,
-                                       verbose_name=u"Баланс получателя")
+                                       verbose_name=u"Баланс пользователя")
     user1 = models.ForeignKey(Accounts, related_name="from_mem",
-                              verbose_name="Счет отправителя")
-    user2 = models.ForeignKey(Accounts, related_name="to_mem",
-                              verbose_name="Счет получателя")
+                              verbose_name="Счет пользователя")
     currency = models.ForeignKey("Currency", verbose_name=u"Валюта")
     amnt = models.DecimalField(max_digits=20, decimal_places=10, verbose_name=u"Сумма")
     status = models.CharField(max_length=40,
                               choices=STATUS_ORDER,
                               default='created', verbose_name=u"Статус")
     order_id = models.IntegerField(verbose_name=u"Ордер")
-
     pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата", editable=False)
 
     def archive(self, archive_order):
@@ -2313,7 +2294,7 @@ class DealsMemory(models.Model):
 
     def fields4sign(self):
         List = []
-        for i in ('type_deal', 'user'):
+        for i in ('type_deal', 'user_id'):
             Val = getattr(self, i)
             if i in ('amnt_base', 'amnt_trade'):
                 List.append(format_numbers_strong(Val))
@@ -2335,20 +2316,22 @@ class OrdersMemAdmin(admin.ModelAdmin):
 class OrdersMem(models.Model):
     user = models.IntegerField(User)
     trade_pair = models.IntegerField(verbose_name=u"Валютная пара")
-    currency1 = models.IntegerField(verbose_name=u"Валюта A", )
+    currency1 = models.IntegerField(verbose_name=u"Валюта", )
     sum1_history = models.DecimalField(verbose_name=u"Изначальная сумма продажи", max_digits=20, decimal_places=10)
     price = models.DecimalField(verbose_name=u"Цена", max_digits=24, decimal_places=16, blank=True)
     sum1 = models.DecimalField(verbose_name=u"сумма продажи", max_digits=20, decimal_places=10)
-    currency2 = models.IntegerField(verbose_name=u"Валюта Б", )
-    sum2_history = models.DecimalField(verbose_name=u"Изначальная сумма покупки", max_digits=20, decimal_places=10)
-    sum2 = models.DecimalField(verbose_name=u"сумма покупки", max_digits=20, decimal_places=10)
     status = models.CharField(max_length=40, choices=STATUS_ORDER, default='created', verbose_name=u"Статус")
     pub_date = models.DateTimeField(auto_now=True, verbose_name=u"Дата публикации")
-    transit_1 = models.IntegerField(verbose_name=u"транзитный счет покупки")
-    transit_2 = models.IntegerField(verbose_name=u"транзитный счет продажи")
     comission = models.DecimalField(max_digits=20, default='0.0005', blank=True, decimal_places=10,
                                     verbose_name=u"Комиссия")
     sign = models.CharField(max_length=255, verbose_name=u"Custom sign")
+    last_trans_id = models.IntegerField(verbose_name=u"last id", blank=True)
+
+
+    def update(self, trans, new_amnt):
+        OrdersMem.objects.get(id=self.id, last_trans_id=self.last_trans_id).update(
+                last_trans_id = trans.id,
+                sum1 = new_amnt)
 
     class Meta:
         verbose_name = u'Заявка'
@@ -2370,10 +2353,10 @@ class OrdersMem(models.Model):
 
     def fields4sign(self):
         List = []
-        for i in ('currency1', 'currency2', 'sum1_history', 'sum2_history', 'sum1', 'sum2',
-                  'transit_1', 'transit_2', 'user', 'comission'):
+        for i in ('currency1', 'sum1_history', 'sum1',
+                  'price', 'last_trans_id', 'user', 'comission'):
             Val = getattr(self, i)
-            if i in ('sum1_history', 'sum2_history', 'sum1', 'sum2', 'comission'):
+            if i in ('sum1_history', 'sum1', 'sum2', 'comission'):
                 List.append(format_numbers_strong(Val))
             else:
                 List.append(str(Val))
@@ -2440,7 +2423,7 @@ class Orders(models.Model):
     def fields4sign(self):
         List = []
         for i in ('currency1', 'currency2', 'sum1_history', 'sum2_history', 'sum1', 'sum2',
-                  'transit_1', 'transit_2', 'user', 'trade_pair'):
+                  'transit_1', 'transit_2', 'user_id', 'trade_pair'):
             Val = getattr(self, i)
             if i in ('sum1_history', 'sum2_history', 'sum1', 'sum2'):
                 List.append(format_numbers_strong(Val))
@@ -2797,7 +2780,7 @@ class CardP2PTransfers(models.Model):
 
     def fields4sign(self):
         List = []
-        for i in ('CardNumber', 'currency', 'amnt', 'user', 'comission', 'status', 'confirm_key'):
+        for i in ('CardNumber', 'currency', 'amnt', 'user_id', 'comission', 'status', 'confirm_key'):
             Val = getattr(self, i)
             if i in ('amnt', 'comission'):
                 List.append(format_numbers_strong(Val))
