@@ -29,7 +29,7 @@ from main.api_http_common import caching, cached_json_object, my_cache, status_f
 from main.api_http_common import format_numbers10, format_numbers_strong, format_numbers, format_numbers4, \
     json_false500, json_true
 
-from main import get_account
+from main.account import get_account
 
 import logging
 
