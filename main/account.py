@@ -7,7 +7,7 @@ def get_account(**kawrds):
 
 
 class Account(object):
-    def __init__(self, *args, **kwards):
+    def __init__(self, *args, **data):
         user = data.get('user', None)
         currency = data.get('currency', None)
         user_id=data.get('user_id', None)
