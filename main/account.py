@@ -1,11 +1,13 @@
-from main.models import Trans
-from main.models import Accounts
-from main.models import Currency
-from main.models import TransError
+import main.models 
 from django.contrib.auth.models import User
 
+def get_account(**kawrds):
+    return Account(**kawrds)
+
+
+
 class Account(object):
-    def __init__(self, *args, **kwards):
+    def __init__(self, *args, **data):
         user = data.get('user', None)
         currency = data.get('currency', None)
         user_id=data.get('user_id', None)
@@ -18,17 +20,17 @@ class Account(object):
             user_id = user
 
         currency_id = data.get('currency_id', None)
-        if isinstance(currency, Currency):
+        if isinstance(currency, main.models.Currency):
             currency_id = currency.id
 
         if isinstance(currency, int):
             currency_id = currency
 
 
-        self.__account = Accounts.objects.get(user_id = user_id, currency_id=currency_id)
+        self.__account = main.models.Accounts.objects.get(user_id = user_id, currency_id=currency_id)
         self.__currency_id = currency_id
         self.__user_id = user_id
-        self.__trans = Trans.objects.get(id=self.account.last_trans_id)
+        self.__trans = main.models.Trans.objects.get(id=self.__account.last_trans_id)
         if self.__account.id == self.__trans.user2_id:
            self.__balance =  self.__trans.res_balance2
         else:
@@ -46,8 +48,8 @@ class Account(object):
         return self.__user_id
 
     def reload(self):
-        self.__account = Accounts.objects.get(user_id = self.__user_id, currency_id=self.__currency_id)
-        self.__trans = Trans.objects.get(id=self.__account.last_trans_id)
+        self.__account = main.models.Accounts.objects.get(user_id = self.__user_id, currency_id=self.__currency_id)
+        self.__trans = main.models.Trans.objects.get(id=self.__account.last_trans_id)
 
 
         if self.__account.id == self.__trans.user2_id:
@@ -74,12 +76,12 @@ class Account(object):
             raise TransError("it seems a race condition, reload object")
 
         try:
-            acc = Accounts.objects.get(id=self.__account.id, last_trans_id=self.__trans.id).update(
+            acc = main.models.Accounts.objects.get(id=self.__account.id, last_trans_id=self.__trans.id).update(
                 last_trans_id = trans.id,
                 balance = self.__balance)
 
             self.__account = acc
             self.__trans = trans
-        except Accounts.DoesNotExist:
+        except main.models.Accounts.DoesNotExist:
             raise TransError("it seems a race condition")
             self.__inconsist = True

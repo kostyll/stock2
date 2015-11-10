@@ -29,7 +29,7 @@ from main.api_http_common import caching, cached_json_object, my_cache, status_f
 from main.api_http_common import format_numbers10, format_numbers_strong, format_numbers, format_numbers4, \
     json_false500, json_true
 
-from main import get_account
+from main.account import get_account
 
 import logging
 
@@ -209,11 +209,13 @@ def process_order_buy(AccountSeller,  AccumSumToSell, OrderBuy, OrderSell, Trade
         ##comission
         add_trans2(AccountBuyer,
                    AccumSumToSell*-1,
+                   OrderSell.currency1,
                    OrderSell,
                    "deal")
 
         add_trans2(AccountSeller,
                    TransSum*-1,
+                   OrderBuy.currency1,
                    OrderBuy,
                    "deal")
 
@@ -233,11 +235,13 @@ def process_order_buy(AccountSeller,  AccumSumToSell, OrderBuy, OrderSell, Trade
 
         add_trans2(AccountBuyer,
                    OrderBuySum*-1,
+                   OrderSell.currency1,
                    OrderSell,
                    "deal")
 
         add_trans2(AccountSeller,
                    TransSum*-1,
+                   OrderBuy.currency1,
                    OrderBuy,
                    "deal")
 
@@ -277,11 +281,13 @@ def process_order_sell(AccountSeller,  AccumSumToSell, OrderBuy, OrderSell, Trad
         ##comission
         add_trans2(AccountBuyer,
                    AccumSumToSell*-1,
+                   OrderSell.currency1,
                    OrderSell,
                    "deal")
 
         add_trans2(AccountSeller,
                    TransSum*-1,
+                   OrderBuy.currency1,
                    OrderBuy,
                    "deal")
 
@@ -301,11 +307,13 @@ def process_order_sell(AccountSeller,  AccumSumToSell, OrderBuy, OrderSell, Trad
         ##comission
         add_trans2(AccountBuyer,
                    OrderBuySum*-1,
+                   OrderSell.currency1,
                    OrderSell,
                    "deal")
 
         add_trans2(AccountSeller,
                    TransSum*-1,
+                   OrderBuy.currency1,
                    OrderBuy,
                    "deal")
         try:
@@ -545,11 +553,11 @@ def __inner_remove_order(Order, User):
 
     try:
         Account = get_account(user=User, currency_id=Order2Remove.currency1)
-        account_transit_1 = get_account(id=Order2Remove, currency=Order2Remove.currency1)
 
-        add_trans2(account_transit_1,
+        add_trans2(Account,
                    Order2Remove.sum1,
-                   Account,
+                   Order2Remove.currency1,
+                   Order2Remove,
                    "order_cancel")
 
         cache = caching()

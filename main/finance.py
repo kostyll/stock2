@@ -44,7 +44,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum
 from datetime import date
 from main.finance_forms import FiatCurrencyTransferForm
-from main import get_account
+from main.account import get_account
+
 from crypton import my_messages
 
 
