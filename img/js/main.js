@@ -922,45 +922,44 @@ var Main = {
                 
         },
         my_orders: function(callback){
-                                if(!Login.logged){
-                                        return callback();
-                    
-                                }
-                                        
-                                var Res = $.ajax({
-                                        url : "/api/my_orders/" + Main.trade_pair,
-                                        type : 'GET',
-                                        dataType: 'json',
-                                        cache: false,
-                                        error: function (data) {
-                                                console.log(data);
-                        callback();
-                                        },      
-                                        success : function(Data){
-                                                if(Data["auth"]){
-                                                        var size = Data["your_open_orders"].length;
-                                                        $("#your_open_orders").html("");   
-                                                        var List = Data["your_open_orders"];
-                                                        $("#your_balance_currency1").html(Data["balance_buy"]);
-                                                        $("#your_balance_currency").html(Data["balance_sell"]);
-                                                        for(var i=0; i<size; i++){
-                                                                var NewElement = "<tr id=\"my_order_"+List[i]["id"]+"\"><td>"+List[i]["id"]+"</td>";
-                                                                NewElement +="<td>" +List[i]["pub_date"] + "</td>";
-                                                                NewElement +="<td>" +List[i]["type"] + "</td>";
-                                                                NewElement +="<td>" +Main.format_float6(List[i]["price"]) +"&nbsp;<strong>" +Main.currency_base + "</strong></td>";
-                                                                NewElement +="<td>" +Main.format_float6(List[i]["amnt_base"]) + "</td>";
-                                                                NewElement +="<td>" +Main.format_float6(List[i]["amnt_trade"]) + "</td>";                                                    
-                                                                NewElement +="<td> <span onclick=\"Main.remove('" + List[i]["id"] 
-                                                                              +"')\" class=\"btn btn-primary btn-xs\">Cancel</span></td></tr>";                                                    
-                                                                $("#your_open_orders").append( NewElement );
-                                                        }
-                                               }         
-                                         callback();       
-                                         }
-                                     });
+                    if(!Login.logged){
+                            return callback();
 
-                        
-                
+                    }
+                    var Res = $.ajax({
+                            url : "/api/my_orders/" + Main.trade_pair,
+                            type : 'GET',
+                            dataType: 'json',
+                            cache: false,
+                            error: function (data) {
+                                    console.log(data);
+                                    callback();
+                            },
+                            success : function(Data){
+                            if(Data["auth"]){
+                                    var size = Data["your_open_orders"].length;
+                                    $("#your_open_orders").html("");
+                                    var List = Data["your_open_orders"];
+                                    $("#your_balance_currency1").html(Data["balance_buy"]);
+                                    $("#your_balance_currency").html(Data["balance_sell"]);
+                                    for(var i=0; i<size; i++){
+                                            var NewElement = "<tr id=\"my_order_"+List[i]["id"]+"\"><td>"+List[i]["id"]+"</td>";
+                                            NewElement +="<td>" +List[i]["pub_date"] + "</td>";
+                                            NewElement +="<td>" +List[i]["type"] + "</td>";
+                                            NewElement +="<td>" +Main.format_float6(List[i]["price"]) +"&nbsp;<strong>" +Main.currency_base + "</strong></td>";
+                                            NewElement +="<td>" +Main.format_float6(List[i]["amnt_base"]) + "</td>";
+                                            NewElement +="<td>" +Main.format_float6(List[i]["amnt_trade"]) + "</td>";
+                                            NewElement +="<td> <span onclick=\"Main.remove('" + List[i]["id"]
+                                                          +"')\" class=\"btn btn-primary btn-xs\">Cancel</span></td></tr>";
+                                            $("#your_open_orders").append( NewElement );
+                                    }
+                           }
+                     callback();
+                     }
+                 });
+
+
+
         },
         remove: function(id){
                 var call_id = "#my_order_"+id;
@@ -971,7 +970,7 @@ var Main = {
                                         type : 'GET', 
                                         cache: false,
                                         error: function (data) {
-                                             my_alert("Не могу удалить ордер  ");
+                                             my_alert("Не могу удалить ордер");
                                              $(call_id).show();  
                                         }, 
                                         success : function(Data){

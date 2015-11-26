@@ -1194,18 +1194,12 @@ def client_orders(Req, User_id, Title):
     except:
         return json_false500(Req)
 
+
+
     Dict["auth"] = True
-    MyOrders = OrdersMem.objects.raw("SELECT * FROM main_ordersmem WHERE user=%i AND ( \
-                                        (currency1=%i AND currency2=%i ) OR  \
-                                        (currency2=%i AND currency1=%i )\
-                                        ) AND status='processing' ORDER BY id DESC" %
-                                     (User_id,
-                                      Current.currency_from.id,
-                                      Current.currency_on.id,
-                                      Current.currency_from.id,
-                                      Current.currency_on.id,
-                                     )
-    )
+    MyOrders = OrdersMem.objects.fitler(user = User_id,
+                                        trade_pair = Current,
+                                        status='processing')
 
     MyOrdersList = []
     c = getcontext()
@@ -1215,21 +1209,18 @@ def client_orders(Req, User_id, Title):
         MyOrdersDict = {}
         MyOrdersDict["pub_date"] = formats.date_format(i.pub_date, "DATETIME_FORMAT")
         MyOrdersDict["id"] = i.id
-        MyOrdersDict["sum2"] = str(i.sum2)
         MyOrdersDict["sum1"] = str(i.sum1)
 
         if i.currency1 == Current.currency_on.id:
             MyOrdersDict["type"] = "sell"
-            Number = i.sum2 / i.sum1
             MyOrdersDict["price"] = format_numbers10(i.price)
             MyOrdersDict["amnt_trade"] = format_numbers10(i.sum1)
-            MyOrdersDict["amnt_base"] = format_numbers10(i.sum2)
+            MyOrdersDict["amnt_base"] = format_numbers10(i.sum1*i.price)
         else:
             MyOrdersDict["type"] = "buy"
-            Number = i.sum1 / i.sum2
             MyOrdersDict["price"] = format_numbers10(i.price)
             MyOrdersDict["amnt_base"] = format_numbers10(i.sum1)
-            MyOrdersDict["amnt_trade"] = format_numbers10(i.sum2)
+            MyOrdersDict["amnt_trade"] = format_numbers10(i.sum1/i.price)
         MyOrdersList.append(MyOrdersDict)
 
     balance_sell = get_account(user_id=User_id, currency=Current.currency_on)
