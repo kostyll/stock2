@@ -43,7 +43,6 @@ from main.my_cache_key import my_lock, LockBusyException, check_freq, my_release
 from crypton.http import MemStore
 
 import timeit
-from threadpool import ThreadPool, WorkRequest
 
 
 class TornadoServer(object):
@@ -104,24 +103,22 @@ class StopHandler(tornado.web.RequestHandler):
 
 def cache_control(Req):
     do = Req.REQUEST.get("do", None)
-    Cache = caching()
-    Dict = Cache.get_storage()
+    cache = caching()
+
     if do == "flush":
-        Dict = {}
-        Cache.set_storage(Dict)
-        return json_true(Req)
+        return json_false500(Req)
 
     if do == "get":
         key = Req.REQUEST.get("key")
-        return HttpResponse(str(Dict[key]))
+        return HttpResponse(str(cache.get(key,"")))
 
     if do == "del":
         key = Req.REQUEST.get("key")
-        value = str(Dict[key])
-        Cache.delete(key)
+        value = str(cache.get(key,""))
+        cache.delete(key)
         return HttpResponse(value)
 
-    return HttpResponse(str(Dict))
+    return json_false500(Req)
 
 
 def my_async(func2decorate):
@@ -135,9 +132,9 @@ def my_async(func2decorate):
 
 def deposit_funds(Order, currency1):
     return _("Deposit funds  %(sum)s %(currency)s according with order #%(order_id)i " % {
-        'sum': Order.sum1_history,
-        'currency': currency1.title,
-        'order_id': Order.id})
+              'sum': Order.sum1_history,
+              'currency': currency1.title,
+              'order_id': Order.id})
 
 
 def order_finish(Order):
@@ -161,21 +158,21 @@ def order_description_buy(Sum1, Sum2, Order, BackOrder, TradePair):
                   'order_id': Order.id,
                   'price': Price})
     else:
-        return _("Selling  %(sum).8f %(currency)s according with order #%(order_id)i, price %(price).8f  "
-                 % {'sum': Sum1,
-                    'currency': str(TradePair.currency_on),
-                    'order_id': Order.id,
-                    'price': Price})
+        return _("Selling  %(sum).8f %(currency)s according with order #%(order_id)i, price %(price).8f  " %
+                 {'sum': Sum1,
+                  'currency': str(TradePair.currency_on),
+                  'order_id': Order.id,
+                  'price': Price})
 
 
 def order_description_sell(Sum1, Sum2, Order, TradePair):
     Price = Order.price
     if Order.currency2 == TradePair.currency_on.id:
-        return _("Buying %(sum).8f %(currency)s according with order  #%(order_id)i, price %(price).8f  " % {
-            'sum': Sum2,
-            'currency': str(TradePair.currency_on),
-            'order_id': Order.id,
-            'price': Price})
+        return _("Buying %(sum).8f %(currency)s according with order  #%(order_id)i, price %(price).8f  " %
+                 {'sum': Sum2,
+                  'currency': str(TradePair.currency_on),
+                  'order_id': Order.id,
+                  'price': Price})
     else:
 
         return _("Selling  %(sum).8f %(currency)s according with order #%(order_id)i, price %(price).8f  " %
@@ -220,8 +217,10 @@ def process_order_buy(AccountSeller,  AccumSumToSell, OrderBuy, OrderSell, Trade
                    "deal")
 
         try:
-            system_notify_async(order_description_sell(AccumSum, TransSum, OrderBuy, TradePair), AccountSeller.get_user())
-            system_notify_async(order_description_buy(TransSum, AccumSum, Order, item, TradePair), AccountBuyer.get_user())
+            system_notify_async(order_description_sell(AccumSum, TransSum, OrderBuy, TradePair),
+                                AccountSeller.get_user())
+            system_notify_async(order_description_buy(TransSum, AccumSum, Order, item, TradePair),
+                                AccountBuyer.get_user())
         except:
             logging.info("something gooing wrong with notification")
             pass
@@ -246,7 +245,8 @@ def process_order_buy(AccountSeller,  AccumSumToSell, OrderBuy, OrderSell, Trade
                    "deal")
 
         try:
-            system_notify_async(order_description_sell(NotifySum, TransSum, OrderBuy, TradePair), AccountBuyer.get_user())
+            system_notify_async(order_description_sell(NotifySum, TransSum, OrderBuy, TradePair),
+                                AccountBuyer.get_user())
             system_notify_async(order_description_buy(TransSum, NotifySum, Order, item, TradePair),
                                 AccountBuyer.get_user())
             system_notify_async(order_finish(item), AccountSeller.get_user())
@@ -292,8 +292,10 @@ def process_order_sell(AccountSeller,  AccumSumToSell, OrderBuy, OrderSell, Trad
                    "deal")
 
         try:
-            system_notify_async(order_description_sell(AccumSum, TransSum, OrderBuy, TradePair), AccountSeller.get_user())
-            system_notify_async(order_description_buy(TransSum, AccumSum, Order, item, TradePair), AccountBuyer.get_user())
+            system_notify_async(order_description_sell(AccumSum, TransSum, OrderBuy, TradePair),
+                                AccountSeller.get_user())
+            system_notify_async(order_description_buy(TransSum, AccumSum, Order, item, TradePair),
+                                AccountBuyer.get_user())
         except:
             logging.info("something gooing wrong with notification")
             pass
@@ -325,7 +327,10 @@ def process_order_sell(AccountSeller,  AccumSumToSell, OrderBuy, OrderSell, Trad
         except:
             logging.info("somthing gooing wrong with notification")
             pass
-        return AccumSumToSell-OrderBuySum
+        return AccumSumToSell - OrderBuySum
+
+def admin_system_notify_async(cortage):
+    pass
 
 
 def auth(Req):
@@ -353,7 +358,7 @@ def auth(Req):
 
 
 def make_auto_trade(OrderSell, TradePair, Price, Currency1, Sum1, Currency2):
-    ##if we sell
+    # if we sell
     # Query = "SELECT * FROM main_ordersmem  WHERE  trade_pair_id=%i" % (TradePair.id)
 
     if int(TradePair.currency_on.id) == int(Currency1.id):
@@ -370,7 +375,6 @@ def make_auto_trade(OrderSell, TradePair, Price, Currency1, Sum1, Currency2):
                                                                       format_numbers_strong(Price), OrderSell.user )
 
     List = OrdersMem.objects.raw(Query)
-
     # ##work on first case
     # CommissionSell = get_account(settings.COMISSION_USER, Currency1)
     # ComnissionBuy = get_account(settings.COMISSION_USER, Currency2)
@@ -384,10 +388,23 @@ def make_auto_trade(OrderSell, TradePair, Price, Currency1, Sum1, Currency2):
     else:
         process_order = lambda AccountBuyer, AccumSumToSell, OrderBuy, OrderSell, TradePair: process_order_buy(AccountBuyer, AccumSumToSell, OrderBuy, OrderSell, TradePair)
 
+    # TODO in case of exception block OrderSell and OrderBuy and interrupt the cycle
     for OrderBuy in List:
-        AccumSumToSell = process_order(AccountBuyer, AccumSumToSell, OrderBuy, OrderSell, TradePair)
-
         UserDeals.append(int(OrderBy.user))
+
+        try :
+            AccumSumToSell = process_order(AccountBuyer, AccumSumToSell, OrderBuy, OrderSell, TradePair)
+        except TransError as e:
+            OrderBuy.status = "core_error"
+            OrderSell.status = "core_error"
+            OrderBuy.save()
+            OrderSell.save()
+            admin_system_notify_async((OrderBuy, OrderSell))
+            ResultSum = finish_create_order(TradePair, AccumSumToSell, OrderSell)
+            return {"start_sum": Sum1, "status":False, "last_sum": ResultSum, "users_bothered": UserDeals}
+
+
+
         if AccumSumToSell > 0.00000001:
             continue
         else:
@@ -403,8 +420,7 @@ def make_auto_trade(OrderSell, TradePair, Price, Currency1, Sum1, Currency2):
     else:
          Order.save()
 
-
-    return {"start_sum": Sum1, "last_sum": ResultSum, "users_bothered": UserDeals}
+    return {"start_sum": Sum1, "status":True, "last_sum": ResultSum, "users_bothered": UserDeals}
 
 
 @my_async
@@ -461,21 +477,26 @@ def reload_cache(Res, Type):
 def process_auto(Res, TradePair):
     Dict = None
     Encoder = json.JSONEncoder()
-    if Res["start_sum"] == Res["last_sum"]:
-        Dict = {"status": True, "description": _("The order has been created")}
+    if Res["status"]:
 
+        if Res["start_sum"] == Res["last_sum"]:
+            Dict = {"status": True, "description": _("The order has been created")}
 
-    elif Res["last_sum"] < TradePair.min_trade_base:
-        Dict = {"status": "processed",
-                "description": _("Your order has been fully processed successfully"),
-                "start_sum_to_buy": str(Res["start_sum"]),
-                "last_sum_to_buy": str(Res["last_sum"])
-        }
-    elif Res["start_sum"] > Res["last_sum"]:
-        Dict = {"status": "processed", "description": _("Your order has been  processed partial"),
-                "start_sum_to_buy": str(Res["start_sum"]),
-                "last_sum_to_buy": str(Res["last_sum"])
-        }
+        elif Res["last_sum"] < TradePair.min_trade_base:
+            Dict = {"status": "processed",
+                    "description": _("Your order has been fully processed successfully"),
+                    "start_sum_to_buy": str(Res["start_sum"]),
+                    "last_sum_to_buy": str(Res["last_sum"])
+            }
+        elif Res["start_sum"] > Res["last_sum"]:
+            Dict = {"status": "processed", "description": _("Your order has been  processed partial"),
+                    "start_sum_to_buy": str(Res["start_sum"]),
+                    "last_sum_to_buy": str(Res["last_sum"])
+            }
+    else:
+        Dict = {"status": "process_order_error", "description": _("The mistake has been occurred during"
+                                                                  " creation of the order,"
+                                                                  " and developers were notified about it")}
 
     Type = TradePair.url_title
     reload_cache(Res, Type)
@@ -735,7 +756,6 @@ def buy(Req, Trade_pair):
     i = order.id
     try:
         FromAccount = get_account(user=Req.user, currency=CurrencyBase)
-
         system_notify_async(deposit_funds(order, CurrencyBase), Req.user.id)
         # TODO Order to Encrypted object
         add_trans2(FromAccount, Amnt1, CurrencyBase, order, "deposit")
@@ -1005,7 +1025,6 @@ def sell_list(Req, Pair):
         L.append(Temp)
 
     L.sort()
-
     Price = 0
     MinPrice = 0
     for i in L:

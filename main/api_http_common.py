@@ -2,6 +2,8 @@
 from crypton.http import HttpResponse
 from django.utils.translation import ugettext
 from django.template import Context, loader
+from django.core.cache import get_cache
+
 import logging
 import main.models
 import json
@@ -9,7 +11,6 @@ from crypton import settings
 from crypton import my_messages
 import hashlib
 import random
-from crypton.http import MemStore
 
 
 # def makebold(fn):
@@ -84,7 +85,8 @@ def json_auth_required(func2decorate):
 
 
 def caching():
-    return MemStore.get_instance()
+    return get_cache('default')
+    # return MemStore.get_instance()
 
 
 def my_cache(func2decorate):

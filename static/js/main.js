@@ -1040,7 +1040,11 @@ var Main = {
                                    $("#buy_help").html("Нажмите посчитать, чтобы рассчитать сумму в соответствии с ордерами.");
                                    return
                                 }
-                                
+                                 if(data["status"] == 'process_order_error'){
+                                     my_alert(data["description"]);
+                                     return
+
+                                }
                                 if(data["status"] == 'incifition_funds'){
                                      my_alert(data["description"]);   
                                      return 
@@ -1054,13 +1058,6 @@ var Main = {
 
                                         
                                 }                    
-                                if(data["status"] == 'part_processed'){
-                                     my_alert(data["description"]);
-                                     $("#buy_count").val("0");
-                                     $("#buy_help").html("Нажмите посчитать, чтобы рассчитать сумму в соответствии с ордерами.");
-                                     return
-                                        
-                                } 
                                 my_alert("Не могу создать ордер, проверьте пожайлуста данный и попробуйте снова");
                                 
                                 
