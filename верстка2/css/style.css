@@ -1,0 +1,869 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+	background-color: #f4f4f4;
+	margin-bottom: 280px;
+}
+
+p {
+	font-size: 1.2em;
+	color: #595959;
+}
+
+@font-face {
+    font-family: "flaticon";
+    src: url("../fonts/flaticon.svg") format("svg");
+    src: url("../fonts/flaticon.ttf") format("truetype");
+    src: url('../fonts/flaticon.eot') format('embedded-opentype');
+    src: url('../fonts/flaticon.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+
+
+/*------------------------------------- MENU ----------------------------------*/
+
+.sublogotitle {
+	color: #fff;
+	font-size: 0.7em;
+
+}
+
+.logoName {
+	margin-top: 7px;
+}
+
+
+.navbar-header {
+	padding-left: 15px;
+	margin-right: 15px;
+}
+
+.navbar-default {
+	background-color: #506cd9;
+	border-radius: 0px;
+	border: none;
+	margin-bottom: 0px;
+}
+
+.navbar-brand {
+	padding: 2px 5px;
+	line-height: 45px;
+}
+
+.navbar-default .navbar-brand, .navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
+	color: #fff;
+	line-height: 15px;
+	white-space: nowrap;
+}
+
+.navbar-brand img {
+	width: 40px;
+	margin-right: 10px;
+	float: left;
+	margin-top: 2px;
+}
+
+.navbar-default .navbar-nav > li > a {
+	color: #DCDCDC;
+}
+
+.navbar-default .navbar-nav > li > a:hover {
+	color: #fff;
+	background: url(../images/hoverMenu.jpg) bottom center repeat-x;
+}
+
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+	color: #fff;
+	background: url(../images/hoverMenu.jpg) bottom center repeat-x;
+}
+
+@media (max-width: 767px) {
+	.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+		color: #fff;
+		background: url(../images/hoverMenuCollapse.jpg) left repeat-y;		
+	}
+	.navbar-default .navbar-nav > li > a:hover {
+		color: #fff;
+		background: url(../images/hoverMenuCollapse.jpg) left repeat-y;	
+	}
+}
+
+
+
+
+/*------------------------------------- PROFILE BAR ----------------------------------*/
+
+.profileBar {
+	background-color: #fff;
+	border-bottom: 1px solid #e5e5e5; 
+}
+
+@media (max-width: 400px) {
+	.profileOptions a {
+		float: left;
+		margin-left: 0px;
+		margin-right: 10px;
+		line-height: 40px;
+	}
+	
+	.mainBalances div {
+	    margin-bottom: 10px;
+	}
+
+	.extraSmallScreen {
+		margin-top: 10px;
+	}	
+
+	.profileName {
+		margin-bottom: 10px;
+	}
+
+}
+
+
+
+.profileBar p {
+	font-size: 1.3em;
+	margin: 0;
+}
+
+.mainBalances {
+    line-height: 68px;
+}
+
+
+.profileBar p {
+	float: left;
+	margin-right: 20px;
+}
+
+.balanceCurrency {
+	float: left;
+	color: #34aadc;
+	margin-right: 20px;
+	font-size: 1.3em;
+	font-weight: bold;
+}
+
+.profileOptions {
+	text-align: right;
+    line-height: 68px;
+}
+
+.profileOptions a:hover {
+	text-decoration: none;	
+}
+
+
+.profileName {
+	margin-left: 10px;
+	font-weight: bold;
+}
+
+.profileMessages {
+	margin-left: 10px;
+}
+
+.profileBar .fa {
+	margin-left: 5px;
+}
+
+.fa {
+	font-size: 1.8em;
+}
+
+@media (max-width: 960px) {
+	.profileOptions {
+		text-align: left;
+	}
+
+	.profileMessages {
+		float: right;
+	}	
+
+	.profileName {
+		float: left;
+		margin-left: 20px;
+		font-weight: bold;
+		margin-left: 0px;
+	}
+	.mainBalances {
+	    line-height: 18px; 
+	    padding-bottom: 15px;
+	}		
+}
+
+
+
+
+/*------------------------------------- CABINET BLOCKS ----------------------------------*/
+
+.cabinetBlocks {
+	margin-top: 25px;
+}
+
+
+
+/*---------------- LEFT BLOCK ------------------*/
+
+
+.cabinetLeftMenu {
+	background-color: #fff;
+	border: 1px solid #e5e5e5; 
+	padding: 0;
+	margin-bottom: 20px;
+}
+
+.cabinetLeftMenu ul {
+	list-style: none;
+	padding: 0;
+	margin-bottom: 0;
+}
+
+.cabinetLeftMenu ul li a {
+	text-decoration: none;
+	padding: 10px 0px;
+	display: block;
+	font-size: 1.2em;
+	color: #000;
+	border-bottom: 1px solid #e5e5e5; 
+}
+
+.cabinetLeftMenu .fa {
+	margin: 5px 0px;
+	margin-right: 10px; 
+	font-size: 1.4em;
+	color: #c6cbce;	
+}
+
+.cabinetLeftMenu ul li a:hover .fa {
+	color: #c6cbce;
+}
+
+.cabinetLeftMenu ul li> a:hover {
+	background-color: #eeeeee;
+	color: #000;
+}
+
+.cabinetLeftMenu ul li > a.active {
+	background-color: #eeeeee;
+	color: #000;
+}
+
+.cabinetLeftMenu ul li > a.active .fa {
+	color: #c6cbce;
+}
+
+
+
+/*---------------- RIGHT BLOCK ------------------*/
+
+.cabinetRightBlock {
+	background-color: #fff;
+	border: 1px solid #e5e5e5; 	
+	padding: 15px;
+}
+
+.financeTable thead {
+	background-color: #eeeeee;
+	color: #000;
+}
+
+.cabinetBlocks thead > tr > th {
+	padding: 15px 10px;
+	border-bottom: none;
+}
+
+.financeTable > tbody > tr > td {
+	vertical-align: middle;
+	padding: 12px 10px;
+}
+
+.buttonTable {
+	text-align: right;
+}
+
+.tableRight {
+	text-align: right;
+}
+
+.btn-default {
+	background-color: #5d7bf7;
+	color: #fff;
+	font-size: 1.2em;
+	padding: 7px 24px;
+		margin-left: 5px;
+	/*border-bottom: 3px solid #297db5;*/
+	border-radius: 40px;
+-moz-border-radius: 40px;
+-webkit-border-radius: 40px;
+    -webkit-transition: background-color  200ms;
+    -moz-transition: background-color 200ms;
+    -o-transition: background-color 200ms;
+    transition: background-color  200ms;
+    border: none;
+}
+
+.btn-default:hover {
+	background-color: #506cd9;
+	color: #fff;
+}
+
+.greyBtn {
+	background-color: #c6cbce;
+	color: #fff;
+	font-size: 1.2em;
+	padding: 7px 24px;
+	border-radius: 40px;
+-moz-border-radius: 40px;
+-webkit-border-radius: 40px;
+    -webkit-transition: background-color 200ms;
+    -moz-transition: background-color 200ms;
+    -o-transition: background-color 200ms;
+    transition: background-color 200ms;
+}
+
+.greyBtn:hover {
+	background-color: #A7AAAC;
+	color: #fff;
+}
+
+.redBtn {
+	background-color: #ed552b;
+	color: #fff;
+	float: left;
+	font-size: 1.2em;
+	padding: 5px 20px;
+	border-radius: 40px;
+-moz-border-radius: 40px;
+-webkit-border-radius: 40px;
+    -webkit-transition: background-color 200ms;
+    -moz-transition: background-color 200ms;
+    -o-transition: background-color 200ms;
+    transition: background-color 200ms;
+}
+
+.redBtn:hover {
+	background-color: #D34D28;
+	color: #fff;
+}
+
+@media (max-width: 960px) {
+	.btn-default {
+		margin-bottom: 10px;
+	}
+}
+
+.options {
+	margin:30px 0px;
+}
+
+
+.activeBtnOption {
+	background-color: #4fcf78;
+	color: #fff;
+	font-size: 1.2em;
+	padding: 5px 22px;
+	border: 1px solid #4fcf78;
+	
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+    -webkit-transition: background-color 200ms;
+    -moz-transition: background-color 200ms;
+    -o-transition: background-color 200ms;
+    transition: background-color 200ms;
+}
+
+.activeBtnOption:hover {
+	background-color: #4fcf78;
+	color: #fff;
+	border: 1px solid #4fcf78;
+}
+
+.BtnOption {
+	background-color: transparent;
+	color: #000;
+	font-size: 1.2em;
+	padding: 5px 22px;
+	border: 1px solid #4fcf78;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+    -webkit-transition: background-color 200ms;
+    -moz-transition: background-color 200ms;
+    -o-transition: background-color 200ms;
+    transition: background-color 200ms;
+}
+
+.BtnOption:hover {
+	background-color: #4fcf78;
+	color: #fff;
+	border: 1px solid #4fcf78;
+}
+
+
+
+
+
+/*--------------------------------------- FOOTER ----------------------------------*/
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 280px;	
+	background: #262b2f;
+    padding: 38px 0px;
+
+}
+
+.footerContainer {
+	background: #262b2f;
+	padding-bottom: 30px;
+}
+
+@media (min-width: 1200px) {
+	.footerContainer {
+	width: 1040px;
+	}
+}
+
+.footer h4 {
+	color: #fff;
+	margin-bottom: 15px;
+}
+
+.footer ul {
+	list-style: none;
+}
+
+.tableSocial ul li {
+	float: left;
+	margin-right: 15px;
+	font-size: 1.5em;
+}
+
+.footer ul li {
+	margin-bottom: 10px;
+}
+
+
+.footer ul li a {
+	color: #c6cbce;
+	font-size: 0.9em;
+}
+
+
+
+
+/*--------------------------------------- TRADE BLOCKS ----------------------------------*/
+
+
+/*--------------------------- MAIN BLOCKS AREA (RIGHT) ----------------------*/
+
+.tradeBlocks {
+	margin-top: 25px;
+}
+
+.currencyBlock {
+	padding: 2px;
+}
+
+.currencyChsRow {
+	padding-left: 13px;
+	padding-right: 13px;
+}
+
+.currencyRate {
+	font-size: 0.8em;
+	font-weight: normal;
+}
+
+.currencyBtn {
+	display: block;
+	background-color: #fff;
+	border: 1px solid #e5e5e5; 
+	color: #000;
+	font-size: 1.4em;
+	font-weight: bold;
+    -webkit-transition:  200ms;
+    -moz-transition: 200ms;
+    -o-transition: 200ms;
+    transition:  200ms;	
+    padding: 10px 0px; 
+	text-align: center;
+	
+}
+
+.currencyBtn:hover {
+	background-color: #4fcf78;
+	border: 1px solid #4fcf78; 
+	color: #fff;
+	text-decoration: none;
+
+
+
+}
+
+/*-----------------ALL CURRENCY CHEKBOX------------*/
+
+.openAllCurrency {	
+	margin: 10px 0px;
+}
+
+.openAllCurrency h4 {
+	float: left;
+	padding: 0;
+	margin: 0;
+	padding-top: 5px;
+}
+
+.ShowOrHide {
+	display: none;
+	margin-bottom: 20px;
+}
+
+
+.all {
+	width: 160px;
+	float: right;
+}
+
+.switchBox {
+	float: right;
+}
+
+.cmn-toggle {
+  position: absolute;
+  margin-left: -9999px;
+  visibility: hidden;
+}
+.cmn-toggle + label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+}
+
+input.cmn-toggle-round + label {
+  padding: 2px;
+  width: 50px;
+  height: 25px;
+  background-color: #dddddd;
+  border-radius: 30px;
+}
+input.cmn-toggle-round + label:before,
+input.cmn-toggle-round + label:after {
+  display: block;
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  bottom: 1px;
+  content: "";
+}
+input.cmn-toggle-round + label:before {
+  right: 1px;
+  background-color: #B8B8B8;
+  border-radius: 30px;
+  transition: background 0.4s;
+}
+input.cmn-toggle-round + label:after {
+  width: 23px;
+  background-color: #fff;
+  border-radius: 100%;
+
+  transition: margin 0.4s;
+}
+input.cmn-toggle-round:checked + label:before {
+  background-color: #ed552b;
+}
+input.cmn-toggle-round:checked + label:after {
+  margin-left: 25px;
+}
+
+
+/*----------------------------- MAIN CHART ORDERS and etc. -----------------*/
+
+
+.mainChart, .mainHistory {
+	background-color: #fff;
+	border: 1px solid #e5e5e5; 
+	margin-bottom: 12px;
+}
+
+.mainTradeRow {
+	padding-left: 11px;
+	padding-right: 11px;
+	margin-bottom: 10px;
+}
+
+.buySell {
+	background-color: #fff;
+	border: 1px solid #e5e5e5;
+	height: 100px;
+	padding: 10px;	
+}
+
+.buySell h3 {
+	padding: 0;
+	margin: 0;	
+}
+
+.buySellBox {
+	padding: 4px;
+}
+
+
+
+.btn-default {
+	background-color: #3498db;
+	color: #fff;
+	font-size: 1.2em;
+	padding: 7px 24px;
+		margin-left: 5px;
+	border-radius: 40px;
+-moz-border-radius: 40px;
+-webkit-border-radius: 40px;
+    -webkit-transition: background-color  200ms;
+    -moz-transition: background-color 200ms;
+    -o-transition: background-color 200ms;
+    transition: background-color  200ms;
+    border: none;
+}
+
+.btn-default:hover {
+	background-color: #2F86C0;
+	color: #fff;
+}
+
+.buySellButton {
+	float: right;
+}
+
+
+
+
+
+/*-----------------------------  RIGHT TRADE BLOCKS (CHAT and etc) -----------------*/
+
+
+.tradeRight {
+		background-color: #fff;
+	border: 1px solid #e5e5e5; 
+	height: 150px;
+}
+
+
+
+/*-----------------------------  STATIC PAGE COMMO ELEMENTS PAGE -----------------*/
+
+.staticPageTitleCont {
+	text-align: center;
+}
+
+.staticPageTitleCont h1 {
+	font-weight: bold;
+	font-size: 4em;
+	margin-top: 40px;
+	padding-top: 0px;
+	margin-top: 0px;
+}
+
+.smallStaticTitle {
+	font-size: 1.4em;
+	color: #BEBEBE;
+}
+
+.staticPageTitleRow {
+	padding: 30px 0px; 
+}
+
+
+
+
+/*-----------------------------  PRICING PAGE (tarifs) -----------------*/
+
+
+@media (min-width: 992px) {
+	.pricingBlockCont {
+	width: 760px;
+	}
+}
+
+.priceTradeOp {
+	background-color: #fff;
+	border: 1px solid #e5e5e5; 	
+	text-align: center;
+	padding-bottom: 20px;
+	margin-bottom: 20px;
+}
+
+.mainPrice {
+	color: #000;
+	font-size: 4.2em;
+	padding: 0px 0px;
+	line-height: 1;
+}
+
+.priceTradeContent {
+	margin: 15px 15px;
+}
+
+.priceFigure {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
+
+.commonCTA {
+	background-color: #f1e017;
+	color: #000;
+	font-size: 1.4em;
+	padding: 10px 22px;
+	border-radius: 40px;
+	-moz-border-radius: 40px;
+	-webkit-border-radius: 40px;
+    -webkit-transition: background-color 200ms;
+    -moz-transition: background-color 200ms;
+    -o-transition: background-color 200ms;
+    transition: background-color 200ms;
+}
+
+.commonCTA:hover {
+	background-color: #edd101;
+	color: #000;
+}
+
+.pricingTable {
+	margin-bottom: 0px;
+	font-size: 1.15em;
+	color: #595959;
+}
+
+
+.pricingTable th {
+	width: 50%;
+	text-align: center;
+}
+
+.pricingTable th tr {
+	width: 50%;
+}
+
+.smallAttention {
+	color: #ed552b;
+}
+
+
+
+
+/*-----------------------HELP PAGE-----------------------------*/
+
+.helpBlockCont {
+	background-color: #fff;
+	border: 1px solid #e5e5e5; 	
+}
+
+.helpBlockRow {
+	padding: 40px 50px;
+}
+
+.supportFaqContent {
+	margin-bottom: 30px;
+}
+
+.supportFaq ul {
+	list-style: none;
+}
+
+.supportFaq ul li a {
+	line-height: 30px;
+}
+
+.fa-file-text-o {
+	font-size: 1.4em;
+	margin-right: 10px;
+	color: #C6C6C6;
+}
+
+.rightMenuFaq {
+	padding-left: 0px;
+}
+
+.rightMenuFaq li {
+	line-height: 30px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+
+
+
+/*-------------------------------- MAIN HOME FIRST SECTION -----------------------------*/
+
+.banner {
+	width: 100%;
+	height: 100%;
+	min-height: 100%;
+	position: relative;
+	color: #fff;
+}
+
+.homeFirstSection {
+	vertical-align: middle;
+	min-height: 100%;
+	width: 100%;
+    background-image: url(../images/header.jpg);
+    background-position: fixed; 
+    -webkit-background-size: cover;
+   -moz-background-size: cover;
+   -o-background-size: cover;
+   background-size: cover;	
+}
+
+.content {
+	height: 500px;
+	background-color: #777;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
